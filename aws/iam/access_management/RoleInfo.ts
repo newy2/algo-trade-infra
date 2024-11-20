@@ -1,11 +1,19 @@
-import { InstanceProfile } from "@pulumi/aws/iam";
+import { InstanceProfile, Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
+import PolicyInfo from "./PolicyInfo";
 
 export default class RoleInfo {
   private readonly ec2Role: InstanceProfile;
+  private readonly eventBridgeEcrPushRuleRole: Role;
 
-  constructor() {
+  constructor(policyInfo: PolicyInfo) {
     this.ec2Role = this.createEc2Role();
+    this.eventBridgeEcrPushRuleRole =
+      this.createEventBridgeEcrPushRuleRole(policyInfo);
+  }
+
+  public getEventBridgeEcrPushRuleRoleArn() {
+    return this.eventBridgeEcrPushRuleRole.arn;
   }
 
   public getEc2RoleId() {
@@ -33,5 +41,20 @@ export default class RoleInfo {
     return new aws.iam.InstanceProfile("ec2-instance-profile", {
       role: ec2Role.name,
     });
+  }
+
+  private createEventBridgeEcrPushRuleRole(policyInfo: PolicyInfo) {
+    const result = new aws.iam.Role("event-bridge-ecr-push-rule-role", {
+      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+        Service: "events.amazonaws.com",
+      }),
+    });
+
+    new aws.iam.RolePolicyAttachment("ssmRunCommandPolicyAttachment", {
+      role: result.name,
+      policyArn: policyInfo.getRunCommandPolicyArn(),
+    });
+
+    return result;
   }
 }

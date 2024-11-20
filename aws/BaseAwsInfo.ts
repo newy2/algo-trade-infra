@@ -20,6 +20,10 @@ export default class BaseAwsInfo {
     return aws.config.region;
   }
 
+  protected getAccountId() {
+    return aws.getCallerIdentity().then((it) => it.accountId);
+  }
+
   protected getEc2ServerName() {
     return "algo-trade-server";
   }
