@@ -20,6 +20,10 @@ export default class BaseAwsInfo {
     return aws.config.region;
   }
 
+  protected getEc2ServerName() {
+    return "algo-trade-server";
+  }
+
   protected createNameTag(
     name: string,
     args: { resourceId: pulumi.Input<string>; value: string },

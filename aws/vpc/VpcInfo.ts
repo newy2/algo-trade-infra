@@ -36,6 +36,14 @@ export default class VpcInfo extends BaseAwsInfo {
     // );
   }
 
+  public getEc2SecurityGroupIds() {
+    return this.securityGroupInfo.getEc2SecurityGroupIds();
+  }
+
+  public getFirstPublicSubnetId() {
+    return this.subnetInfo.getFirstPublicSubnetId();
+  }
+
   private findDefaultVpc() {
     return new aws.ec2.DefaultVpc("default-vpc", {
       assignGeneratedIpv6CidrBlock: true,

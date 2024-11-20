@@ -49,6 +49,12 @@ export default class SubnetInfo extends BaseAwsInfo {
     ) as pulumi.Input<string>;
   }
 
+  public getFirstPublicSubnetId() {
+    return this.getPublicSubnetIds().apply(
+      (ids) => ids[0],
+    ) as pulumi.Input<string>;
+  }
+
   private findDefaultSubnets() {
     return this.getAvailabilityZoneNames().then((names) =>
       names.map((eachName, index) => {
