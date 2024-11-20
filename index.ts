@@ -1,7 +1,5 @@
-import * as aws from "@pulumi/aws";
+import VpcInfo from "./aws/vpc/VpcInfo";
 
-// Create an AWS resource (S3 Bucket)
-const bucket = new aws.s3.BucketV2("my-bucket");
+const vpcInfo = new VpcInfo();
 
-// Export the name of the bucket
-export const bucketName = bucket.id;
+export const defaultVpc = vpcInfo.defaultVpc;
