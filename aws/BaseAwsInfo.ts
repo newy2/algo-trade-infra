@@ -28,6 +28,10 @@ export default class BaseAwsInfo {
     return "algo-trade-server";
   }
 
+  protected getEcrPrivateRepositoryName() {
+    return "backend-server-repository";
+  }
+
   protected createNameTag(
     name: string,
     args: { resourceId: pulumi.Input<string>; value: string },
@@ -40,6 +44,10 @@ export default class BaseAwsInfo {
   }
 
   protected isEnableIpv6() {
+    return true;
+  }
+
+  protected isFastCleanupEcrImage() {
     return true;
   }
 }

@@ -1,15 +1,20 @@
 import { InstanceProfile, Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
 import PolicyInfo from "./PolicyInfo";
+import BaseAwsInfo from "../../BaseAwsInfo";
 
-export default class RoleInfo {
+export default class RoleInfo extends BaseAwsInfo {
   private readonly ec2Role: InstanceProfile;
   private readonly eventBridgeEcrPushRuleRole: Role;
+  private readonly lambdaRole?: Role;
 
   constructor(policyInfo: PolicyInfo) {
+    super();
+
     this.ec2Role = this.createEc2Role();
     this.eventBridgeEcrPushRuleRole =
       this.createEventBridgeEcrPushRuleRole(policyInfo);
+    this.lambdaRole = this.createLambdaRole();
   }
 
   public getEventBridgeEcrPushRuleRoleArn() {
@@ -18,6 +23,10 @@ export default class RoleInfo {
 
   public getEc2RoleId() {
     return this.ec2Role.id;
+  }
+
+  public getLambdaRoleArn() {
+    return this.lambdaRole?.arn;
   }
 
   private createEc2Role() {
@@ -30,12 +39,12 @@ export default class RoleInfo {
 
     new aws.iam.RolePolicyAttachment("managed-instance-policy", {
       role: ec2Role.name,
-      policyArn: "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+      policyArn: aws.iam.ManagedPolicy.AmazonSSMManagedInstanceCore,
     });
 
     new aws.iam.RolePolicyAttachment("pull-ecr-repository-policy", {
       role: ec2Role.name,
-      policyArn: "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+      policyArn: aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryReadOnly,
     });
 
     return new aws.iam.InstanceProfile("ec2-instance-profile", {
@@ -50,9 +59,34 @@ export default class RoleInfo {
       }),
     });
 
-    new aws.iam.RolePolicyAttachment("ssmRunCommandPolicyAttachment", {
+    new aws.iam.RolePolicyAttachment("ssm-run-command-policy-attachment", {
       role: result.name,
       policyArn: policyInfo.getRunCommandPolicyArn(),
+    });
+
+    return result;
+  }
+
+  private createLambdaRole() {
+    if (!this.isFastCleanupEcrImage()) {
+      return undefined;
+    }
+
+    const result = new aws.iam.Role("lambda-role", {
+      name: "lambda-role",
+      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+        Service: "lambda.amazonaws.com",
+      }),
+    });
+
+    new aws.iam.RolePolicyAttachment("lambda-execution-policy", {
+      role: result.name,
+      policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+    });
+
+    new aws.iam.RolePolicyAttachment("ecr-full-access-policy", {
+      role: result.name,
+      policyArn: aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryFullAccess,
     });
 
     return result;

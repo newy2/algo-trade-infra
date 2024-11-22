@@ -4,17 +4,24 @@ import EcrInfo from "../../ecr/EcrInfo";
 import { IamInfo } from "../../iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import { EventRule } from "@pulumi/aws/cloudwatch";
+import LambdaInfo from "../../lambda/LambdaInfo";
+import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreInfo";
 
 export default class RuleInfo extends BaseAwsInfo {
-  constructor(ecrInfo: EcrInfo, iamInfo: IamInfo) {
+  constructor(ecrInfo: EcrInfo, iamInfo: IamInfo, lambdaInfo: LambdaInfo) {
     super();
 
-    this.createPushEcrEventRule(ecrInfo, iamInfo);
+    this.createPushEcrEventRule(ecrInfo, iamInfo, lambdaInfo);
   }
 
-  private createPushEcrEventRule(ecrInfo: EcrInfo, iamInfo: IamInfo) {
+  private createPushEcrEventRule(
+    ecrInfo: EcrInfo,
+    iamInfo: IamInfo,
+    lambdaInfo: LambdaInfo,
+  ) {
     const ecrPushRule = this.createEventRulePushEcrRepository(ecrInfo);
     this.createEventTargetRestartServer(ecrPushRule, iamInfo);
+    this.createEventTargetFastCleanupEcrImage(ecrPushRule, lambdaInfo);
   }
 
   private createEventRulePushEcrRepository(ecrInfo: EcrInfo) {
@@ -49,13 +56,35 @@ export default class RuleInfo extends BaseAwsInfo {
       input: JSON.stringify({
         executionTimeout: ["3600"],
         commands: [
-          `ECR_URL=$(aws ssm get-parameter --name "/ecr/repository/url" --query "Parameter.Value" --output text)`,
+          `ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.ECR_PRIVATE_REPOSITORY_URL_KEY}" --query "Parameter.Value" --output text)`,
           `aws ecr get-login-password --region ${this.getCurrentRegion()} | docker login --username AWS --password-stdin "$ECR_URL"`,
           `docker pull "$ECR_URL":latest`,
           `if [ "$(docker ps -q)" ]; then docker stop $(docker ps -q) && docker rm $(docker ps -al -q); fi`,
           `docker run -d -p 80:80 -e CUSTOM=auto44 "$ECR_URL"`,
         ],
       }),
+    });
+  }
+
+  private createEventTargetFastCleanupEcrImage(
+    eventRule: EventRule,
+    lambdaInfo: LambdaInfo,
+  ) {
+    if (!this.isFastCleanupEcrImage()) {
+      return;
+    }
+
+    const functionArn = lambdaInfo.getEcrImageCleanupFunctionArn()!;
+    new aws.lambda.Permission("allow-event-bridge-invoke", {
+      action: "lambda:InvokeFunction",
+      function: functionArn,
+      principal: "events.amazonaws.com",
+      sourceArn: eventRule.arn,
+    });
+
+    new aws.cloudwatch.EventTarget("ecr-event-target", {
+      rule: eventRule.name,
+      arn: functionArn,
     });
   }
 }

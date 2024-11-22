@@ -5,6 +5,7 @@
     "test": "mocha \"__tests__/**/*.ts\" -r ts-node/register"
   },
   "devDependencies": {
+    "@aws-sdk/client-ecr": "^3.696.0",
     "@types/lodash": "^4.17.13",
     "@types/mocha": "^10.0.9",
     "@types/node": "^18.19.64",

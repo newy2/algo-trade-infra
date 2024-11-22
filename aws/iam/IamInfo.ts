@@ -17,4 +17,8 @@ export class IamInfo {
   public getEc2RoleId() {
     return this.roleInfo.getEc2RoleId();
   }
+
+  public getLambdaRoleArn() {
+    return this.roleInfo.getLambdaRoleArn();
+  }
 }
