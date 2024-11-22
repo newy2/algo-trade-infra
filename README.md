@@ -6,7 +6,8 @@ ECR 의 Lifecycle Policy 를 사용하면 최대 이미지 개수를 기준으�
 
 차선책으로 Amazon EventBridge 와 Lambda 를 사용해서 ECR 과거 이미지를 자동으로 삭제하는 로직으로 사용한다.
 
-`BaseAwsInfo#isFastCleanupEcrImage` 플래그로 ECR 과거 이미지 자동으로 삭제하는 전략을 선택할 수 있다.
+[BaseAwsInfo#isFastCleanupEcrImage](https://github.com/newy2/algo-trade-infra/blob/e05c7664abae851fd2aea8e63d1a726b235eba27/aws/BaseAwsInfo.ts#L50-L52)
+플래그로 ECR 과거 이미지 자동으로 삭제하는 전략을 선택할 수 있다.
 
 #### 참조 링크:
 
