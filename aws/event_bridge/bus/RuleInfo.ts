@@ -57,10 +57,18 @@ export default class RuleInfo extends BaseAwsInfo {
         executionTimeout: ["3600"],
         commands: [
           `ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.ECR_PRIVATE_REPOSITORY_URL_KEY}" --query "Parameter.Value" --output text)`,
+          `DB_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_ENDPOINT_KEY}" --query "Parameter.Value" --output text)`,
+          `DB_USERNAME=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_USERNAME_KEY}" --query "Parameter.Value" --output text)`,
+          `DB_PASSWORD=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_PASSWORD_KEY}" --with-decryption --query "Parameter.Value" --output text)`,
           `aws ecr get-login-password --region ${this.getCurrentRegion()} | docker login --username AWS --password-stdin "$ECR_URL"`,
           `docker pull "$ECR_URL":latest`,
           `if [ "$(docker ps -q)" ]; then docker stop $(docker ps -q) && docker rm $(docker ps -al -q); fi`,
-          `docker run -d -p 80:80 -e CUSTOM=auto44 "$ECR_URL"`,
+          `docker run -d \
+           -p 80:80 \
+           -e DB_URL=$DB_URL \
+           -e DB_USERNAME=$DB_USERNAME \
+           -e DB_PASSWORD=$DB_PASSWORD \
+           "$ECR_URL"`,
         ],
       }),
     });

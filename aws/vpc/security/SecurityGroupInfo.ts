@@ -38,6 +38,10 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
   }
 
   public getRdsSecurityGroupIds() {
+    return [this.rdsServer.id];
+  }
+
+  public getEiceSecurityGroupIds() {
     return [this.eice.id, this.rdsClient.id];
   }
 

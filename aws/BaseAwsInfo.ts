@@ -3,13 +3,20 @@ import {
   GetAvailabilityZonesResult,
 } from "@pulumi/aws/getAvailabilityZones";
 import * as pulumi from "@pulumi/pulumi";
+import { Config } from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 
 export default class BaseAwsInfo {
+  private readonly config: Config;
   private readonly availabilityZones: Promise<GetAvailabilityZonesResult>;
 
   constructor() {
+    this.config = new pulumi.Config();
     this.availabilityZones = getAvailabilityZones();
+  }
+
+  protected getFirstAvailabilityZoneName() {
+    return this.getAvailabilityZoneNames().then((it) => it[0]);
   }
 
   protected getAvailabilityZoneNames() {
@@ -49,5 +56,13 @@ export default class BaseAwsInfo {
 
   protected isFastCleanupEcrImage() {
     return true;
+  }
+
+  protected getRdsUsername() {
+    return this.config.require("rds_username");
+  }
+
+  protected getRdsPassword() {
+    return this.config.requireSecret("rds_password");
   }
 }

@@ -6,6 +6,7 @@ import RouteTableInfo from "./default/RouteTableInfo";
 import InternetGatewayInfo from "./default/InternetGatewayInfo";
 import SecurityGroupInfo from "./security/SecurityGroupInfo";
 import NetworkAclInfo from "./security/NetworkAclInfo";
+import EndpointInfo from "./default/EndpointInfo";
 
 export default class VpcInfo extends BaseAwsInfo {
   readonly defaultVpc: DefaultVpc;
@@ -14,8 +15,7 @@ export default class VpcInfo extends BaseAwsInfo {
   private readonly subnetInfo: SubnetInfo;
   private readonly networkAclInfo: NetworkAclInfo;
   private readonly routeTableInfo: RouteTableInfo;
-
-  // private readonly endpointInfo: EndpointInfo;
+  private readonly endpointInfo: EndpointInfo;
 
   constructor() {
     super();
@@ -30,14 +30,26 @@ export default class VpcInfo extends BaseAwsInfo {
       this.internetGatewayInfo,
       this.subnetInfo,
     );
-    // this.endpointInfo = new EndpointInfo(
-    //   this.subnetInfo,
-    //   this.securityGroupInfo,
-    // );
+    this.endpointInfo = new EndpointInfo(
+      this.subnetInfo,
+      this.securityGroupInfo,
+    );
+  }
+
+  public getRdsConnectEndpointId() {
+    return this.endpointInfo.getRdsConnectEndpointId();
+  }
+
+  public getRdsSecurityGroupIds() {
+    return this.securityGroupInfo.getRdsSecurityGroupIds();
   }
 
   public getEc2SecurityGroupIds() {
     return this.securityGroupInfo.getEc2SecurityGroupIds();
+  }
+
+  public getRdsSubnetGroupIds() {
+    return this.subnetInfo.getRdsSubnetGroupIds();
   }
 
   public getFirstPublicSubnetId() {
