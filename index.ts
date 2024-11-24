@@ -6,6 +6,8 @@ import EcrInfo from "./aws/ecr/EcrInfo";
 import LambdaInfo from "./aws/lambda/LambdaInfo";
 import Ec2Info from "./aws/ec2/Ec2Info";
 import { RdsInfo } from "./aws/rds/RdsInfo";
+import S3Info from "./aws/s3/S3Info";
+import CloudFrontInfo from "./aws/cloudfront/CloudFrontInfo";
 
 const vpcInfo = new VpcInfo();
 
@@ -16,5 +18,8 @@ const rdsInfo = new RdsInfo(vpcInfo);
 new SsmInfo(vpcInfo, ecrInfo, rdsInfo);
 new Ec2Info(vpcInfo, iamInfo);
 new EventBridgeInfo(ecrInfo, iamInfo, lambdaInfo);
+
+const s3Info = new S3Info();
+new CloudFrontInfo(s3Info);
 
 export const defaultVpc = vpcInfo.defaultVpc;
