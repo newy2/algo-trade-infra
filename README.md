@@ -8,13 +8,13 @@ CloudFront 와 S3를 사용한 정적 웹사이트에 사용자가 URL을 직접
 CloudFront 의 Function 을 사용해서 아래와 같은 로직을 적용하면, 사용자가 입력한 URL 로 페이지를 리다이렉션할 수 있다.
 
 1. `static 폴더의 하위 파일(/static/*)`과 `루트 폴더의 파일(/*.*)`은 bypass 로 리턴한다.
-2. 그 외의 URL은 CloudFront 의 Function 으로 리다이렉트 URL 을 생성하고, 302 상태 값을 리턴한다.
-3. 리다이렉트 URL 형식은 루트 경로에 쿼리스트링(redirect_path)을 붙여서 생성한다.
-4. 리다이렉트 URL 예시:
-    1. 첫 진입 URL: `https://xxx.cloudfront.net/product/1234?name=john&group_ids=1&group_ids=2`
-    2. 리다이렉트
-       URL: `https://xxx.cloudfront.net/?redirect_path={Base64 인코딩("/product/1234?name=john&group_ids=1&group_ids=2")}`
-5. 프론트엔드 코드에서 쿼리스트링에 `redirect_path`키가 있는 경우 페이지 라우팅 처리를 한다.
+2. 그 외의 URL은 CloudFront 의 Function 으로 리다이렉트 URL 을 생성하고 302 상태 값을 리턴한다.
+    1. 리다이렉트 URL 형식: 루트 경로에 쿼리스트링(redirect_path)을 붙여서 생성한다.
+    2. 리다이렉트 URL 예시:
+        1. 첫 진입 URL: `https://xxx.cloudfront.net/product/1234?name=john&group_ids=1&group_ids=2`
+        2. 리다이렉트
+           URL: `https://xxx.cloudfront.net/?redirect_path={Base64 인코딩("/product/1234?name=john&group_ids=1&group_ids=2")}`
+3. 프론트엔드 코드에서 `redirect_path` 쿼리스트링이 있는 경우 페이지를 라우팅 처리를 한다.
 
 ## ECR 과거 이미지 자동으로 삭제하기
 
