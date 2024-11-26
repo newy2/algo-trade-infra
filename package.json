@@ -5,24 +5,24 @@
     "test": "mocha \"__tests__/**/*.ts\" -r ts-node/register"
   },
   "devDependencies": {
-    "@aws-sdk/client-ecr": "^3.696.0",
+    "@aws-sdk/client-ecr": "^3.699.0",
     "@types/lodash": "^4.17.13",
-    "@types/mocha": "^10.0.9",
-    "@types/node": "^18.19.64",
-    "@typescript-eslint/eslint-plugin": "^8.14.0",
-    "@typescript-eslint/parser": "^8.14.0",
-    "eslint": "^8.57.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.16.0",
+    "@typescript-eslint/parser": "^8.16.0",
+    "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "mocha": "^10.8.2",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.0.0"
+    "typescript": "^5.7.2"
   },
   "dependencies": {
-    "@pulumi/aws": "^6.0.0",
-    "@pulumi/awsx": "^2.0.2",
-    "@pulumi/pulumi": "^3.113.0",
+    "@pulumi/aws": "^6.61.0",
+    "@pulumi/awsx": "^2.19.0",
+    "@pulumi/pulumi": "^3.141.0",
     "ip-num": "^1.5.1",
     "lodash": "^4.17.21"
   }
