@@ -15,11 +15,13 @@ const iamInfo = new IamInfo();
 const ecrInfo = new EcrInfo();
 const lambdaInfo = new LambdaInfo(iamInfo);
 const rdsInfo = new RdsInfo(vpcInfo);
-new SsmInfo(vpcInfo, ecrInfo, rdsInfo);
 new Ec2Info(vpcInfo, iamInfo);
 new EventBridgeInfo(ecrInfo, iamInfo, lambdaInfo);
 
 const s3Info = new S3Info();
-new CloudFrontInfo(s3Info);
+const cloudfrontInfo = new CloudFrontInfo(s3Info);
+
+// TODO Refector: 각 Info 에서 SsmInfo 를 호출하도록 할까?
+new SsmInfo(vpcInfo, ecrInfo, rdsInfo, cloudfrontInfo);
 
 export const defaultVpc = vpcInfo.defaultVpc;

@@ -22,4 +22,8 @@ export default class CloudFrontInfo {
   public getDistributionArn() {
     return this.distributionInfo.getDistributionArn();
   }
+
+  public getDistributionDomainName() {
+    return this.distributionInfo.getDistributionDomainName();
+  }
 }

@@ -4,32 +4,38 @@ import PolicyInfo from "./PolicyInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 
 export default class RoleInfo extends BaseAwsInfo {
-  private readonly ec2Role: InstanceProfile;
+  private readonly ec2InstanceProfile: InstanceProfile;
   private readonly eventBridgeEcrPushRuleRole: Role;
   private readonly lambdaRole?: Role;
+  private readonly codeDeployRole: Role;
 
   constructor(policyInfo: PolicyInfo) {
     super();
 
-    this.ec2Role = this.createEc2Role();
+    this.ec2InstanceProfile = this.createEc2InstanceProfile();
     this.eventBridgeEcrPushRuleRole =
       this.createEventBridgeEcrPushRuleRole(policyInfo);
     this.lambdaRole = this.createLambdaRole();
+    this.codeDeployRole = this.createCodeDeployRole();
   }
 
   public getEventBridgeEcrPushRuleRoleArn() {
     return this.eventBridgeEcrPushRuleRole.arn;
   }
 
-  public getEc2RoleId() {
-    return this.ec2Role.id;
+  public getEc2InstanceProfileId() {
+    return this.ec2InstanceProfile.id;
+  }
+
+  public getEc2InstanceProfileArn() {
+    return this.ec2InstanceProfile.arn;
   }
 
   public getLambdaRoleArn() {
     return this.lambdaRole?.arn;
   }
 
-  private createEc2Role() {
+  private createEc2InstanceProfile() {
     const ec2Role = new aws.iam.Role("ec2-role", {
       name: "ec2-role",
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({

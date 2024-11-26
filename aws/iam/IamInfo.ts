@@ -14,8 +14,12 @@ export class IamInfo {
     return this.roleInfo.getEventBridgeEcrPushRuleRoleArn();
   }
 
-  public getEc2RoleId() {
-    return this.roleInfo.getEc2RoleId();
+  public getEc2InstanceProfileId() {
+    return this.roleInfo.getEc2InstanceProfileId();
+  }
+
+  public getEc2InstanceProfileArn() {
+    return this.roleInfo.getEc2InstanceProfileArn();
   }
 
   public getLambdaRoleArn() {

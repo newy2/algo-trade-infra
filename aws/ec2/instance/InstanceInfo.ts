@@ -27,7 +27,7 @@ sudo usermod -aG docker ec2-user
     return new aws.ec2.Instance("algo-trade-server", {
       ...InstanceInfo.FREE_TIER_OPTION,
       vpcSecurityGroupIds: vpcInfo.getEc2SecurityGroupIds(),
-      iamInstanceProfile: iamInfo.getEc2RoleId(),
+      iamInstanceProfile: iamInfo.getEc2InstanceProfileId(),
       subnetId: vpcInfo.getFirstPublicSubnetId(),
       ami: this.getAmiId(),
       userData: this.initScript,

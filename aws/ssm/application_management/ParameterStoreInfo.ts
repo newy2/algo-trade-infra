@@ -3,6 +3,7 @@ import * as aws from "@pulumi/aws";
 import EcrInfo from "../../ecr/EcrInfo";
 import { RdsInfo } from "../../rds/RdsInfo";
 import VpcInfo from "../../vpc/VpcInfo";
+import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 
 export default class ParameterStoreInfo {
   public static readonly ECR_PRIVATE_REPOSITORY_URL_KEY = "/ecr/repository/url";
@@ -12,11 +13,18 @@ export default class ParameterStoreInfo {
   public static readonly RDS_PASSWORD_KEY = "/rds/password";
   public static readonly RDS_EICE_RDS_CONNECT_ID_KEY =
     "/vpc/eice/rds-connect/id";
+  public static readonly FRONTEND_URL_KEY = "/frontend/url";
 
-  constructor(vpcInfo: VpcInfo, ecrInfo: EcrInfo, rdsInfo: RdsInfo) {
+  constructor(
+    vpcInfo: VpcInfo,
+    ecrInfo: EcrInfo,
+    rdsInfo: RdsInfo,
+    cloudFrontInfo: CloudFrontInfo,
+  ) {
     this.setRdsConnectEndpointId(vpcInfo.getRdsConnectEndpointId());
     this.setEcrRepositoryUrl(ecrInfo.getPrivateRepositoryUrl());
     this.setRdsInfo(rdsInfo);
+    this.setFrontendUrl(cloudFrontInfo.getDistributionDomainName());
   }
 
   private setRdsConnectEndpointId(rdsConnectEndpointId: pulumi.Output<string>) {
@@ -64,6 +72,15 @@ export default class ParameterStoreInfo {
       description: "RDS password",
       type: aws.ssm.ParameterType.SecureString,
       value: rdsInfo.getPassword().apply((it) => it!),
+    });
+  }
+
+  private setFrontendUrl(distributionDomainName: pulumi.Output<string>) {
+    new aws.ssm.Parameter("frontend-url", {
+      name: ParameterStoreInfo.FRONTEND_URL_KEY,
+      description: "Front-end URL",
+      type: aws.ssm.ParameterType.String,
+      value: pulumi.interpolate`https://${distributionDomainName}`,
     });
   }
 }
