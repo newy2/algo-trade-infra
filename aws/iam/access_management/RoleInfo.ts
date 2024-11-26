@@ -7,7 +7,6 @@ export default class RoleInfo extends BaseAwsInfo {
   private readonly ec2InstanceProfile: InstanceProfile;
   private readonly eventBridgeEcrPushRuleRole: Role;
   private readonly lambdaRole?: Role;
-  private readonly codeDeployRole: Role;
 
   constructor(policyInfo: PolicyInfo) {
     super();
@@ -16,7 +15,6 @@ export default class RoleInfo extends BaseAwsInfo {
     this.eventBridgeEcrPushRuleRole =
       this.createEventBridgeEcrPushRuleRole(policyInfo);
     this.lambdaRole = this.createLambdaRole();
-    this.codeDeployRole = this.createCodeDeployRole();
   }
 
   public getEventBridgeEcrPushRuleRoleArn() {
