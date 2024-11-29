@@ -74,7 +74,7 @@ export default class BucketInfo extends BaseAwsInfo {
     const allowBucket = new aws.lambda.Permission("allow-bucket", {
       statementId: "AllowExecutionFromS3Bucket",
       action: "lambda:InvokeFunction",
-      function: lambdaInfo.getFrontendDeployFunctionArn(),
+      function: lambdaInfo.getFrontendDeliveryFunctionArn(),
       principal: "s3.amazonaws.com",
       sourceArn: bucket.arn,
     });
@@ -85,7 +85,7 @@ export default class BucketInfo extends BaseAwsInfo {
         bucket: bucket.id,
         lambdaFunctions: [
           {
-            lambdaFunctionArn: lambdaInfo.getFrontendDeployFunctionArn(),
+            lambdaFunctionArn: lambdaInfo.getFrontendDeliveryFunctionArn(),
             events: ["s3:ObjectCreated:*"],
             filterSuffix: "index.html",
           },

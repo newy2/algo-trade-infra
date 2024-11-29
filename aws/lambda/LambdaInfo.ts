@@ -13,7 +13,7 @@ export default class LambdaInfo {
     return this.functionInfo.getCleanupEcrImageFunctionArn();
   }
 
-  public getFrontendDeployFunctionArn() {
-    return this.functionInfo.getFrontendDeployFunctionArn();
+  public getFrontendDeliveryFunctionArn() {
+    return this.functionInfo.getFrontendDeliveryFunctionArn();
   }
 }

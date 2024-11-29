@@ -13,7 +13,7 @@ export default class RoleInfo extends BaseAwsInfo {
   private readonly ec2InstanceProfile: InstanceProfile;
   private readonly eventBridgeEcrPushRuleRole: Role;
   private readonly lambdaRole?: Role;
-  private readonly frontendDeployLambdaRole: Role;
+  private readonly frontendDeliveryLambdaRole: Role;
 
   constructor(policyInfo: PolicyInfo) {
     super();
@@ -22,8 +22,8 @@ export default class RoleInfo extends BaseAwsInfo {
     this.eventBridgeEcrPushRuleRole =
       this.createEventBridgeEcrPushRuleRole(policyInfo);
     this.lambdaRole = this.createLambdaRole();
-    this.frontendDeployLambdaRole =
-      this.createFrontendDeployLambdaRole(policyInfo);
+    this.frontendDeliveryLambdaRole =
+      this.createFrontendDeliveryLambdaRole(policyInfo);
   }
 
   public getEventBridgeEcrPushRuleRoleArn() {
@@ -42,8 +42,8 @@ export default class RoleInfo extends BaseAwsInfo {
     return this.lambdaRole?.arn;
   }
 
-  public getFrontendDeployLambdaRole() {
-    return this.frontendDeployLambdaRole.arn;
+  public getFrontendDeliveryLambdaRole() {
+    return this.frontendDeliveryLambdaRole.arn;
   }
 
   private createEc2InstanceProfile() {
@@ -109,9 +109,9 @@ export default class RoleInfo extends BaseAwsInfo {
     return result;
   }
 
-  private createFrontendDeployLambdaRole(policyInfo: PolicyInfo) {
-    const result = new aws.iam.Role("frontend-deploy-lambda-role", {
-      name: "frontend-deploy-lambda-role",
+  private createFrontendDeliveryLambdaRole(policyInfo: PolicyInfo) {
+    const result = new aws.iam.Role("frontend-delivery-lambda-role", {
+      name: "frontend-delivery-lambda-role",
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
         Service: AssumeRoleKey.LAMBDA,
       }),
@@ -124,17 +124,20 @@ export default class RoleInfo extends BaseAwsInfo {
       { policyArn: aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole },
       {
         key: "custom-1",
-        policyArn: policyInfo.getFrontendDeployLambdaCustomPolicyArn(),
+        policyArn: policyInfo.getFrontendDeliveryLambdaCustomPolicyArn(),
       },
     ].forEach(({ key, policyArn }) => {
       if (key === undefined) {
         key = (policyArn as string).split("/").reverse()[0];
       }
 
-      new aws.iam.RolePolicyAttachment(`frontend-deploy-lambda-${key}-policy`, {
-        policyArn,
-        role: result.name,
-      });
+      new aws.iam.RolePolicyAttachment(
+        `frontend-delivery-lambda-${key}-policy`,
+        {
+          policyArn,
+          role: result.name,
+        },
+      );
     });
 
     return result;

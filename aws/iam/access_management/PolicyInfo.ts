@@ -6,22 +6,22 @@ import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreI
 
 export default class PolicyInfo extends BaseAwsInfo {
   private readonly runCommandPolicy: Policy;
-  private readonly frontendDeployLambdaCustomPolicy: Policy;
+  private readonly frontendDeliveryLambdaCustomPolicy: Policy;
 
   constructor() {
     super();
 
     this.runCommandPolicy = this.createRunCommandPolicy();
-    this.frontendDeployLambdaCustomPolicy =
-      this.createFrontendDeployLambdaCustomPolicy();
+    this.frontendDeliveryLambdaCustomPolicy =
+      this.createFrontendDeliveryLambdaCustomPolicy();
   }
 
   public getRunCommandPolicyArn() {
     return this.runCommandPolicy.arn;
   }
 
-  public getFrontendDeployLambdaCustomPolicyArn() {
-    return this.frontendDeployLambdaCustomPolicy.arn;
+  public getFrontendDeliveryLambdaCustomPolicyArn() {
+    return this.frontendDeliveryLambdaCustomPolicy.arn;
   }
 
   private createRunCommandPolicy() {
@@ -53,8 +53,8 @@ export default class PolicyInfo extends BaseAwsInfo {
     });
   }
 
-  private createFrontendDeployLambdaCustomPolicy() {
-    return new aws.iam.Policy("frontend-deploy-lambda-custom-policy", {
+  private createFrontendDeliveryLambdaCustomPolicy() {
+    return new aws.iam.Policy("frontend-delivery-lambda-custom-policy", {
       policy: {
         Version: "2012-10-17",
         Statement: [

@@ -6,13 +6,13 @@ import SqsInfo from "../../sqs/SqsInfo";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
-  private readonly frontendDeployFunction: aws.lambda.Function;
+  private readonly frontendDeliveryFunction: aws.lambda.Function;
 
   constructor(iamInfo: IamInfo, sqsInfo: SqsInfo) {
     super();
 
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
-    this.frontendDeployFunction = this.createFrontendDeployFunction(
+    this.frontendDeliveryFunction = this.createFrontendDeliveryFunction(
       iamInfo,
       sqsInfo,
     );
@@ -22,8 +22,8 @@ export default class FunctionInfo extends BaseAwsInfo {
     return this.cleanupEcrImageFunction?.arn;
   }
 
-  public getFrontendDeployFunctionArn() {
-    return this.frontendDeployFunction.arn;
+  public getFrontendDeliveryFunctionArn() {
+    return this.frontendDeliveryFunction.arn;
   }
 
   private createCleanupEcrImageFunction(iamInfo: IamInfo) {
@@ -46,14 +46,14 @@ export default class FunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createFrontendDeployFunction(iamInfo: IamInfo, sqsInfo: SqsInfo) {
-    const result = new aws.lambda.Function("frontend-deploy-lambda", {
-      name: "frontend-deploy",
+  private createFrontendDeliveryFunction(iamInfo: IamInfo, sqsInfo: SqsInfo) {
+    const result = new aws.lambda.Function("frontend-delivery-lambda", {
+      name: "frontend-delivery",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getFrontendDeployLambdaRole(),
+      role: iamInfo.getFrontendDeliveryLambdaRole(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        "./aws/lambda/default/script/deploy_front_end",
+        "./aws/lambda/default/script/frontend_delivery",
       ),
       timeout: 10,
       layers: [this.getAccessParameterStoreLambdaLayerArn()],
