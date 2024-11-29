@@ -25,8 +25,10 @@ export default class FunctionInfo extends BaseAwsInfo {
       name: "cleanup-ecr-image",
       runtime: aws.lambda.Runtime.NodeJS20dX,
       role: iamInfo.getLambdaRoleArn()!,
-      handler: "cleanup_ecr_image.handler",
-      code: new pulumi.asset.FileArchive("./aws/lambda/default/script"),
+      handler: "index.handler",
+      code: new pulumi.asset.FileArchive(
+        "./aws/lambda/default/script/cleanup_ecr_image",
+      ),
       timeout: 10,
       environment: {
         variables: { REPOSITORY_NAME: this.getEcrPrivateRepositoryName() },
