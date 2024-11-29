@@ -8,6 +8,14 @@ export function assertEquals(
   assert.equal(actual, expected, message);
 }
 
+export function assertDeepEquals(
+  expected: unknown,
+  actual: unknown,
+  message?: string | Error,
+) {
+  assert.deepEqual(actual, expected, message);
+}
+
 export function assertTrue(value: unknown, message?: string | Error) {
   assert.ok(value, message);
 }
