@@ -8,12 +8,14 @@ import Ec2Info from "./aws/ec2/Ec2Info";
 import { RdsInfo } from "./aws/rds/RdsInfo";
 import S3Info from "./aws/s3/S3Info";
 import CloudFrontInfo from "./aws/cloudfront/CloudFrontInfo";
+import SqsInfo from "./aws/sqs/SqsInfo";
 
 const vpcInfo = new VpcInfo();
 
 const iamInfo = new IamInfo();
 const ecrInfo = new EcrInfo();
-const lambdaInfo = new LambdaInfo(iamInfo);
+const sqsInfo = new SqsInfo();
+const lambdaInfo = new LambdaInfo(iamInfo, sqsInfo);
 const rdsInfo = new RdsInfo(vpcInfo);
 new Ec2Info(vpcInfo, iamInfo);
 new EventBridgeInfo(ecrInfo, iamInfo, lambdaInfo);

@@ -2,16 +2,20 @@ import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import { IamInfo } from "../../iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
+import SqsInfo from "../../sqs/SqsInfo";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   private readonly frontendDeployFunction: aws.lambda.Function;
 
-  constructor(iamInfo: IamInfo) {
+  constructor(iamInfo: IamInfo, sqsInfo: SqsInfo) {
     super();
 
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
-    this.frontendDeployFunction = this.createFrontendDeployFunction(iamInfo);
+    this.frontendDeployFunction = this.createFrontendDeployFunction(
+      iamInfo,
+      sqsInfo,
+    );
   }
 
   public getCleanupEcrImageFunctionArn() {
@@ -42,8 +46,8 @@ export default class FunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createFrontendDeployFunction(iamInfo: IamInfo) {
-    return new aws.lambda.Function("frontend-deploy-lambda", {
+  private createFrontendDeployFunction(iamInfo: IamInfo, sqsInfo: SqsInfo) {
+    const result = new aws.lambda.Function("frontend-deploy-lambda", {
       name: "frontend-deploy",
       runtime: aws.lambda.Runtime.NodeJS20dX,
       role: iamInfo.getFrontendDeployLambdaRole(),
@@ -55,10 +59,16 @@ export default class FunctionInfo extends BaseAwsInfo {
       layers: [this.getAccessParameterStoreLambdaLayerArn()],
       environment: {
         variables: {
-          MODEL_TYPE: "DEPLOY",
           BUCKET_NAME: this.getFrontendBucketName(),
         },
       },
     });
+
+    new aws.lambda.EventSourceMapping("frontend-rollback-queue-mapping", {
+      eventSourceArn: sqsInfo.getFrontendRollbackQueueArn(),
+      functionName: result.arn,
+    });
+
+    return result;
   }
 }

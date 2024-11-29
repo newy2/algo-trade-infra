@@ -118,15 +118,22 @@ export default class RoleInfo extends BaseAwsInfo {
     });
 
     [
-      aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
-      aws.iam.ManagedPolicy.AmazonS3FullAccess,
-      aws.iam.ManagedPolicy.CloudFrontFullAccess,
-      policyInfo.getFrontendDeployLambdaCustomPolicyArn(),
-    ].forEach((each, index) => {
-      const seq = index + 1;
-      new aws.iam.RolePolicyAttachment(`frontend-deploy-lambda-${seq}-policy`, {
+      { policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole },
+      { policyArn: aws.iam.ManagedPolicy.AmazonS3FullAccess },
+      { policyArn: aws.iam.ManagedPolicy.CloudFrontFullAccess },
+      { policyArn: aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole },
+      {
+        key: "custom-1",
+        policyArn: policyInfo.getFrontendDeployLambdaCustomPolicyArn(),
+      },
+    ].forEach(({ key, policyArn }) => {
+      if (key === undefined) {
+        key = (policyArn as string).split("/").reverse()[0];
+      }
+
+      new aws.iam.RolePolicyAttachment(`frontend-deploy-lambda-${key}-policy`, {
+        policyArn,
         role: result.name,
-        policyArn: each,
       });
     });
 

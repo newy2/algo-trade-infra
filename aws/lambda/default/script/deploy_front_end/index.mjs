@@ -19,7 +19,7 @@ export const handler = async (event, context) => {
       cloudFront.getDistributionId() // for cache
     ]);
 
-    const model = getModel(s3ObjectKeys);
+    const model = getModel(s3ObjectKeys, getModelType(event));
     await cloudFront.updateOriginPath(model.getDistributionOriginPath());
     await s3.deleteObjects(model.getDeleteS3ObjectKeys());
 
@@ -34,8 +34,16 @@ function getBucketName() {
   return process.env.BUCKET_NAME;
 }
 
-function getModel(s3ObjectKeys) {
-  const modelType = process.env.MODEL_TYPE;
+function getModelType(event) {
+  switch (event.Records[0].eventSource) {
+    case "aws:s3":
+      return "DEPLOY";
+    case "aws:sqs":
+      return "ROLLBACK";
+  }
+}
+
+function getModel(s3ObjectKeys, modelType) {
   switch (modelType) {
     case "DEPLOY":
       return new FrontendDeployModel(s3ObjectKeys);
