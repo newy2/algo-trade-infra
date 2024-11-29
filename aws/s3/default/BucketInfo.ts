@@ -2,16 +2,16 @@ import * as aws from "@pulumi/aws";
 import { BucketV2 } from "@pulumi/aws/s3";
 import * as pulumi from "@pulumi/pulumi";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
-import LambdaInfo from "../../lambda/LambdaInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
+import LambdaInfo from "../../lambda/LambdaInfo";
 
 export default class BucketInfo extends BaseAwsInfo {
   private readonly bucket: BucketV2;
 
-  constructor(lambdaInfo: LambdaInfo) {
+  constructor() {
     super();
 
-    this.bucket = this.createBucket(lambdaInfo);
+    this.bucket = this.createBucket();
   }
 
   public getBucketRegionalDomainName() {
@@ -44,7 +44,34 @@ export default class BucketInfo extends BaseAwsInfo {
     });
   }
 
-  private createBucket(lambdaInfo: LambdaInfo) {
+  public setBucketNotification(lambdaInfo: LambdaInfo) {
+    const allowBucket = new aws.lambda.Permission("allow-bucket", {
+      statementId: "AllowExecutionFromS3Bucket",
+      action: "lambda:InvokeFunction",
+      function: lambdaInfo.getFrontendDeliveryFunctionArn(),
+      principal: "s3.amazonaws.com",
+      sourceArn: this.bucket.arn,
+    });
+
+    new aws.s3.BucketNotification(
+      "bucket-notification",
+      {
+        bucket: this.bucket.id,
+        lambdaFunctions: [
+          {
+            lambdaFunctionArn: lambdaInfo.getFrontendDeliveryFunctionArn(),
+            events: ["s3:ObjectCreated:*"],
+            filterSuffix: "index.html",
+          },
+        ],
+      },
+      {
+        dependsOn: [allowBucket],
+      },
+    );
+  }
+
+  private createBucket() {
     const result = new aws.s3.BucketV2(
       "front-end-bucket",
       {
@@ -65,35 +92,6 @@ export default class BucketInfo extends BaseAwsInfo {
       ],
     });
 
-    this.createBucketNotification(result, lambdaInfo);
-
     return result;
-  }
-
-  private createBucketNotification(bucket: BucketV2, lambdaInfo: LambdaInfo) {
-    const allowBucket = new aws.lambda.Permission("allow-bucket", {
-      statementId: "AllowExecutionFromS3Bucket",
-      action: "lambda:InvokeFunction",
-      function: lambdaInfo.getFrontendDeliveryFunctionArn(),
-      principal: "s3.amazonaws.com",
-      sourceArn: bucket.arn,
-    });
-
-    new aws.s3.BucketNotification(
-      "bucket-notification",
-      {
-        bucket: bucket.id,
-        lambdaFunctions: [
-          {
-            lambdaFunctionArn: lambdaInfo.getFrontendDeliveryFunctionArn(),
-            events: ["s3:ObjectCreated:*"],
-            filterSuffix: "index.html",
-          },
-        ],
-      },
-      {
-        dependsOn: [allowBucket],
-      },
-    );
   }
 }

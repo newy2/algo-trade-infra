@@ -14,11 +14,7 @@ export const handler = async (event, context) => {
     const s3 = new S3(bucketName);
     const cloudFront = new CloudFront();
 
-    const [s3ObjectKeys] = await Promise.all([
-      s3.getObjectKeys(),
-      cloudFront.getDistributionId() // for cache
-    ]);
-
+    const s3ObjectKeys = await s3.getObjectKeys();
     const model = getModel(s3ObjectKeys, getModelType(event));
     await cloudFront.updateOriginPath(model.getDistributionOriginPath());
     await s3.deleteObjects(model.getDeleteS3ObjectKeys());
@@ -95,24 +91,12 @@ class S3 {
 }
 
 class CloudFront {
-  PARAMETER_STORE_KEY = "/frontend/distribution/id";
-
   constructor() {
     this.cloudFrontClient = new CloudFrontClient();
   }
 
-  async getDistributionId() {
-    return (await this._fetchParameterStore()).Parameter.Value;
-  }
-
-  async _fetchParameterStore() {
-    const url = `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURIComponent(this.PARAMETER_STORE_KEY)}`;
-    const cachedResponse = await fetch(url, {
-      headers: {
-        "X-Aws-Parameters-Secrets-Token": process.env.AWS_SESSION_TOKEN
-      }
-    });
-    return cachedResponse.json();
+  getDistributionId() {
+    return process.env.DISTRIBUTION_ID;
   }
 
   async updateOriginPath(originPath) {
@@ -121,7 +105,7 @@ class CloudFront {
   }
 
   async _updateDistributionOriginPath(originPath) {
-    const distributionId = await this.getDistributionId();
+    const distributionId = this.getDistributionId();
     const configResponse = await this.cloudFrontClient.send(new GetDistributionConfigCommand({
       Id: distributionId
     }));
@@ -145,7 +129,7 @@ class CloudFront {
   }
 
   async _sendInvalidationAll() {
-    const distributionId = await this.getDistributionId();
+    const distributionId = this.getDistributionId();
 
     const response = await this.cloudFrontClient.send(new CreateInvalidationCommand({
       DistributionId: distributionId,

@@ -23,8 +23,7 @@ export default class RoleInfo extends BaseAwsInfo {
     this.eventBridgeEcrPushRuleRole =
       this.createEventBridgeEcrPushRuleRole(policyInfo);
     this.lambdaRole = this.createLambdaRole();
-    this.frontendDeliveryLambdaRole =
-      this.createFrontendDeliveryLambdaRole(policyInfo);
+    this.frontendDeliveryLambdaRole = this.createFrontendDeliveryLambdaRole();
   }
 
   public getEventBridgeEcrPushRuleRoleArn() {
@@ -121,7 +120,7 @@ export default class RoleInfo extends BaseAwsInfo {
     return result;
   }
 
-  private createFrontendDeliveryLambdaRole(policyInfo: PolicyInfo) {
+  private createFrontendDeliveryLambdaRole() {
     const result = new aws.iam.Role("frontend-delivery-lambda-role", {
       name: "frontend-delivery-lambda-role",
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
@@ -134,7 +133,6 @@ export default class RoleInfo extends BaseAwsInfo {
       aws.iam.ManagedPolicy.AmazonS3FullAccess,
       aws.iam.ManagedPolicy.CloudFrontFullAccess,
       aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
-      policyInfo.getFrontendDeliveryLambdaCustomPolicyArn(),
     ].forEach((eachPolicyArn, index) => {
       new aws.iam.RolePolicyAttachment(
         `frontend-delivery-lambda-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,

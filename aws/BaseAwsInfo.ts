@@ -69,17 +69,4 @@ export default class BaseAwsInfo {
   protected getRdsPassword() {
     return this.config.requireSecret("rds_password");
   }
-
-  protected getAccessParameterStoreLambdaLayerArn() {
-    // ARN 참고: https://docs.aws.amazon.com/ko_kr/systems-manager/latest/userguide/ps-integration-lambda-extensions.html#intel
-
-    switch (this.getCurrentRegion()) {
-      case "ap-northeast-1":
-        return "arn:aws:lambda:ap-northeast-1:133490724326:layer:AWS-Parameters-and-Secrets-Lambda-Extension:12";
-      case "ap-northeast-2":
-        return "arn:aws:lambda:ap-northeast-2:738900069198:layer:AWS-Parameters-and-Secrets-Lambda-Extension:12";
-      default:
-        throw new Error("Not support region");
-    }
-  }
 }

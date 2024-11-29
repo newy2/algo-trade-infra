@@ -3,18 +3,24 @@ import * as pulumi from "@pulumi/pulumi";
 import { IamInfo } from "../../iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
+import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   private readonly frontendDeliveryFunction: aws.lambda.Function;
 
-  constructor(iamInfo: IamInfo, sqsInfo: SqsInfo) {
+  constructor(
+    iamInfo: IamInfo,
+    sqsInfo: SqsInfo,
+    cloudfrontInfo: CloudFrontInfo,
+  ) {
     super();
 
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
     this.frontendDeliveryFunction = this.createFrontendDeliveryFunction(
       iamInfo,
       sqsInfo,
+      cloudfrontInfo,
     );
   }
 
@@ -48,7 +54,11 @@ export default class FunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createFrontendDeliveryFunction(iamInfo: IamInfo, sqsInfo: SqsInfo) {
+  private createFrontendDeliveryFunction(
+    iamInfo: IamInfo,
+    sqsInfo: SqsInfo,
+    cloudfrontInfo: CloudFrontInfo,
+  ) {
     const result = new aws.lambda.Function("frontend-delivery-lambda", {
       name: "frontend-delivery",
       description: "프론트엔드 배포 & 롤백",
@@ -59,10 +69,10 @@ export default class FunctionInfo extends BaseAwsInfo {
         "./aws/lambda/default/script/frontend_delivery",
       ),
       timeout: 10,
-      layers: [this.getAccessParameterStoreLambdaLayerArn()],
       environment: {
         variables: {
           BUCKET_NAME: this.getFrontendBucketName(),
+          DISTRIBUTION_ID: cloudfrontInfo.getDistributionId(),
         },
       },
     });

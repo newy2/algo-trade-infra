@@ -5,12 +5,16 @@ import LambdaInfo from "../lambda/LambdaInfo";
 export default class S3Info {
   private readonly bucketInfo: BucketInfo;
 
-  constructor(lambdaInfo: LambdaInfo) {
-    this.bucketInfo = new BucketInfo(lambdaInfo);
+  constructor() {
+    this.bucketInfo = new BucketInfo();
   }
 
   public getBucketRegionalDomainName() {
     return this.bucketInfo.getBucketRegionalDomainName();
+  }
+
+  public setBucketNotification(lambdaInfo: LambdaInfo) {
+    this.bucketInfo.setBucketNotification(lambdaInfo);
   }
 
   public setBucketPolicy(cloudFrontInfo: CloudFrontInfo) {

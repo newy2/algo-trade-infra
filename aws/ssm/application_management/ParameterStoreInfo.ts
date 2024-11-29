@@ -14,8 +14,6 @@ export default class ParameterStoreInfo {
   public static readonly RDS_EICE_RDS_CONNECT_ID_KEY =
     "/vpc/eice/rds-connect/id";
   public static readonly FRONTEND_URL_KEY = "/frontend/url";
-  public static readonly FRONTEND_DISTRIBUTION_ID_KEY =
-    "/frontend/distribution/id";
 
   constructor(
     vpcInfo: VpcInfo,
@@ -78,13 +76,6 @@ export default class ParameterStoreInfo {
   }
 
   private setCloudFrontInfo(cloudFrontInfo: CloudFrontInfo) {
-    new aws.ssm.Parameter("frontend-distribution-id", {
-      name: ParameterStoreInfo.FRONTEND_DISTRIBUTION_ID_KEY,
-      description: "Front-end Distribution ID",
-      type: aws.ssm.ParameterType.String,
-      value: cloudFrontInfo.getDistributionId(),
-    });
-
     new aws.ssm.Parameter("frontend-url", {
       name: ParameterStoreInfo.FRONTEND_URL_KEY,
       description: "Front-end URL",
