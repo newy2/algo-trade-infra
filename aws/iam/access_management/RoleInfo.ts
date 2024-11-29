@@ -1,5 +1,6 @@
 import { InstanceProfile, Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
+import * as pulumi from "@pulumi/pulumi";
 import PolicyInfo from "./PolicyInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 
@@ -54,14 +55,17 @@ export default class RoleInfo extends BaseAwsInfo {
       }),
     });
 
-    new aws.iam.RolePolicyAttachment("managed-instance-policy", {
-      role: ec2Role.name,
-      policyArn: aws.iam.ManagedPolicy.AmazonSSMManagedInstanceCore,
-    });
-
-    new aws.iam.RolePolicyAttachment("pull-ecr-repository-policy", {
-      role: ec2Role.name,
-      policyArn: aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryReadOnly,
+    [
+      aws.iam.ManagedPolicy.AmazonSSMManagedInstanceCore,
+      aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryReadOnly,
+    ].forEach((eachPolicyArn, index) => {
+      new aws.iam.RolePolicyAttachment(
+        `ec2-role-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
+        {
+          role: ec2Role.name,
+          policyArn: eachPolicyArn,
+        },
+      );
     });
 
     return new aws.iam.InstanceProfile("ec2-instance-profile", {
@@ -76,9 +80,14 @@ export default class RoleInfo extends BaseAwsInfo {
       }),
     });
 
-    new aws.iam.RolePolicyAttachment("ssm-run-command-policy-attachment", {
-      role: result.name,
-      policyArn: policyInfo.getRunCommandPolicyArn(),
+    [policyInfo.getRunCommandPolicyArn()].forEach((eachPolicyArn, index) => {
+      new aws.iam.RolePolicyAttachment(
+        `event-bridge-ecr-push-rule-role-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
+        {
+          role: result.name,
+          policyArn: eachPolicyArn,
+        },
+      );
     });
 
     return result;
@@ -96,14 +105,17 @@ export default class RoleInfo extends BaseAwsInfo {
       }),
     });
 
-    new aws.iam.RolePolicyAttachment("lambda-execution-policy", {
-      role: result.name,
-      policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
-    });
-
-    new aws.iam.RolePolicyAttachment("ecr-full-access-policy", {
-      role: result.name,
-      policyArn: aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryFullAccess,
+    [
+      aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+      aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryFullAccess,
+    ].forEach((eachPolicyArn, index) => {
+      new aws.iam.RolePolicyAttachment(
+        `lambda-role-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
+        {
+          role: result.name,
+          policyArn: eachPolicyArn,
+        },
+      );
     });
 
     return result;
@@ -118,28 +130,33 @@ export default class RoleInfo extends BaseAwsInfo {
     });
 
     [
-      { policyArn: aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole },
-      { policyArn: aws.iam.ManagedPolicy.AmazonS3FullAccess },
-      { policyArn: aws.iam.ManagedPolicy.CloudFrontFullAccess },
-      { policyArn: aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole },
-      {
-        key: "custom-1",
-        policyArn: policyInfo.getFrontendDeliveryLambdaCustomPolicyArn(),
-      },
-    ].forEach(({ key, policyArn }) => {
-      if (key === undefined) {
-        key = (policyArn as string).split("/").reverse()[0];
-      }
-
+      aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+      aws.iam.ManagedPolicy.AmazonS3FullAccess,
+      aws.iam.ManagedPolicy.CloudFrontFullAccess,
+      aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
+      policyInfo.getFrontendDeliveryLambdaCustomPolicyArn(),
+    ].forEach((eachPolicyArn, index) => {
       new aws.iam.RolePolicyAttachment(
-        `frontend-delivery-lambda-${key}-policy`,
+        `frontend-delivery-lambda-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
         {
-          policyArn,
+          policyArn: eachPolicyArn,
           role: result.name,
         },
       );
     });
 
     return result;
+  }
+
+  private getPolicyAttachmentKey(
+    policyArn: string | pulumi.Output<string>,
+    index: number,
+  ) {
+    if (typeof policyArn === "string") {
+      return policyArn.split("/").reverse()[0];
+    }
+
+    const seq = index + 1;
+    return `custom-${seq}`;
   }
 }
