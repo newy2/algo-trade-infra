@@ -18,7 +18,7 @@ const rdsInfo = new RdsInfo(vpcInfo);
 new Ec2Info(vpcInfo, iamInfo);
 new EventBridgeInfo(ecrInfo, iamInfo, lambdaInfo);
 
-const s3Info = new S3Info();
+const s3Info = new S3Info(lambdaInfo);
 const cloudfrontInfo = new CloudFrontInfo(s3Info);
 
 // TODO Refector: 각 Info 에서 SsmInfo 를 호출하도록 할까?

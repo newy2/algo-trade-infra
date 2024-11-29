@@ -25,4 +25,8 @@ export class IamInfo {
   public getLambdaRoleArn() {
     return this.roleInfo.getLambdaRoleArn();
   }
+
+  public getFrontendDeployLambdaRole() {
+    return this.roleInfo.getFrontendDeployLambdaRole();
+  }
 }

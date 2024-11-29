@@ -28,6 +28,10 @@ export default class DistributionInfo {
     return this.distribution.domainName;
   }
 
+  public getDistributionId() {
+    return this.distribution.id;
+  }
+
   private createDistribution(
     s3Info: S3Info,
     functionInfo: FunctionInfo,

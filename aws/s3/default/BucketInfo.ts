@@ -2,12 +2,16 @@ import * as aws from "@pulumi/aws";
 import { BucketV2 } from "@pulumi/aws/s3";
 import * as pulumi from "@pulumi/pulumi";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
+import LambdaInfo from "../../lambda/LambdaInfo";
+import BaseAwsInfo from "../../BaseAwsInfo";
 
-export default class BucketInfo {
+export default class BucketInfo extends BaseAwsInfo {
   private readonly bucket: BucketV2;
 
-  constructor() {
-    this.bucket = this.createBucket();
+  constructor(lambdaInfo: LambdaInfo) {
+    super();
+
+    this.bucket = this.createBucket(lambdaInfo);
   }
 
   public getBucketRegionalDomainName() {
@@ -40,11 +44,11 @@ export default class BucketInfo {
     });
   }
 
-  private createBucket() {
+  private createBucket(lambdaInfo: LambdaInfo) {
     const result = new aws.s3.BucketV2(
       "front-end-bucket",
       {
-        bucket: "front-algo-trade",
+        bucket: this.getFrontendBucketName(),
         forceDestroy: true,
       },
       {
@@ -61,6 +65,35 @@ export default class BucketInfo {
       ],
     });
 
+    this.createBucketNotification(result, lambdaInfo);
+
     return result;
+  }
+
+  private createBucketNotification(bucket: BucketV2, lambdaInfo: LambdaInfo) {
+    const allowBucket = new aws.lambda.Permission("allow-bucket", {
+      statementId: "AllowExecutionFromS3Bucket",
+      action: "lambda:InvokeFunction",
+      function: lambdaInfo.getFrontendDeployFunctionArn(),
+      principal: "s3.amazonaws.com",
+      sourceArn: bucket.arn,
+    });
+
+    new aws.s3.BucketNotification(
+      "bucket-notification",
+      {
+        bucket: bucket.id,
+        lambdaFunctions: [
+          {
+            lambdaFunctionArn: lambdaInfo.getFrontendDeployFunctionArn(),
+            events: ["s3:ObjectCreated:*"],
+            filterSuffix: "index.html",
+          },
+        ],
+      },
+      {
+        dependsOn: [allowBucket],
+      },
+    );
   }
 }

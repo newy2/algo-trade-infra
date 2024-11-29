@@ -3,10 +3,17 @@ import * as aws from "@pulumi/aws";
 import PolicyInfo from "./PolicyInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 
+enum AssumeRoleKey {
+  EC2 = "ec2.amazonaws.com",
+  EVENT_BRIDGE = "events.amazonaws.com",
+  LAMBDA = "lambda.amazonaws.com",
+}
+
 export default class RoleInfo extends BaseAwsInfo {
   private readonly ec2InstanceProfile: InstanceProfile;
   private readonly eventBridgeEcrPushRuleRole: Role;
   private readonly lambdaRole?: Role;
+  private readonly frontendDeployLambdaRole: Role;
 
   constructor(policyInfo: PolicyInfo) {
     super();
@@ -15,6 +22,8 @@ export default class RoleInfo extends BaseAwsInfo {
     this.eventBridgeEcrPushRuleRole =
       this.createEventBridgeEcrPushRuleRole(policyInfo);
     this.lambdaRole = this.createLambdaRole();
+    this.frontendDeployLambdaRole =
+      this.createFrontendDeployLambdaRole(policyInfo);
   }
 
   public getEventBridgeEcrPushRuleRoleArn() {
@@ -33,11 +42,15 @@ export default class RoleInfo extends BaseAwsInfo {
     return this.lambdaRole?.arn;
   }
 
+  public getFrontendDeployLambdaRole() {
+    return this.frontendDeployLambdaRole.arn;
+  }
+
   private createEc2InstanceProfile() {
     const ec2Role = new aws.iam.Role("ec2-role", {
       name: "ec2-role",
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: "ec2.amazonaws.com",
+        Service: AssumeRoleKey.EC2,
       }),
     });
 
@@ -59,7 +72,7 @@ export default class RoleInfo extends BaseAwsInfo {
   private createEventBridgeEcrPushRuleRole(policyInfo: PolicyInfo) {
     const result = new aws.iam.Role("event-bridge-ecr-push-rule-role", {
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: "events.amazonaws.com",
+        Service: AssumeRoleKey.EVENT_BRIDGE,
       }),
     });
 
@@ -79,7 +92,7 @@ export default class RoleInfo extends BaseAwsInfo {
     const result = new aws.iam.Role("lambda-role", {
       name: "lambda-role",
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: "lambda.amazonaws.com",
+        Service: AssumeRoleKey.LAMBDA,
       }),
     });
 
@@ -91,6 +104,30 @@ export default class RoleInfo extends BaseAwsInfo {
     new aws.iam.RolePolicyAttachment("ecr-full-access-policy", {
       role: result.name,
       policyArn: aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryFullAccess,
+    });
+
+    return result;
+  }
+
+  private createFrontendDeployLambdaRole(policyInfo: PolicyInfo) {
+    const result = new aws.iam.Role("frontend-deploy-lambda-role", {
+      name: "frontend-deploy-lambda-role",
+      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+        Service: AssumeRoleKey.LAMBDA,
+      }),
+    });
+
+    [
+      aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+      aws.iam.ManagedPolicy.AmazonS3FullAccess,
+      aws.iam.ManagedPolicy.CloudFrontFullAccess,
+      policyInfo.getFrontendDeployLambdaCustomPolicyArn(),
+    ].forEach((each, index) => {
+      const seq = index + 1;
+      new aws.iam.RolePolicyAttachment(`frontend-deploy-lambda-${seq}-policy`, {
+        role: result.name,
+        policyArn: each,
+      });
     });
 
     return result;

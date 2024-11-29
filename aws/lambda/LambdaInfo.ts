@@ -11,4 +11,8 @@ export default class LambdaInfo {
   public getEcrImageCleanupFunctionArn() {
     return this.functionInfo.getCleanupEcrImageFunctionArn();
   }
+
+  public getFrontendDeployFunctionArn() {
+    return this.functionInfo.getFrontendDeployFunctionArn();
+  }
 }

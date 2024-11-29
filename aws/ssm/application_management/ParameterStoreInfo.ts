@@ -14,6 +14,8 @@ export default class ParameterStoreInfo {
   public static readonly RDS_EICE_RDS_CONNECT_ID_KEY =
     "/vpc/eice/rds-connect/id";
   public static readonly FRONTEND_URL_KEY = "/frontend/url";
+  public static readonly FRONTEND_DISTRIBUTION_ID_KEY =
+    "/frontend/distribution/id";
 
   constructor(
     vpcInfo: VpcInfo,
@@ -24,7 +26,7 @@ export default class ParameterStoreInfo {
     this.setRdsConnectEndpointId(vpcInfo.getRdsConnectEndpointId());
     this.setEcrRepositoryUrl(ecrInfo.getPrivateRepositoryUrl());
     this.setRdsInfo(rdsInfo);
-    this.setFrontendUrl(cloudFrontInfo.getDistributionDomainName());
+    this.setCloudFrontInfo(cloudFrontInfo);
   }
 
   private setRdsConnectEndpointId(rdsConnectEndpointId: pulumi.Output<string>) {
@@ -75,12 +77,19 @@ export default class ParameterStoreInfo {
     });
   }
 
-  private setFrontendUrl(distributionDomainName: pulumi.Output<string>) {
+  private setCloudFrontInfo(cloudFrontInfo: CloudFrontInfo) {
+    new aws.ssm.Parameter("frontend-distribution-id", {
+      name: ParameterStoreInfo.FRONTEND_DISTRIBUTION_ID_KEY,
+      description: "Front-end Distribution ID",
+      type: aws.ssm.ParameterType.String,
+      value: cloudFrontInfo.getDistributionId(),
+    });
+
     new aws.ssm.Parameter("frontend-url", {
       name: ParameterStoreInfo.FRONTEND_URL_KEY,
       description: "Front-end URL",
       type: aws.ssm.ParameterType.String,
-      value: pulumi.interpolate`https://${distributionDomainName}`,
+      value: pulumi.interpolate`https://${cloudFrontInfo.getDistributionDomainName()}`,
     });
   }
 }
