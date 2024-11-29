@@ -33,6 +33,8 @@ export default class FunctionInfo extends BaseAwsInfo {
 
     return new aws.lambda.Function("ecr-cleanup-lambda", {
       name: "cleanup-ecr-image",
+      description:
+        "과거 ECR 이미지 자동 삭제 기능 (Push 이벤트에 실시간으로 반응)",
       runtime: aws.lambda.Runtime.NodeJS20dX,
       role: iamInfo.getLambdaRoleArn()!,
       handler: "index.handler",
@@ -49,6 +51,7 @@ export default class FunctionInfo extends BaseAwsInfo {
   private createFrontendDeliveryFunction(iamInfo: IamInfo, sqsInfo: SqsInfo) {
     const result = new aws.lambda.Function("frontend-delivery-lambda", {
       name: "frontend-delivery",
+      description: "프론트엔드 배포 & 롤백",
       runtime: aws.lambda.Runtime.NodeJS20dX,
       role: iamInfo.getFrontendDeliveryLambdaRole(),
       handler: "index.handler",
