@@ -69,4 +69,12 @@ export default class BaseAwsInfo {
   protected getRdsPassword() {
     return this.config.requireSecret("rds_password");
   }
+
+  protected getCodeDeliveryStateSnsTopicName() {
+    return "code-delivery-state-topic";
+  }
+
+  protected getSlackUrl() {
+    return this.config.requireSecret("slack_url");
+  }
 }

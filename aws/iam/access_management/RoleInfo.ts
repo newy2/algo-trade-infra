@@ -15,6 +15,7 @@ export default class RoleInfo extends BaseAwsInfo {
   private readonly eventBridgeEcrPushRuleRole: Role;
   private readonly lambdaRole?: Role;
   private readonly frontendDeliveryLambdaRole: Role;
+  private readonly sendSlackMessageLambdaRole: Role;
 
   constructor(policyInfo: PolicyInfo) {
     super();
@@ -24,6 +25,7 @@ export default class RoleInfo extends BaseAwsInfo {
       this.createEventBridgeEcrPushRuleRole(policyInfo);
     this.lambdaRole = this.createLambdaRole();
     this.frontendDeliveryLambdaRole = this.createFrontendDeliveryLambdaRole();
+    this.sendSlackMessageLambdaRole = this.createSendSlackMessageLambdaRole();
   }
 
   public getEventBridgeEcrPushRuleRoleArn() {
@@ -44,6 +46,10 @@ export default class RoleInfo extends BaseAwsInfo {
 
   public getFrontendDeliveryLambdaRole() {
     return this.frontendDeliveryLambdaRole.arn;
+  }
+
+  public getSendSlackMessageLambdaRole() {
+    return this.sendSlackMessageLambdaRole.arn;
   }
 
   private createEc2InstanceProfile() {
@@ -142,6 +148,32 @@ export default class RoleInfo extends BaseAwsInfo {
         },
       );
     });
+
+    return result;
+  }
+
+  private createSendSlackMessageLambdaRole() {
+    const prefix = "send-slack-message-lambda";
+    const roleName = `${prefix}-role`;
+
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
+      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+        Service: AssumeRoleKey.LAMBDA,
+      }),
+    });
+
+    [aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole].forEach(
+      (eachPolicyArn, index) => {
+        new aws.iam.RolePolicyAttachment(
+          `${prefix}-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
+          {
+            policyArn: eachPolicyArn,
+            role: result.name,
+          },
+        );
+      },
+    );
 
     return result;
   }

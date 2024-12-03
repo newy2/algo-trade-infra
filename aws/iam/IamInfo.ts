@@ -29,4 +29,8 @@ export class IamInfo {
   public getFrontendDeliveryLambdaRole() {
     return this.roleInfo.getFrontendDeliveryLambdaRole();
   }
+
+  public getSendSlackMessageLambdaRole() {
+    return this.roleInfo.getSendSlackMessageLambdaRole();
+  }
 }

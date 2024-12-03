@@ -8,6 +8,7 @@ import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   private readonly frontendDeliveryFunction: aws.lambda.Function;
+  private readonly sendSlackMessageFunction: aws.lambda.Function;
 
   constructor(
     iamInfo: IamInfo,
@@ -22,6 +23,10 @@ export default class FunctionInfo extends BaseAwsInfo {
       sqsInfo,
       cloudfrontInfo,
     );
+    this.sendSlackMessageFunction = this.createSendSlackMessageFunction(
+      iamInfo,
+      sqsInfo,
+    );
   }
 
   public getCleanupEcrImageFunctionArn() {
@@ -30,6 +35,14 @@ export default class FunctionInfo extends BaseAwsInfo {
 
   public getFrontendDeliveryFunctionArn() {
     return this.frontendDeliveryFunction.arn;
+  }
+
+  public getSendSlackMessageFunctionArn() {
+    return this.sendSlackMessageFunction.arn;
+  }
+
+  public getSendSlackMessageFunctionName() {
+    return this.sendSlackMessageFunction.name;
   }
 
   private createCleanupEcrImageFunction(iamInfo: IamInfo) {
@@ -83,5 +96,26 @@ export default class FunctionInfo extends BaseAwsInfo {
     });
 
     return result;
+  }
+
+  private createSendSlackMessageFunction(iamInfo: IamInfo, sqsInfo: SqsInfo) {
+    const lambdaName = "send-slack-message";
+
+    return new aws.lambda.Function(`${lambdaName}-lambda`, {
+      name: lambdaName,
+      description: "슬렉 메세지 전송",
+      runtime: aws.lambda.Runtime.NodeJS20dX,
+      role: iamInfo.getSendSlackMessageLambdaRole(),
+      handler: "index.handler",
+      code: new pulumi.asset.FileArchive(
+        "./aws/lambda/default/script/send_slack_message",
+      ),
+      timeout: 10,
+      environment: {
+        variables: {
+          SLACK_URL: this.getSlackUrl(),
+        },
+      },
+    });
   }
 }
