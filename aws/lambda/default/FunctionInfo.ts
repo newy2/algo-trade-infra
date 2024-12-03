@@ -23,10 +23,8 @@ export default class FunctionInfo extends BaseAwsInfo {
       sqsInfo,
       cloudfrontInfo,
     );
-    this.sendSlackMessageFunction = this.createSendSlackMessageFunction(
-      iamInfo,
-      sqsInfo,
-    );
+    this.sendSlackMessageFunction =
+      this.createSendSlackMessageFunction(iamInfo);
   }
 
   public getCleanupEcrImageFunctionArn() {
@@ -98,7 +96,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     return result;
   }
 
-  private createSendSlackMessageFunction(iamInfo: IamInfo, sqsInfo: SqsInfo) {
+  private createSendSlackMessageFunction(iamInfo: IamInfo) {
     const lambdaName = "send-slack-message";
 
     return new aws.lambda.Function(`${lambdaName}-lambda`, {
