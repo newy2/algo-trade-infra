@@ -78,9 +78,9 @@ export default class ParameterStoreInfo {
   private setCloudFrontInfo(cloudFrontInfo: CloudFrontInfo) {
     new aws.ssm.Parameter("frontend-url", {
       name: ParameterStoreInfo.FRONTEND_URL_KEY,
-      description: "Front-end URL",
+      description: "Frontend URL",
       type: aws.ssm.ParameterType.String,
-      value: pulumi.interpolate`https://${cloudFrontInfo.getDistributionDomainName()}`,
+      value: pulumi.interpolate`https://${cloudFrontInfo.getFrontendDistributionDomainName()}`,
     });
   }
 }

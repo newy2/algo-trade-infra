@@ -22,7 +22,7 @@ export default class LambdaInfo {
       cloudfrontInfo,
       this.layerInfo,
     );
-    s3Info.setBucketNotification(this); // TODO Refector (functionInfo 를 직접 전달할까?)
+    s3Info.setFrontendBucketNotification(this); // TODO Refector (functionInfo 를 직접 전달할까?)
   }
 
   public getEcrImageCleanupFunctionArn() {

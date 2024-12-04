@@ -40,7 +40,7 @@ export default class BaseAwsInfo {
   }
 
   protected getFrontendBucketName() {
-    return "front-algo-trade";
+    return "algo-trade-frontend-bucket";
   }
 
   protected createNameTag(

@@ -6,39 +6,39 @@ import OriginAccessInfo from "../security/OriginAccessInfo";
 
 export default class DistributionInfo {
   private static readonly ROOT_OBJECT = "index.html";
-  private distribution: Distribution;
+  private frontendDistribution: Distribution;
 
   constructor(
     s3Info: S3Info,
     functionInfo: FunctionInfo,
     originAccessInfo: OriginAccessInfo,
   ) {
-    this.distribution = this.createDistribution(
+    this.frontendDistribution = this.createFrontendDistribution(
       s3Info,
       functionInfo,
       originAccessInfo,
     );
   }
 
-  public getDistributionArn() {
-    return this.distribution.arn;
+  public getFrontendDistributionArn() {
+    return this.frontendDistribution.arn;
   }
 
-  public getDistributionDomainName() {
-    return this.distribution.domainName;
+  public getFrontendDistributionDomainName() {
+    return this.frontendDistribution.domainName;
   }
 
-  public getDistributionId() {
-    return this.distribution.id;
+  public getFrontendDistributionId() {
+    return this.frontendDistribution.id;
   }
 
-  private createDistribution(
+  private createFrontendDistribution(
     s3Info: S3Info,
     functionInfo: FunctionInfo,
     originAccessInfo: OriginAccessInfo,
   ) {
     return new aws.cloudfront.Distribution(
-      "front-end-algo-trade-distribution",
+      "frontend-algo-trade-distribution",
       {
         comment: "Static site distribution",
         customErrorResponses: this.getCustomErrorResponses(),
@@ -53,9 +53,10 @@ export default class DistributionInfo {
         orderedCacheBehaviors: this.getOrderedCacheBehaviors(s3Info),
         origins: [
           {
-            domainName: s3Info.getBucketRegionalDomainName(),
-            originId: s3Info.getBucketRegionalDomainName(),
-            originAccessControlId: originAccessInfo.getOriginAccessControlId(),
+            domainName: s3Info.getFrontendBucketRegionalDomainName(),
+            originId: s3Info.getFrontendBucketRegionalDomainName(),
+            originAccessControlId:
+              originAccessInfo.getFrontendBucketOriginAccessControlId(),
           },
         ],
         priceClass: "PriceClass_200",
@@ -116,7 +117,7 @@ export default class DistributionInfo {
       cachedMethods: ["GET", "HEAD"],
       cachePolicyId: cachePolicyId.then((it) => it.id!),
       compress: true,
-      targetOriginId: s3Info.getBucketRegionalDomainName(),
+      targetOriginId: s3Info.getFrontendBucketRegionalDomainName(),
       viewerProtocolPolicy: "redirect-to-https",
     };
   }

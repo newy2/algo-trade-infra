@@ -16,18 +16,18 @@ export default class CloudFrontInfo {
       this.functionInfo,
       this.originAccessInfo,
     );
-    s3Info.setBucketPolicy(this);
+    s3Info.setFrontendBucketPolicy(this);
   }
 
-  public getDistributionArn() {
-    return this.distributionInfo.getDistributionArn();
+  public getFrontendDistributionArn() {
+    return this.distributionInfo.getFrontendDistributionArn();
   }
 
-  public getDistributionDomainName() {
-    return this.distributionInfo.getDistributionDomainName();
+  public getFrontendDistributionDomainName() {
+    return this.distributionInfo.getFrontendDistributionDomainName();
   }
 
-  public getDistributionId() {
-    return this.distributionInfo.getDistributionId();
+  public getFrontendDistributionId() {
+    return this.distributionInfo.getFrontendDistributionId();
   }
 }

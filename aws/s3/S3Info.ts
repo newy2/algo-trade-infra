@@ -9,15 +9,15 @@ export default class S3Info {
     this.bucketInfo = new BucketInfo();
   }
 
-  public getBucketRegionalDomainName() {
-    return this.bucketInfo.getBucketRegionalDomainName();
+  public getFrontendBucketRegionalDomainName() {
+    return this.bucketInfo.getFrontendBucketRegionalDomainName();
   }
 
-  public setBucketNotification(lambdaInfo: LambdaInfo) {
-    this.bucketInfo.setBucketNotification(lambdaInfo);
+  public setFrontendBucketNotification(lambdaInfo: LambdaInfo) {
+    this.bucketInfo.setFrontendBucketNotification(lambdaInfo);
   }
 
-  public setBucketPolicy(cloudFrontInfo: CloudFrontInfo) {
-    this.bucketInfo.setBucketPolicy(cloudFrontInfo);
+  public setFrontendBucketPolicy(cloudFrontInfo: CloudFrontInfo) {
+    this.bucketInfo.setFrontendBucketPolicy(cloudFrontInfo);
   }
 }

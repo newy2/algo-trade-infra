@@ -88,7 +88,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       environment: {
         variables: {
           BUCKET_NAME: this.getFrontendBucketName(),
-          DISTRIBUTION_ID: cloudfrontInfo.getDistributionId(),
+          DISTRIBUTION_ID: cloudfrontInfo.getFrontendDistributionId(),
           SNS_TOPIC_ARN: this.getCodeDeliveryStateSnsTopicArn(),
         },
       },

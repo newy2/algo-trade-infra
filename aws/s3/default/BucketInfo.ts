@@ -6,21 +6,21 @@ import BaseAwsInfo from "../../BaseAwsInfo";
 import LambdaInfo from "../../lambda/LambdaInfo";
 
 export default class BucketInfo extends BaseAwsInfo {
-  private readonly bucket: BucketV2;
+  private readonly frontendBucket: BucketV2;
 
   constructor() {
     super();
 
-    this.bucket = this.createBucket();
+    this.frontendBucket = this.createFrontendBucket();
   }
 
-  public getBucketRegionalDomainName() {
-    return this.bucket.bucketRegionalDomainName;
+  public getFrontendBucketRegionalDomainName() {
+    return this.frontendBucket.bucketRegionalDomainName;
   }
 
-  public setBucketPolicy(cloudFrontInfo: CloudFrontInfo) {
+  public setFrontendBucketPolicy(cloudFrontInfo: CloudFrontInfo) {
     new aws.s3.BucketPolicy("bucketPolicy", {
-      bucket: this.bucket.id,
+      bucket: this.frontendBucket.id,
       policy: pulumi.interpolate`{
         "Version": "2008-10-17",
         "Id": "PolicyForCloudFrontPrivateContent",
@@ -32,10 +32,10 @@ export default class BucketInfo extends BaseAwsInfo {
                     "Service": "cloudfront.amazonaws.com"
                 },
                 "Action": "s3:GetObject",
-                "Resource": "${this.bucket.arn}/*",
+                "Resource": "${this.frontendBucket.arn}/*",
                 "Condition": {
                     "StringEquals": {
-                        "AWS:SourceArn": "${cloudFrontInfo.getDistributionArn()}"
+                        "AWS:SourceArn": "${cloudFrontInfo.getFrontendDistributionArn()}"
                     }
                 }
             }
@@ -44,19 +44,19 @@ export default class BucketInfo extends BaseAwsInfo {
     });
   }
 
-  public setBucketNotification(lambdaInfo: LambdaInfo) {
+  public setFrontendBucketNotification(lambdaInfo: LambdaInfo) {
     const allowBucket = new aws.lambda.Permission("allow-bucket", {
       statementId: "AllowExecutionFromS3Bucket",
       action: "lambda:InvokeFunction",
       function: lambdaInfo.getFrontendDeliveryFunctionArn(),
       principal: "s3.amazonaws.com",
-      sourceArn: this.bucket.arn,
+      sourceArn: this.frontendBucket.arn,
     });
 
     new aws.s3.BucketNotification(
       "bucket-notification",
       {
-        bucket: this.bucket.id,
+        bucket: this.frontendBucket.id,
         lambdaFunctions: [
           {
             lambdaFunctionArn: lambdaInfo.getFrontendDeliveryFunctionArn(),
@@ -71,11 +71,13 @@ export default class BucketInfo extends BaseAwsInfo {
     );
   }
 
-  private createBucket() {
+  private createFrontendBucket() {
+    const bucketName = this.getFrontendBucketName();
+
     const result = new aws.s3.BucketV2(
-      "front-end-bucket",
+      bucketName,
       {
-        bucket: this.getFrontendBucketName(),
+        bucket: bucketName,
         forceDestroy: true,
       },
       {
