@@ -74,6 +74,10 @@ export default class BaseAwsInfo {
     return "code-delivery-state-topic";
   }
 
+  protected getCodeDeliveryStateSnsTopicArn() {
+    return pulumi.interpolate`arn:aws:sns:${this.getCurrentRegion()}:${this.getAccountId()}:${this.getCodeDeliveryStateSnsTopicName()}`;
+  }
+
   protected getSlackUrl() {
     return this.config.requireSecret("slack_url");
   }

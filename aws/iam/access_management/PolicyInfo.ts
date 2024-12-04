@@ -5,15 +5,22 @@ import { Policy } from "@pulumi/aws/iam";
 
 export default class PolicyInfo extends BaseAwsInfo {
   private readonly runCommandPolicy: Policy;
+  private readonly codeDeliveryStateSnsPublishMessagePolicy: Policy;
 
   constructor() {
     super();
 
     this.runCommandPolicy = this.createRunCommandPolicy();
+    this.codeDeliveryStateSnsPublishMessagePolicy =
+      this.createCodeDeliveryStateSnsPublishMessagePolicy();
   }
 
   public getRunCommandPolicyArn() {
     return this.runCommandPolicy.arn;
+  }
+
+  public getCodeDeliveryStateSnsPublishMessagePolicy() {
+    return this.codeDeliveryStateSnsPublishMessagePolicy.arn;
   }
 
   private createRunCommandPolicy() {
@@ -39,6 +46,21 @@ export default class PolicyInfo extends BaseAwsInfo {
                 "ec2:ResourceTag/*": [this.getEc2ServerName()],
               },
             },
+          },
+        ],
+      },
+    });
+  }
+
+  private createCodeDeliveryStateSnsPublishMessagePolicy() {
+    return new aws.iam.Policy("code-delivery-state-sns-public-message-policy", {
+      policy: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: "sns:Publish",
+            Resource: [this.getCodeDeliveryStateSnsTopicArn()],
           },
         ],
       },

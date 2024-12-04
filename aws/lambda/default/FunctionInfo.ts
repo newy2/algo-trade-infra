@@ -4,6 +4,7 @@ import { IamInfo } from "../../iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
+import LayerInfo from "../additional_resource/LayerInfo";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
@@ -14,6 +15,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     iamInfo: IamInfo,
     sqsInfo: SqsInfo,
     cloudfrontInfo: CloudFrontInfo,
+    layerInfo: LayerInfo,
   ) {
     super();
 
@@ -22,6 +24,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       iamInfo,
       sqsInfo,
       cloudfrontInfo,
+      layerInfo,
     );
     this.sendSlackMessageFunction =
       this.createSendSlackMessageFunction(iamInfo);
@@ -69,6 +72,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     iamInfo: IamInfo,
     sqsInfo: SqsInfo,
     cloudfrontInfo: CloudFrontInfo,
+    layerInfo: LayerInfo,
   ) {
     const result = new aws.lambda.Function("frontend-delivery-lambda", {
       name: "frontend-delivery",
@@ -80,10 +84,12 @@ export default class FunctionInfo extends BaseAwsInfo {
         "./aws/lambda/default/script/frontend_delivery",
       ),
       timeout: 10,
+      layers: [layerInfo.getSendSlackApiLayer()],
       environment: {
         variables: {
           BUCKET_NAME: this.getFrontendBucketName(),
           DISTRIBUTION_ID: cloudfrontInfo.getDistributionId(),
+          SNS_TOPIC_ARN: this.getCodeDeliveryStateSnsTopicArn(),
         },
       },
     });
