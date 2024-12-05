@@ -21,4 +21,8 @@ export class IamInfo {
   public getSendSlackMessageLambdaRole() {
     return this.roleInfo.getSendSlackMessageLambdaRole();
   }
+
+  public getEc2InstanceProfileArn() {
+    return this.roleInfo.getEc2InstanceProfileArn();
+  }
 }

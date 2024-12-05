@@ -59,6 +59,10 @@ export default class SubnetInfo extends BaseAwsInfo {
     return this.getPrivateSubnetIds().then((ids) => ids.slice(0, 2));
   }
 
+  public getLoadBalancerSubnetIds() {
+    return this.getPublicSubnetIds().apply((ids) => ids.slice(0, 2));
+  }
+
   private findDefaultSubnets() {
     return this.getAvailabilityZoneNames().then((names) =>
       names.map((eachName, index) => {
