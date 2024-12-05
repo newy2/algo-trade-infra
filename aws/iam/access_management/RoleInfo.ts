@@ -1,4 +1,4 @@
-import { InstanceProfile, Role } from "@pulumi/aws/iam";
+import { Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import PolicyInfo from "./PolicyInfo";
@@ -6,13 +6,10 @@ import BaseAwsInfo from "../../BaseAwsInfo";
 
 enum AssumeRoleKey {
   EC2 = "ec2.amazonaws.com",
-  EVENT_BRIDGE = "events.amazonaws.com",
   LAMBDA = "lambda.amazonaws.com",
 }
 
 export default class RoleInfo extends BaseAwsInfo {
-  private readonly ec2InstanceProfile: InstanceProfile;
-  private readonly eventBridgeEcrPushRuleRole: Role;
   private readonly lambdaRole?: Role;
   private readonly frontendDeliveryLambdaRole: Role;
   private readonly sendSlackMessageLambdaRole: Role;
@@ -20,25 +17,10 @@ export default class RoleInfo extends BaseAwsInfo {
   constructor(policyInfo: PolicyInfo) {
     super();
 
-    this.ec2InstanceProfile = this.createEc2InstanceProfile();
-    this.eventBridgeEcrPushRuleRole =
-      this.createEventBridgeEcrPushRuleRole(policyInfo);
     this.lambdaRole = this.createLambdaRole();
     this.frontendDeliveryLambdaRole =
       this.createFrontendDeliveryLambdaRole(policyInfo);
     this.sendSlackMessageLambdaRole = this.createSendSlackMessageLambdaRole();
-  }
-
-  public getEventBridgeEcrPushRuleRoleArn() {
-    return this.eventBridgeEcrPushRuleRole.arn;
-  }
-
-  public getEc2InstanceProfileId() {
-    return this.ec2InstanceProfile.id;
-  }
-
-  public getEc2InstanceProfileArn() {
-    return this.ec2InstanceProfile.arn;
   }
 
   public getLambdaRoleArn() {
@@ -51,52 +33,6 @@ export default class RoleInfo extends BaseAwsInfo {
 
   public getSendSlackMessageLambdaRole() {
     return this.sendSlackMessageLambdaRole.arn;
-  }
-
-  private createEc2InstanceProfile() {
-    const ec2Role = new aws.iam.Role("ec2-role", {
-      name: "ec2-role",
-      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: AssumeRoleKey.EC2,
-      }),
-    });
-
-    [
-      aws.iam.ManagedPolicy.AmazonSSMManagedInstanceCore,
-      aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryReadOnly,
-    ].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `ec2-role-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          role: ec2Role.name,
-          policyArn: eachPolicyArn,
-        },
-      );
-    });
-
-    return new aws.iam.InstanceProfile("ec2-instance-profile", {
-      role: ec2Role.name,
-    });
-  }
-
-  private createEventBridgeEcrPushRuleRole(policyInfo: PolicyInfo) {
-    const result = new aws.iam.Role("event-bridge-ecr-push-rule-role", {
-      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: AssumeRoleKey.EVENT_BRIDGE,
-      }),
-    });
-
-    [policyInfo.getRunCommandPolicyArn()].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `event-bridge-ecr-push-rule-role-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          role: result.name,
-          policyArn: eachPolicyArn,
-        },
-      );
-    });
-
-    return result;
   }
 
   private createLambdaRole() {
