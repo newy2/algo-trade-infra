@@ -31,7 +31,7 @@ export default class PolicyInfo extends BaseAwsInfo {
     return this.runCommandPolicy.arn;
   }
 
-  public getCodeDeliveryStateSnsPublishMessagePolicy() {
+  public getCodeDeliveryStateSnsPublishMessagePolicyArn() {
     return this.codeDeliveryStateSnsPublishMessagePolicy.arn;
   }
 

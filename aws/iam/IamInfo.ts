@@ -10,8 +10,8 @@ export class IamInfo {
     this.roleInfo = new RoleInfo(this.policyInfo);
   }
 
-  public getLambdaRoleArn() {
-    return this.roleInfo.getLambdaRoleArn();
+  public getEcrCleanupLambdaRoleArn() {
+    return this.roleInfo.getEcrCleanupLambdaRoleArn();
   }
 
   public getFrontendDeliveryLambdaRole() {

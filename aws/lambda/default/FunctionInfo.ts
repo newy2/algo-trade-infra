@@ -87,7 +87,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       description:
         "과거 ECR 이미지 자동 삭제 기능 (Push 이벤트에 실시간으로 반응)",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getLambdaRoleArn()!,
+      role: iamInfo.getEcrCleanupLambdaRoleArn()!,
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "cleanup_ecr_image"),

@@ -11,7 +11,7 @@ enum AssumeRoleKey {
 
 export default class RoleInfo extends BaseAwsInfo {
   private readonly ec2InstanceProfile: InstanceProfile;
-  private readonly lambdaRole?: Role;
+  private readonly ecrCleanupLambdaRole?: Role;
   private readonly frontendDeliveryLambdaRole: Role;
   private readonly sendSlackMessageLambdaRole: Role;
   private readonly backendDeliveryInitLambdaRole: Role;
@@ -22,7 +22,7 @@ export default class RoleInfo extends BaseAwsInfo {
     super();
 
     this.ec2InstanceProfile = this.createEc2InstanceProfile();
-    this.lambdaRole = this.createLambdaRole();
+    this.ecrCleanupLambdaRole = this.createLambdaRole();
     this.frontendDeliveryLambdaRole =
       this.createFrontendDeliveryLambdaRole(policyInfo);
     this.sendSlackMessageLambdaRole = this.createSendSlackMessageLambdaRole();
@@ -39,8 +39,8 @@ export default class RoleInfo extends BaseAwsInfo {
     return this.ec2InstanceProfile.arn;
   }
 
-  public getLambdaRoleArn() {
-    return this.lambdaRole?.arn;
+  public getEcrCleanupLambdaRoleArn() {
+    return this.ecrCleanupLambdaRole?.arn;
   }
 
   public getFrontendDeliveryLambdaRole() {
@@ -64,9 +64,11 @@ export default class RoleInfo extends BaseAwsInfo {
   }
 
   private createEc2InstanceProfile() {
-    const name = "backend-server-ec2-role";
-    const ec2Role = new aws.iam.Role(name, {
-      name,
+    const prefix = "backend-server-ec2";
+    const roleName = `${prefix}-role`;
+
+    const ec2Role = new aws.iam.Role(roleName, {
+      name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
         Service: AssumeRoleKey.EC2,
       }),
@@ -75,17 +77,11 @@ export default class RoleInfo extends BaseAwsInfo {
     [
       aws.iam.ManagedPolicy.AmazonSSMManagedInstanceCore, // for access parameter store
       aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryReadOnly,
-    ].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `${name}-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          role: ec2Role.name,
-          policyArn: eachPolicyArn,
-        },
-      );
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, ec2Role.name, each);
     });
 
-    return new aws.iam.InstanceProfile(`${name}-instance-profile`, {
+    return new aws.iam.InstanceProfile(`${prefix}-instance-profile`, {
       role: ec2Role.name,
     });
   }
@@ -95,8 +91,11 @@ export default class RoleInfo extends BaseAwsInfo {
       return undefined;
     }
 
-    const result = new aws.iam.Role("lambda-role", {
-      name: "lambda-role",
+    const prefix = "ecr-cleanup-lambda";
+    const roleName = `${prefix}-role`;
+
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
         Service: AssumeRoleKey.LAMBDA,
       }),
@@ -105,22 +104,19 @@ export default class RoleInfo extends BaseAwsInfo {
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       aws.iam.ManagedPolicy.AmazonEC2ContainerRegistryFullAccess,
-    ].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `lambda-role-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          role: result.name,
-          policyArn: eachPolicyArn,
-        },
-      );
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
     });
 
     return result;
   }
 
   private createFrontendDeliveryLambdaRole(policyInfo: PolicyInfo) {
-    const result = new aws.iam.Role("frontend-delivery-lambda-role", {
-      name: "frontend-delivery-lambda-role",
+    const prefix = "frontend-delivery-lambda";
+    const roleName = `${prefix}-role`;
+
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
         Service: AssumeRoleKey.LAMBDA,
       }),
@@ -131,15 +127,12 @@ export default class RoleInfo extends BaseAwsInfo {
       aws.iam.ManagedPolicy.AmazonS3FullAccess,
       aws.iam.ManagedPolicy.CloudFrontFullAccess,
       aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
-      policyInfo.getCodeDeliveryStateSnsPublishMessagePolicy(),
-    ].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `frontend-delivery-lambda-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          policyArn: eachPolicyArn,
-          role: result.name,
-        },
-      );
+      {
+        key: "CodeDeliveryStateSnsPublishMessage",
+        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
+      },
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
     });
 
     return result;
@@ -156,26 +149,19 @@ export default class RoleInfo extends BaseAwsInfo {
       }),
     });
 
-    [aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole].forEach(
-      (eachPolicyArn, index) => {
-        new aws.iam.RolePolicyAttachment(
-          `${prefix}-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-          {
-            policyArn: eachPolicyArn,
-            role: result.name,
-          },
-        );
-      },
-    );
+    [aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
+    });
 
     return result;
   }
 
   private createBackendDeliveryInitLambdaRole(policyInfo: PolicyInfo) {
-    const name = "backend-delivery-init-lambda-role";
+    const prefix = "backend-delivery-init-lambda";
+    const roleName = `${prefix}-role`;
 
-    const result = new aws.iam.Role(name, {
-      name,
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
         Service: AssumeRoleKey.LAMBDA,
       }),
@@ -183,16 +169,16 @@ export default class RoleInfo extends BaseAwsInfo {
 
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
-      policyInfo.getCodeDeliveryStateSnsPublishMessagePolicy(),
-      policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
-    ].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `${name}-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          role: result.name,
-          policyArn: eachPolicyArn,
-        },
-      );
+      {
+        key: "CodeDeliveryStateSnsPublishMessage",
+        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
+      },
+      {
+        key: "BackedAutoScalingGroupUpdatePolicy",
+        value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
+      },
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
     });
 
     return result;
@@ -200,10 +186,10 @@ export default class RoleInfo extends BaseAwsInfo {
 
   private createBackendDeliveryProcessingLambdaRole(policyInfo: PolicyInfo) {
     const prefix = "backend-delivery-processing-lambda";
-    const name = `${prefix}-role`;
+    const roleName = `${prefix}-role`;
 
-    const result = new aws.iam.Role(name, {
-      name,
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
         Service: AssumeRoleKey.LAMBDA,
       }),
@@ -211,17 +197,20 @@ export default class RoleInfo extends BaseAwsInfo {
 
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
-      policyInfo.getCodeDeliveryStateSnsPublishMessagePolicy(),
-      policyInfo.getBackendDeliveryCompleteQueueSendMessagePolicyArn(),
-      policyInfo.getCloudFrontUpdatePolicyArn(),
-    ].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `${prefix}-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          role: result.name,
-          policyArn: eachPolicyArn,
-        },
-      );
+      {
+        key: "CodeDeliveryStateSnsPublishMessage",
+        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
+      },
+      {
+        key: "BackendDeliveryCompleteQueueSendMessage",
+        value: policyInfo.getBackendDeliveryCompleteQueueSendMessagePolicyArn(),
+      },
+      {
+        key: "CloudFrontUpdatePolicy",
+        value: policyInfo.getCloudFrontUpdatePolicyArn(),
+      },
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
     });
 
     return result;
@@ -229,10 +218,10 @@ export default class RoleInfo extends BaseAwsInfo {
 
   private createBackendDeliveryCompleteLambdaRole(policyInfo: PolicyInfo) {
     const prefix = "backend-delivery-complete-lambda";
-    const name = `${prefix}-role`;
+    const roleName = `${prefix}-role`;
 
-    const result = new aws.iam.Role(name, {
-      name,
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
         Service: AssumeRoleKey.LAMBDA,
       }),
@@ -241,32 +230,67 @@ export default class RoleInfo extends BaseAwsInfo {
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
-      policyInfo.getCodeDeliveryStateSnsPublishMessagePolicy(),
-      policyInfo.getBackendDeliveryCompleteQueuePurgeQueuePolicyArn(),
-      policyInfo.getCloudFrontUpdatePolicyArn(), // for rollback
-      policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
-    ].forEach((eachPolicyArn, index) => {
-      new aws.iam.RolePolicyAttachment(
-        `${prefix}-${this.getPolicyAttachmentKey(eachPolicyArn, index)}-policy`,
-        {
-          role: result.name,
-          policyArn: eachPolicyArn,
-        },
-      );
+      {
+        key: "CodeDeliveryStateSnsPublishMessage",
+        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
+      },
+      {
+        key: "BackendDeliveryCompleteQueuePurgeQueue",
+        value: policyInfo.getBackendDeliveryCompleteQueuePurgeQueuePolicyArn(),
+      },
+      {
+        key: "CloudFrontUpdatePolicy",
+        value: policyInfo.getCloudFrontUpdatePolicyArn(),
+      }, // for rollback
+      {
+        key: "BackedAutoScalingGroupUpdatePolicy",
+        value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
+      },
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
     });
 
     return result;
   }
 
-  private getPolicyAttachmentKey(
-    policyArn: string | pulumi.Output<string>,
-    index: number,
+  private newRolePolicyAttachment(
+    prefix: string,
+    role: pulumi.Output<string>,
+    policyArn:
+      | string
+      | {
+          key: string;
+          value: pulumi.Output<string>;
+        },
   ) {
-    if (typeof policyArn === "string") {
+    new aws.iam.RolePolicyAttachment(
+      `${prefix}-${this.getPolicyAttachmentKey(policyArn)}-policy`,
+      {
+        role,
+        policyArn: this.getPolicyArn(policyArn),
+      },
+    );
+  }
+
+  private getPolicyAttachmentKey(
+    policyArn: string | { key: string; value: pulumi.Output<string> },
+  ) {
+    const isManagedArn = typeof policyArn === "string";
+    if (isManagedArn) {
       return policyArn.split("/").reverse()[0];
     }
 
-    const seq = index + 1;
-    return `custom-${seq}`;
+    return policyArn.key;
+  }
+
+  private getPolicyArn(
+    policyArn: string | { key: string; value: pulumi.Output<string> },
+  ) {
+    const isManagedArn = typeof policyArn === "string";
+    if (isManagedArn) {
+      return policyArn;
+    }
+
+    return policyArn.value;
   }
 }
