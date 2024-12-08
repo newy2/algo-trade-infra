@@ -5,7 +5,6 @@ import { Policy } from "@pulumi/aws/iam";
 
 export default class PolicyInfo extends BaseAwsInfo {
   private readonly runCommandPolicy: Policy;
-  private readonly codeDeliveryStateSnsPublishMessagePolicy: Policy;
   private readonly backendDeliveryCompleteQueueSendMessagePolicy: Policy;
   private readonly backendDeliveryCompleteQueuePurgeQueuePolicy: Policy;
   private readonly backedAutoScalingGroupUpdatePolicy: Policy;
@@ -15,9 +14,6 @@ export default class PolicyInfo extends BaseAwsInfo {
     super();
 
     this.runCommandPolicy = this.createRunCommandPolicy();
-    this.codeDeliveryStateSnsPublishMessagePolicy =
-      this.createCodeDeliveryStateSnsPublishMessagePolicy();
-
     this.backendDeliveryCompleteQueueSendMessagePolicy =
       this.createBackendDeliveryCompleteQueueSendMessagePolicy();
     this.backendDeliveryCompleteQueuePurgeQueuePolicy =
@@ -29,10 +25,6 @@ export default class PolicyInfo extends BaseAwsInfo {
 
   public getRunCommandPolicyArn() {
     return this.runCommandPolicy.arn;
-  }
-
-  public getCodeDeliveryStateSnsPublishMessagePolicyArn() {
-    return this.codeDeliveryStateSnsPublishMessagePolicy.arn;
   }
 
   public getBackendDeliveryCompleteQueueSendMessagePolicyArn() {
@@ -74,21 +66,6 @@ export default class PolicyInfo extends BaseAwsInfo {
                 "ec2:ResourceTag/*": [this.getEc2ServerName()],
               },
             },
-          },
-        ],
-      },
-    });
-  }
-
-  private createCodeDeliveryStateSnsPublishMessagePolicy() {
-    return new aws.iam.Policy("code-delivery-state-sns-public-message-policy", {
-      policy: {
-        Version: "2012-10-17",
-        Statement: [
-          {
-            Effect: "Allow",
-            Action: "sns:Publish",
-            Resource: [this.getCodeDeliveryStateSnsTopicArn()],
           },
         ],
       },

@@ -13,7 +13,6 @@ export default class RoleInfo extends BaseAwsInfo {
   private readonly ec2InstanceProfile: InstanceProfile;
   private readonly ecrCleanupLambdaRole?: Role;
   private readonly frontendDeliveryLambdaRole: Role;
-  private readonly sendSlackMessageLambdaRole: Role;
   private readonly backendDeliveryInitLambdaRole: Role;
   private readonly backendDeliveryProcessingLambdaRole: Role;
   private readonly backendDeliveryCompleteLambdaRole: Role;
@@ -23,10 +22,7 @@ export default class RoleInfo extends BaseAwsInfo {
 
     this.ec2InstanceProfile = this.createEc2InstanceProfile();
     this.ecrCleanupLambdaRole = this.createLambdaRole();
-    this.frontendDeliveryLambdaRole =
-      this.createFrontendDeliveryLambdaRole(policyInfo);
-    this.sendSlackMessageLambdaRole = this.createSendSlackMessageLambdaRole();
-
+    this.frontendDeliveryLambdaRole = this.createFrontendDeliveryLambdaRole();
     this.backendDeliveryInitLambdaRole =
       this.createBackendDeliveryInitLambdaRole(policyInfo);
     this.backendDeliveryProcessingLambdaRole =
@@ -45,10 +41,6 @@ export default class RoleInfo extends BaseAwsInfo {
 
   public getFrontendDeliveryLambdaRole() {
     return this.frontendDeliveryLambdaRole.arn;
-  }
-
-  public getSendSlackMessageLambdaRole() {
-    return this.sendSlackMessageLambdaRole.arn;
   }
 
   public getBackendDeliveryInitRoleArn() {
@@ -111,7 +103,7 @@ export default class RoleInfo extends BaseAwsInfo {
     return result;
   }
 
-  private createFrontendDeliveryLambdaRole(policyInfo: PolicyInfo) {
+  private createFrontendDeliveryLambdaRole() {
     const prefix = "frontend-delivery-lambda";
     const roleName = `${prefix}-role`;
 
@@ -127,29 +119,7 @@ export default class RoleInfo extends BaseAwsInfo {
       aws.iam.ManagedPolicy.AmazonS3FullAccess,
       aws.iam.ManagedPolicy.CloudFrontFullAccess,
       aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
-      {
-        key: "CodeDeliveryStateSnsPublishMessage",
-        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
-      },
     ].forEach((each) => {
-      this.newRolePolicyAttachment(prefix, result.name, each);
-    });
-
-    return result;
-  }
-
-  private createSendSlackMessageLambdaRole() {
-    const prefix = "send-slack-message-lambda";
-    const roleName = `${prefix}-role`;
-
-    const result = new aws.iam.Role(roleName, {
-      name: roleName,
-      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: AssumeRoleKey.LAMBDA,
-      }),
-    });
-
-    [aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
     });
 
@@ -169,10 +139,6 @@ export default class RoleInfo extends BaseAwsInfo {
 
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
-      {
-        key: "CodeDeliveryStateSnsPublishMessage",
-        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
-      },
       {
         key: "BackedAutoScalingGroupUpdatePolicy",
         value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
@@ -197,10 +163,6 @@ export default class RoleInfo extends BaseAwsInfo {
 
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
-      {
-        key: "CodeDeliveryStateSnsPublishMessage",
-        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
-      },
       {
         key: "BackendDeliveryCompleteQueueSendMessage",
         value: policyInfo.getBackendDeliveryCompleteQueueSendMessagePolicyArn(),
@@ -230,10 +192,6 @@ export default class RoleInfo extends BaseAwsInfo {
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
-      {
-        key: "CodeDeliveryStateSnsPublishMessage",
-        value: policyInfo.getCodeDeliveryStateSnsPublishMessagePolicyArn(),
-      },
       {
         key: "BackendDeliveryCompleteQueuePurgeQueue",
         value: policyInfo.getBackendDeliveryCompleteQueuePurgeQueuePolicyArn(),

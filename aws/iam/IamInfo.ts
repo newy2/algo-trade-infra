@@ -18,10 +18,6 @@ export class IamInfo {
     return this.roleInfo.getFrontendDeliveryLambdaRole();
   }
 
-  public getSendSlackMessageLambdaRole() {
-    return this.roleInfo.getSendSlackMessageLambdaRole();
-  }
-
   public getEc2InstanceProfileArn() {
     return this.roleInfo.getEc2InstanceProfileArn();
   }

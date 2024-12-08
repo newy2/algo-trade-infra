@@ -66,14 +66,6 @@ export default class BaseAwsInfo {
     return this.config.requireSecret("rds_password");
   }
 
-  protected getCodeDeliveryStateSnsTopicName() {
-    return "code-delivery-state-topic";
-  }
-
-  protected getCodeDeliveryStateSnsTopicArn() {
-    return pulumi.interpolate`arn:aws:sns:${this.getCurrentRegion()}:${this.getAccountId()}:${this.getCodeDeliveryStateSnsTopicName()}`;
-  }
-
   protected getSlackUrl() {
     return this.config.requireSecret("slack_url");
   }
