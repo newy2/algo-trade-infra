@@ -2,7 +2,7 @@ import ApiHelper from "./common/ApiHelper.mjs";
 
 const apiHelper = new ApiHelper();
 
-export async function sendSlackMessage(title, message) {
+export async function sendSlackMessage(message) {
   try {
     const slackUrl = getSlackUrl();
     return await apiHelper.call({
@@ -14,17 +14,9 @@ export async function sendSlackMessage(title, message) {
       body: JSON.stringify({
         "blocks": [
           {
-            "type": "header",
-            "text": {
-              "type": "plain_text",
-              "text": title,
-              "emoji": true
-            }
-          },
-          {
             "type": "section",
             "text": {
-              "type": "plain_text",
+              "type": "mrkdwn",
               "text": message,
               "emoji": true
             }
