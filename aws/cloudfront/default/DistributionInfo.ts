@@ -49,7 +49,6 @@ export default class DistributionInfo {
         defaultRootObject: DistributionInfo.ROOT_OBJECT,
         enabled: true,
         httpVersion: "http2",
-        isIpv6Enabled: true,
         orderedCacheBehaviors: this.getOrderedCacheBehaviors(s3Info),
         origins: [
           {

@@ -6,7 +6,6 @@ import BaseAwsInfo from "../../BaseAwsInfo";
 
 type SecurityGroupCidrBlockMap = {
   cidrBlocks: string[];
-  ipv6CidrBlocks?: string[];
 };
 
 export default class SecurityGroupInfo extends BaseAwsInfo {
@@ -75,7 +74,6 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
   private createHttpsSecurityGroup() {
     const cidrBlockMap: SecurityGroupCidrBlockMap = {
       cidrBlocks: ["0.0.0.0/0"],
-      ipv6CidrBlocks: this.isEnableIpv6() ? ["::/0"] : undefined,
     };
 
     return new aws.ec2.SecurityGroup("https-security-group", {

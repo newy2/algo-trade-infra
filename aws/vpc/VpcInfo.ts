@@ -58,8 +58,6 @@ export default class VpcInfo extends BaseAwsInfo {
 
   private findDefaultVpc() {
     return new aws.ec2.DefaultVpc("default-vpc", {
-      assignGeneratedIpv6CidrBlock: true,
-      ipv6CidrBlockNetworkBorderGroup: this.getCurrentRegion(),
       tags: {
         Name: "Default VPC",
       },

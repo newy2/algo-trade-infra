@@ -7,19 +7,14 @@ import SubnetCidrBlockCalculator from "../../../util/SubnetCidrBlockCalculator";
 type SubnetGetCidrBlockParams = {
   ipv4CidrBlock: string;
   ipv4CidrNextCount: number;
-  ipv6CidrBlock: string;
-  ipv6CidrNextCount: number;
 };
 
 type SubnetCidrBlockMap = {
   cidrBlock: string;
-  assignIpv6AddressOnCreation?: boolean;
-  ipv6CidrBlock?: string;
 };
 
 export default class SubnetInfo extends BaseAwsInfo {
   private static readonly IPV4_CIDR_MASK = 20;
-  private static readonly IPV6_CIDR_MASK = 64;
 
   private readonly privateSubnets: Promise<DefaultSubnet[]>;
   private readonly publicSubnets: pulumi.Output<Subnet[]>;
@@ -75,20 +70,14 @@ export default class SubnetInfo extends BaseAwsInfo {
 
   private createPublicSubnet(defaultVpc: DefaultVpc) {
     return pulumi
-      .all([
-        this.privateSubnets,
-        defaultVpc.cidrBlock,
-        defaultVpc.ipv6CidrBlock,
-      ])
-      .apply(([defaultSubnets, ipv4CidrBlock, ipv6CidrBlock]) => {
+      .all([this.privateSubnets, defaultVpc.cidrBlock])
+      .apply(([defaultSubnets, ipv4CidrBlock]) => {
         const defaultSubnetSize = defaultSubnets.length;
 
         return Array.from({ length: 2 }).map((_, index) => {
           const cidrBlockMap = this.getCidrBlockMap({
             ipv4CidrBlock: ipv4CidrBlock,
             ipv4CidrNextCount: defaultSubnetSize + index,
-            ipv6CidrBlock: ipv6CidrBlock,
-            ipv6CidrNextCount: index,
           });
 
           const subnetSeq = index + 1;
@@ -115,19 +104,8 @@ export default class SubnetInfo extends BaseAwsInfo {
       SubnetInfo.IPV4_CIDR_MASK,
     ).nextCidrBlock(params.ipv4CidrNextCount);
 
-    if (!this.isEnableIpv6()) {
-      return {
-        cidrBlock: nextIpv4CidrBlock,
-      };
-    }
-
     return {
       cidrBlock: nextIpv4CidrBlock,
-      assignIpv6AddressOnCreation: true,
-      ipv6CidrBlock: new SubnetCidrBlockCalculator(
-        params.ipv6CidrBlock,
-        SubnetInfo.IPV6_CIDR_MASK,
-      ).nextCidrBlock(params.ipv6CidrNextCount),
     };
   }
 }

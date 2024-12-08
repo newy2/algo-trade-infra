@@ -54,10 +54,6 @@ export default class BaseAwsInfo {
     });
   }
 
-  protected isEnableIpv6() {
-    return true;
-  }
-
   protected isFastCleanupEcrImage() {
     return true;
   }
