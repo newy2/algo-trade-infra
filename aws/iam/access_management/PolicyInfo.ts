@@ -6,6 +6,10 @@ import { Policy } from "@pulumi/aws/iam";
 export default class PolicyInfo extends BaseAwsInfo {
   private readonly runCommandPolicy: Policy;
   private readonly codeDeliveryStateSnsPublishMessagePolicy: Policy;
+  private readonly backendDeliveryCompleteQueueSendMessagePolicy: Policy;
+  private readonly backendDeliveryCompleteQueuePurgeQueuePolicy: Policy;
+  private readonly backedAutoScalingGroupUpdatePolicy: Policy;
+  private readonly cloudFrontUpdatePolicy: Policy;
 
   constructor() {
     super();
@@ -13,6 +17,14 @@ export default class PolicyInfo extends BaseAwsInfo {
     this.runCommandPolicy = this.createRunCommandPolicy();
     this.codeDeliveryStateSnsPublishMessagePolicy =
       this.createCodeDeliveryStateSnsPublishMessagePolicy();
+
+    this.backendDeliveryCompleteQueueSendMessagePolicy =
+      this.createBackendDeliveryCompleteQueueSendMessagePolicy();
+    this.backendDeliveryCompleteQueuePurgeQueuePolicy =
+      this.createBackendDeliveryCompleteQueuePurgeQueuePolicy();
+    this.backedAutoScalingGroupUpdatePolicy =
+      this.createBackedAutoScalingGroupUpdatePolicy();
+    this.cloudFrontUpdatePolicy = this.createCloudFrontUpdatePolicy();
   }
 
   public getRunCommandPolicyArn() {
@@ -21,6 +33,22 @@ export default class PolicyInfo extends BaseAwsInfo {
 
   public getCodeDeliveryStateSnsPublishMessagePolicy() {
     return this.codeDeliveryStateSnsPublishMessagePolicy.arn;
+  }
+
+  public getBackendDeliveryCompleteQueueSendMessagePolicyArn() {
+    return this.backendDeliveryCompleteQueueSendMessagePolicy.arn;
+  }
+
+  public getBackendDeliveryCompleteQueuePurgeQueuePolicyArn() {
+    return this.backendDeliveryCompleteQueuePurgeQueuePolicy.arn;
+  }
+
+  public getBackedAutoScalingGroupUpdatePolicyArn() {
+    return this.backedAutoScalingGroupUpdatePolicy.arn;
+  }
+
+  public getCloudFrontUpdatePolicyArn() {
+    return this.cloudFrontUpdatePolicy.arn;
   }
 
   private createRunCommandPolicy() {
@@ -61,6 +89,80 @@ export default class PolicyInfo extends BaseAwsInfo {
             Effect: "Allow",
             Action: "sns:Publish",
             Resource: [this.getCodeDeliveryStateSnsTopicArn()],
+          },
+        ],
+      },
+    });
+  }
+
+  private createBackedAutoScalingGroupUpdatePolicy() {
+    return new aws.iam.Policy("backend-auto-scaling-group-update-policy", {
+      policy: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: [
+              "autoscaling:DescribeAutoScalingInstances",
+              "autoscaling:UpdateAutoScalingGroup",
+            ],
+            Resource: "*", // TODO Resource 좁히기
+          },
+        ],
+      },
+    });
+  }
+
+  private createBackendDeliveryCompleteQueueSendMessagePolicy() {
+    return new aws.iam.Policy(
+      "backend-delivery-complete-queue-send-message-policy",
+      {
+        policy: {
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Effect: "Allow",
+              Action: "sqs:SendMessage",
+              Resource: this.getBackendDeliveryCompletedQueueArn(),
+            },
+          ],
+        },
+      },
+    );
+  }
+
+  private createBackendDeliveryCompleteQueuePurgeQueuePolicy() {
+    return new aws.iam.Policy(
+      "backend-delivery-complete-queue-purge-queue-policy",
+      {
+        policy: {
+          Version: "2012-10-17",
+          Statement: [
+            {
+              Effect: "Allow",
+              Action: "sqs:PurgeQueue",
+              Resource: this.getBackendDeliveryCompletedQueueArn(),
+            },
+          ],
+        },
+      },
+    );
+  }
+
+  private createCloudFrontUpdatePolicy() {
+    return new aws.iam.Policy("cloud-front-update-policy", {
+      policy: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: [
+              "cloudfront:GetDistribution",
+              "cloudfront:GetDistributionConfig",
+              "cloudfront:UpdateDistribution",
+              "ec2:DescribeInstances",
+            ],
+            Resource: "*", // TODO Resource 좁히기
           },
         ],
       },

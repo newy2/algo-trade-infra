@@ -5,11 +5,15 @@ import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import LayerInfo from "../additional_resource/LayerInfo";
+import * as path from "path";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   private readonly frontendDeliveryFunction: aws.lambda.Function;
   private readonly sendSlackMessageFunction: aws.lambda.Function;
+  private readonly backendDeliveryInitFunction: aws.lambda.Function;
+  private readonly backendDeliveryProcessingFunction: aws.lambda.Function;
+  private readonly backendDeliveryCompleteFunction: aws.lambda.Function;
 
   constructor(
     iamInfo: IamInfo,
@@ -28,6 +32,25 @@ export default class FunctionInfo extends BaseAwsInfo {
     );
     this.sendSlackMessageFunction =
       this.createSendSlackMessageFunction(iamInfo);
+
+    this.backendDeliveryInitFunction = this.createBackendDeliveryInitFunction(
+      iamInfo,
+      layerInfo,
+    );
+    this.backendDeliveryProcessingFunction =
+      this.createBackendDeliveryProcessingFunction(
+        iamInfo,
+        sqsInfo,
+        cloudfrontInfo,
+        layerInfo,
+      );
+    this.backendDeliveryCompleteFunction =
+      this.createBackendDeliveryCompleteFunction(
+        iamInfo,
+        sqsInfo,
+        cloudfrontInfo,
+        layerInfo,
+      );
   }
 
   public getCleanupEcrImageFunctionArn() {
@@ -46,6 +69,14 @@ export default class FunctionInfo extends BaseAwsInfo {
     return this.sendSlackMessageFunction.name;
   }
 
+  public getBackendDeliveryInitFunctionArn() {
+    return this.backendDeliveryInitFunction.arn;
+  }
+
+  public getBackendDeliveryProcessingFunctionArn() {
+    return this.backendDeliveryProcessingFunction.arn;
+  }
+
   private createCleanupEcrImageFunction(iamInfo: IamInfo) {
     if (!this.isFastCleanupEcrImage()) {
       return undefined;
@@ -59,7 +90,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       role: iamInfo.getLambdaRoleArn()!,
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        "./aws/lambda/default/script/cleanup_ecr_image",
+        path.join(__dirname, "script", "cleanup_ecr_image"),
       ),
       timeout: 10,
       environment: {
@@ -81,10 +112,10 @@ export default class FunctionInfo extends BaseAwsInfo {
       role: iamInfo.getFrontendDeliveryLambdaRole(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        "./aws/lambda/default/script/frontend_delivery",
+        path.join(__dirname, "script", "frontend_delivery"),
       ),
       timeout: 10,
-      layers: [layerInfo.getSendSlackApiLayer()],
+      layers: [layerInfo.getSendSlackApiLayerArn()],
       environment: {
         variables: {
           BUCKET_NAME: this.getFrontendBucketName(),
@@ -112,7 +143,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       role: iamInfo.getSendSlackMessageLambdaRole(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        "./aws/lambda/default/script/send_slack_message",
+        path.join(__dirname, "script", "send_slack_message"),
       ),
       timeout: 10,
       environment: {
@@ -121,5 +152,107 @@ export default class FunctionInfo extends BaseAwsInfo {
         },
       },
     });
+  }
+
+  private createBackendDeliveryInitFunction(
+    iamInfo: IamInfo,
+    layerInfo: LayerInfo,
+  ) {
+    const name = "backend-delivery-init-lambda";
+
+    return new aws.lambda.Function(name, {
+      name,
+      description: "ASG 인스턴스 사이즈 업 요청",
+      runtime: aws.lambda.Runtime.NodeJS20dX,
+      role: iamInfo.getBackendDeliveryInitRoleArn(),
+      handler: "index.handler",
+      code: new pulumi.asset.FileArchive(
+        path.join(__dirname, "script", "backend_delivery_init"),
+      ),
+      timeout: 10,
+      layers: [
+        layerInfo.getSendSlackApiLayerArn(),
+        layerInfo.getAwsSdkHelperLayerArn(),
+      ],
+      environment: {
+        variables: {
+          AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
+          SNS_TOPIC_ARN: this.getCodeDeliveryStateSnsTopicArn(),
+        },
+      },
+    });
+  }
+
+  private createBackendDeliveryProcessingFunction(
+    iamInfo: IamInfo,
+    sqsInfo: SqsInfo,
+    cloudfrontInfo: CloudFrontInfo,
+    layerInfo: LayerInfo,
+  ) {
+    const name = "backend-delivery-processing-lambda";
+
+    return new aws.lambda.Function(name, {
+      name,
+      description: "CloudFront 의 Origin 변경",
+      runtime: aws.lambda.Runtime.NodeJS20dX,
+      role: iamInfo.getBackendDeliveryProcessingRoleArn(),
+      handler: "index.handler",
+      code: new pulumi.asset.FileArchive(
+        path.join(__dirname, "script", "backend_delivery_processing"),
+      ),
+      timeout: 10 * 60,
+      layers: [
+        layerInfo.getSendSlackApiLayerArn(),
+        layerInfo.getAwsSdkHelperLayerArn(),
+      ],
+      environment: {
+        variables: {
+          DISTRIBUTION_ID: cloudfrontInfo.getBackendDistributionId(),
+          AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
+          SNS_TOPIC_ARN: this.getCodeDeliveryStateSnsTopicArn(),
+          SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
+        },
+      },
+    });
+  }
+
+  private createBackendDeliveryCompleteFunction(
+    iamInfo: IamInfo,
+    sqsInfo: SqsInfo,
+    cloudfrontInfo: CloudFrontInfo,
+    layerInfo: LayerInfo,
+  ) {
+    const name = "backend-delivery-complete-lambda";
+
+    const result = new aws.lambda.Function(name, {
+      name,
+      description: "ASG 인스턴스 사이즈 다운 요청",
+      runtime: aws.lambda.Runtime.NodeJS20dX,
+      role: iamInfo.getBackendDeliveryCompleteRoleArn(),
+      handler: "index.handler",
+      code: new pulumi.asset.FileArchive(
+        path.join(__dirname, "script", "backend_delivery_complete"),
+      ),
+      timeout: 5 * 60,
+      layers: [
+        layerInfo.getSendSlackApiLayerArn(),
+        layerInfo.getAwsSdkHelperLayerArn(),
+      ],
+      environment: {
+        variables: {
+          DISTRIBUTION_ID: cloudfrontInfo.getBackendDistributionId(),
+          AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
+          SNS_TOPIC_ARN: this.getCodeDeliveryStateSnsTopicArn(),
+          SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
+        },
+      },
+    });
+
+    new aws.lambda.EventSourceMapping(`${name}-mapping`, {
+      eventSourceArn: sqsInfo.getBackendDeliveryCompleteQueueArn(),
+      functionName: result.arn,
+    });
+
+    return result;
   }
 }

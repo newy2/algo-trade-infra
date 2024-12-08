@@ -40,4 +40,12 @@ export default class LambdaInfo {
   public getSendSlackMessageFunctionName() {
     return this.functionInfo.getSendSlackMessageFunctionName();
   }
+
+  public getBackendDeliveryInitFunctionArn() {
+    return this.functionInfo.getBackendDeliveryInitFunctionArn();
+  }
+
+  public getBackendDeliveryProcessingFunctionArn() {
+    return this.functionInfo.getBackendDeliveryProcessingFunctionArn();
+  }
 }

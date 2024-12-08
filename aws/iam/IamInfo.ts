@@ -25,4 +25,16 @@ export class IamInfo {
   public getEc2InstanceProfileArn() {
     return this.roleInfo.getEc2InstanceProfileArn();
   }
+
+  public getBackendDeliveryInitRoleArn() {
+    return this.roleInfo.getBackendDeliveryInitRoleArn();
+  }
+
+  public getBackendDeliveryProcessingRoleArn() {
+    return this.roleInfo.getBackendDeliveryProcessingRoleArn();
+  }
+
+  public getBackendDeliveryCompleteRoleArn() {
+    return this.roleInfo.getBackendDeliveryCompleteRoleArn();
+  }
 }
