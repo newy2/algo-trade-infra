@@ -1,3 +1,5 @@
+import { sendSlackMessage } from "/opt/nodejs/send_slack_api/index.mjs";
+
 import FrontendDeployModel from "./models/FrontendDeployModel.mjs";
 import FrontendRollbackModel from "./models/FrontendRollbackModel.mjs";
 import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
@@ -7,7 +9,6 @@ import {
   GetDistributionConfigCommand,
   UpdateDistributionCommand
 } from "@aws-sdk/client-cloudfront";
-import { sendSlackMessage } from "/opt/nodejs/sendSlackMessage.mjs";
 
 export const handler = async (event, context) => {
   const bucketName = getBucketName();

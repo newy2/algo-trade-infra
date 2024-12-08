@@ -21,7 +21,8 @@ export default class LayerInfo {
   }
 
   private createSendSlackApiLayer() {
-    const layerName = "send-slack-api-layer";
+    const layerName = "send-slack-api";
+    const folderName = "send_slack_api";
 
     return new aws.lambda.LayerVersion(layerName, {
       layerName,
@@ -32,8 +33,8 @@ export default class LayerInfo {
           common: new pulumi.asset.FileArchive(
             path.join(__dirname, "script", "common"),
           ),
-          ".": new pulumi.asset.FileArchive(
-            path.join(__dirname, "script", "send_slack_api"),
+          [folderName]: new pulumi.asset.FileArchive(
+            path.join(__dirname, "script", folderName),
           ),
         }),
       }),

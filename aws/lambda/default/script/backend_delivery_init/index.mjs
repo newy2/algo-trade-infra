@@ -1,4 +1,4 @@
-import { sendSlackMessage } from "/opt/nodejs/sendSlackMessage.mjs";
+import { sendSlackMessage } from "/opt/nodejs/send_slack_api/index.mjs";
 import { AutoScaling } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
