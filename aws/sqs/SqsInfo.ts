@@ -10,4 +10,12 @@ export default class SqsInfo {
   public getFrontendRollbackQueueArn() {
     return this.queueInfo.getFrontendRollbackQueueArn();
   }
+
+  public getBackendDeliveryCompleteQueueArn() {
+    return this.queueInfo.getBackendDeliveryCompleteQueueArn();
+  }
+
+  public getBackendDeliveryCompleteQueueUrl() {
+    return this.queueInfo.getBackendDeliveryCompleteQueueUrl();
+  }
 }

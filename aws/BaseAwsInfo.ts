@@ -81,4 +81,8 @@ export default class BaseAwsInfo {
   protected getBackendServerAutoScalingGroupName() {
     return "backend-server-autoscaling-group";
   }
+
+  protected getBackendDeliveryCompleteQueueName() {
+    return "backend-delivery-complete-queue";
+  }
 }
