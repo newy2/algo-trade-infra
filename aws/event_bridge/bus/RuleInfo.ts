@@ -13,12 +13,18 @@ export default class RuleInfo extends BaseAwsInfo {
   }
 
   private createPushEcrEventRule(ecrInfo: EcrInfo, lambdaInfo: LambdaInfo) {
-    const ecrPushRule = this.createEventRulePushEcrRepository(ecrInfo);
-    this.createEventTargetFastCleanupEcrImage(ecrPushRule, lambdaInfo);
+    this.createPushEcrRepositoryEventRule(ecrInfo, lambdaInfo);
+    this.createAutoscalingGroupInstanceSizeUpEventRule(lambdaInfo);
   }
 
-  private createEventRulePushEcrRepository(ecrInfo: EcrInfo) {
-    return new aws.cloudwatch.EventRule("ecr-image-pushed", {
+  private createPushEcrRepositoryEventRule(
+    ecrInfo: EcrInfo,
+    lambdaInfo: LambdaInfo,
+  ) {
+    const name = "ecr-image-pushed";
+
+    const eventRule = new aws.cloudwatch.EventRule(name, {
+      name,
       description: "Triggers on new image push to ECR",
       eventPattern: pulumi.jsonStringify({
         source: ["aws.ecr"],
@@ -30,9 +36,12 @@ export default class RuleInfo extends BaseAwsInfo {
         },
       }),
     });
+
+    this.createFastCleanupEcrImageEventTarget(eventRule, lambdaInfo);
+    this.createBackendDeliveryInitEventTarget(eventRule, lambdaInfo);
   }
 
-  private createEventTargetFastCleanupEcrImage(
+  private createFastCleanupEcrImageEventTarget(
     eventRule: EventRule,
     lambdaInfo: LambdaInfo,
   ) {
@@ -49,6 +58,66 @@ export default class RuleInfo extends BaseAwsInfo {
     });
 
     new aws.cloudwatch.EventTarget("ecr-event-target", {
+      rule: eventRule.name,
+      arn: functionArn,
+    });
+  }
+
+  private createBackendDeliveryInitEventTarget(
+    eventRule: EventRule,
+    lambdaInfo: LambdaInfo,
+  ) {
+    const prefix = "backend-delivery-init";
+    const functionArn = lambdaInfo.getBackendDeliveryInitFunctionArn();
+
+    new aws.lambda.Permission(`${prefix}-lambda-permission`, {
+      action: "lambda:InvokeFunction",
+      principal: "events.amazonaws.com",
+      sourceArn: eventRule.arn,
+      function: functionArn,
+    });
+
+    new aws.cloudwatch.EventTarget(`${prefix}-event-target`, {
+      rule: eventRule.name,
+      arn: functionArn,
+    });
+  }
+
+  private createAutoscalingGroupInstanceSizeUpEventRule(
+    lambdaInfo: LambdaInfo,
+  ) {
+    const name = "backend-autoscaling-group-instance-size-up-event-rule";
+
+    const eventRule = new aws.cloudwatch.EventRule(name, {
+      name,
+      description: "ASG 새 인스턴스 추가 상태 발생",
+      eventPattern: JSON.stringify({
+        source: ["aws.autoscaling"],
+        "detail-type": ["EC2 Instance Launch Successful"],
+        detail: {
+          AutoScalingGroupName: [this.getBackendServerAutoScalingGroupName()],
+        },
+      }),
+    });
+
+    this.createBackendDeliveryProcessingEventTarget(eventRule, lambdaInfo);
+  }
+
+  private createBackendDeliveryProcessingEventTarget(
+    eventRule: EventRule,
+    lambdaInfo: LambdaInfo,
+  ) {
+    const prefix = "backend-delivery-processing";
+    const functionArn = lambdaInfo.getBackendDeliveryProcessingFunctionArn();
+
+    new aws.lambda.Permission(`${prefix}-lambda-permission`, {
+      action: "lambda:InvokeFunction",
+      principal: "events.amazonaws.com",
+      sourceArn: eventRule.arn,
+      function: functionArn,
+    });
+
+    new aws.cloudwatch.EventTarget(`${prefix}-event-target`, {
       rule: eventRule.name,
       arn: functionArn,
     });
