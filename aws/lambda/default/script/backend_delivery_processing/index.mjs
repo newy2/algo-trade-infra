@@ -14,7 +14,7 @@ export const handler = async (event) => {
     const isHealthy = await ec2.checkHealthyApi();
     await sendSlackMessage([
       `health check 결과 (isHealth: ${isHealthy})`,
-      `[${await ec2.getHealthCheckUrl()}](${await ec2.getHealthCheckUrl()})`
+      await ec2.getHealthCheckUrl()
     ].join("\n"));
 
     const sqs = new Sqs(process.env.SQS_URL);
