@@ -48,24 +48,12 @@ export default class VpcInfo extends BaseAwsInfo {
     return this.securityGroupInfo.getEc2SecurityGroupIds();
   }
 
-  public getLoadBalancerSecurityGroupIds() {
-    return this.securityGroupInfo.getLoadBalancerSecurityGroupIds();
-  }
-
   public getRdsSubnetGroupIds() {
     return this.subnetInfo.getRdsSubnetGroupIds();
   }
 
-  public getLoadBalancerSubnetIds() {
-    return this.subnetInfo.getLoadBalancerSubnetIds();
-  }
-
   public getFirstPublicSubnetId() {
     return this.subnetInfo.getFirstPublicSubnetId();
-  }
-
-  getDefaultVpcId() {
-    return this.defaultVpc.id;
   }
 
   private findDefaultVpc() {

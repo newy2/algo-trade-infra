@@ -49,10 +49,6 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
     return [this.ssh.id, this.https.id, this.rdsClient.id];
   }
 
-  public getLoadBalancerSecurityGroupIds() {
-    return [this.https.id];
-  }
-
   private createSshSecurityGroup() {
     const ec2InstanceConnectIp = aws.ec2.getManagedPrefixList({
       name: `com.amazonaws.${this.getCurrentRegion()}.ec2-instance-connect`,
