@@ -1,5 +1,6 @@
 import { DescribeInstancesCommand, EC2Client } from "@aws-sdk/client-ec2";
-import { ApiHelper, retryCall } from "./utils.mjs";
+import { retryCall } from "./utils.mjs";
+import ApiHelper from "./common/ApiHelper.mjs";
 
 export default class Ec2 {
   constructor(instanceId) {

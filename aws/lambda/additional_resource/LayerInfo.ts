@@ -27,9 +27,16 @@ export default class LayerInfo {
       layerName,
       description: "Slack API 호출 로직",
       compatibleRuntimes: [aws.lambda.Runtime.NodeJS20dX],
-      code: new pulumi.asset.FileArchive(
-        "./aws/lambda/additional_resource/script/send_slack_api",
-      ),
+      code: new pulumi.asset.AssetArchive({
+        nodejs: new pulumi.asset.AssetArchive({
+          common: new pulumi.asset.FileArchive(
+            path.join(__dirname, "script", "common"),
+          ),
+          ".": new pulumi.asset.FileArchive(
+            path.join(__dirname, "script", "send_slack_api"),
+          ),
+        }),
+      }),
     });
   }
 
@@ -43,6 +50,9 @@ export default class LayerInfo {
       compatibleRuntimes: [aws.lambda.Runtime.NodeJS20dX],
       code: new pulumi.asset.AssetArchive({
         nodejs: new pulumi.asset.AssetArchive({
+          common: new pulumi.asset.FileArchive(
+            path.join(__dirname, "script", "common"),
+          ),
           [folderName]: new pulumi.asset.FileArchive(
             path.join(__dirname, "script", folderName),
           ),
