@@ -77,4 +77,8 @@ export default class BaseAwsInfo {
   protected getSlackUrl() {
     return this.config.requireSecret("slack_url");
   }
+
+  protected getBackendServerAutoScalingGroupName() {
+    return "backend-server-autoscaling-group";
+  }
 }

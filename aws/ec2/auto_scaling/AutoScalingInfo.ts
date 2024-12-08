@@ -2,11 +2,14 @@ import { Group } from "@pulumi/aws/autoscaling";
 import * as aws from "@pulumi/aws";
 import VpcInfo from "../../vpc/VpcInfo";
 import LaunchTemplateInfo from "../instance/LaunchTemplateInfo";
+import BaseAwsInfo from "../../BaseAwsInfo";
 
-export default class AutoScalingInfo {
+export default class AutoScalingInfo extends BaseAwsInfo {
   private readonly backendServerAutoScalingGroup: Group;
 
   constructor(vpcInfo: VpcInfo, launchTemplateInfo: LaunchTemplateInfo) {
+    super();
+
     this.backendServerAutoScalingGroup =
       this.createBackendServerAutoScalingGroup(vpcInfo, launchTemplateInfo);
   }
@@ -15,7 +18,7 @@ export default class AutoScalingInfo {
     vpcInfo: VpcInfo,
     launchTemplateInfo: LaunchTemplateInfo,
   ) {
-    const name = "backend-server-autoscaling-group";
+    const name = this.getBackendServerAutoScalingGroupName();
     return new aws.autoscaling.Group(name, {
       name,
       desiredCapacity: 1,

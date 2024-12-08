@@ -30,4 +30,8 @@ export default class CloudFrontInfo {
   public getFrontendDistributionId() {
     return this.distributionInfo.getFrontendDistributionId();
   }
+
+  public getBackendDistributionId() {
+    return this.distributionInfo.getBackendDistributionId();
+  }
 }
