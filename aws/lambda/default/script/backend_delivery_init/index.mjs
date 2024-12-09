@@ -11,7 +11,7 @@ export const handler = async (event) => {
   // await slack.sendMessage(`백엔드 배포 ASG Scale Up 요청 시작\n${JSON.stringify(event, null, 2)}`);
   try {
     await slack.sendMessage("백엔드 배포 ASG Scale Up 요청 시작");
-    const autoScaling = new AutoScaling(process.env.AUTO_SCALING_GROUP_NAME);
+    const autoScaling = new AutoScaling(await parameterStore.getBackendAutoScalingGroupName());
     await autoScaling.scaleUp();
     await slack.sendMessage("백엔드 배포 ASG Scale Up 요청 완료");
   } catch (error) {

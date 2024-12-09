@@ -124,11 +124,6 @@ export default class FunctionInfo extends BaseAwsInfo {
         layerInfo.getSendSlackApiLayerArn(),
         layerInfo.getAwsSdkHelperLayerArn(),
       ],
-      environment: {
-        variables: {
-          AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-        },
-      },
     });
   }
 
@@ -153,11 +148,6 @@ export default class FunctionInfo extends BaseAwsInfo {
         layerInfo.getSendSlackApiLayerArn(),
         layerInfo.getAwsSdkHelperLayerArn(),
       ],
-      environment: {
-        variables: {
-          AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-        },
-      },
     });
   }
 
@@ -182,11 +172,6 @@ export default class FunctionInfo extends BaseAwsInfo {
         layerInfo.getSendSlackApiLayerArn(),
         layerInfo.getAwsSdkHelperLayerArn(),
       ],
-      environment: {
-        variables: {
-          AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-        },
-      },
     });
 
     new aws.lambda.EventSourceMapping(`${name}-mapping`, {

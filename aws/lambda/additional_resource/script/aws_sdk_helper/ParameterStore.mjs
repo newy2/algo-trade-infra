@@ -3,6 +3,7 @@ import { GetParametersByPathCommand, SSMClient } from "@aws-sdk/client-ssm";
 export default class ParameterStore {
   static _PREFIX = "/code/delivery";
   static _SLACK_URL_KEY = `${ParameterStore._PREFIX}/slack/url`;
+  static _BACKEND_AUTO_SCALING_GROUP_NAME_KEY = `${ParameterStore._PREFIX}/backend/auto_scaling_group/name`;
   static _BACKEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/backend/cloudfront/distribution/id`;
   static _BACKEND_SQS_COMPLETE_URL_KEY = `${ParameterStore._PREFIX}/backend/sqs/complete/url`;
   static _FRONTEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/frontend/cloudfront/distribution/id`;
@@ -14,6 +15,10 @@ export default class ParameterStore {
 
   async getSlackUrl() {
     return await this._getParameter(ParameterStore._SLACK_URL_KEY);
+  }
+
+  async getBackendAutoScalingGroupName() {
+    return await this._getParameter(ParameterStore._BACKEND_AUTO_SCALING_GROUP_NAME_KEY);
   }
 
   async getBackendDistributionId() {

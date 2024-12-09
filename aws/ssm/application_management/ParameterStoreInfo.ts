@@ -28,6 +28,8 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     "/code/delivery/backend/cloudfront/distribution/url";
   public static readonly CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY =
     "/code/delivery/backend/sqs/complete/url";
+  public static readonly CODE_DELIVERY_BACKEND_AUTO_SCALING_GROUP_NAME_KEY =
+    "/code/delivery/backend/auto_scaling_group/name";
 
   constructor(
     vpcInfo: VpcInfo,
@@ -139,6 +141,13 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       description: "Backend SQS URL",
       type: aws.ssm.ParameterType.String,
       value: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
+    });
+
+    new aws.ssm.Parameter("code-delivery-backend-auto-scaling-group-name", {
+      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_AUTO_SCALING_GROUP_NAME_KEY,
+      description: "Backend ASG name",
+      type: aws.ssm.ParameterType.String,
+      value: this.getBackendServerAutoScalingGroupName(),
     });
   }
 }

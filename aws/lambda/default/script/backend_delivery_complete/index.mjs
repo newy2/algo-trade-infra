@@ -12,7 +12,7 @@ export const handler = async (event) => {
   try {
     await slack.sendMessage(`${isSuccessMessage ? "" : "[롤백] "} ASG Scale Down 진행`);
 
-    const autoScaling = new AutoScaling(process.env.AUTO_SCALING_GROUP_NAME);
+    const autoScaling = new AutoScaling(await parameterStore.getBackendAutoScalingGroupName());
     await autoScaling.validateEc2InstanceSize();
 
     if (!isSuccessMessage) {
