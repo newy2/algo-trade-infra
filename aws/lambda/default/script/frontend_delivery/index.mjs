@@ -1,8 +1,7 @@
-import { CloudFront, ParameterStore, Slack } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import { CloudFront, ParameterStore, S3, Slack } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 import FrontendDeployModel from "./models/FrontendDeployModel.mjs";
 import FrontendRollbackModel from "./models/FrontendRollbackModel.mjs";
-import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
 
 export const handler = async (event) => {
   const parameterStore = new ParameterStore();
@@ -57,45 +56,5 @@ function getModel(s3ObjectKeys, modelType) {
       return new FrontendRollbackModel(s3ObjectKeys);
     default:
       throw new Error(`Not support model type: ${modelType}`);
-  }
-}
-
-class S3 {
-  constructor(bucketName) {
-    this.s3Client = new S3Client();
-    this.bucketName = bucketName;
-  }
-
-  async getObjectKeys() {
-    return (await this._fetchObjects(this.bucketName)).Contents.map((each) => each.Key);
-  }
-
-  async deleteObjects(objectKeys) {
-    if (objectKeys.length === 0) {
-      return;
-    }
-
-    const response = await this.s3Client.send(new DeleteObjectsCommand({
-      Bucket: this.bucketName,
-      Delete: {
-        Objects: objectKeys.map((each) => ({
-          Key: each
-        }))
-      }
-    }));
-
-    const responseStatusCode = response["$metadata"].httpStatusCode;
-    const responseDeletedLength = response.Deleted.length;
-    if (responseStatusCode !== 200 || responseDeletedLength !== objectKeys.length) {
-      console.error("responseStatusCode", responseStatusCode);
-      console.error("responseDeletedLength", responseDeletedLength);
-      throw new Error("S3 Bucket Object 를 삭제하지 못했습니다.");
-    }
-  }
-
-  async _fetchObjects() {
-    return await this.s3Client.send(new ListObjectsV2Command({
-      Bucket: this.bucketName
-    }));
   }
 }
