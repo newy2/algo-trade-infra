@@ -2,26 +2,15 @@ import FunctionInfo from "./default/FunctionInfo";
 import { IamInfo } from "../iam/IamInfo";
 import SqsInfo from "../sqs/SqsInfo";
 import S3Info from "../s3/S3Info";
-import CloudFrontInfo from "../cloudfront/CloudFrontInfo";
 import LayerInfo from "./additional_resource/LayerInfo";
 
 export default class LambdaInfo {
   private readonly layerInfo: LayerInfo;
   private readonly functionInfo: FunctionInfo;
 
-  constructor(
-    iamInfo: IamInfo,
-    sqsInfo: SqsInfo,
-    s3Info: S3Info,
-    cloudfrontInfo: CloudFrontInfo,
-  ) {
+  constructor(iamInfo: IamInfo, sqsInfo: SqsInfo, s3Info: S3Info) {
     this.layerInfo = new LayerInfo();
-    this.functionInfo = new FunctionInfo(
-      iamInfo,
-      sqsInfo,
-      cloudfrontInfo,
-      this.layerInfo,
-    );
+    this.functionInfo = new FunctionInfo(iamInfo, sqsInfo, this.layerInfo);
     s3Info.setFrontendBucketNotification(this); // TODO Refector (functionInfo 를 직접 전달할까?)
   }
 

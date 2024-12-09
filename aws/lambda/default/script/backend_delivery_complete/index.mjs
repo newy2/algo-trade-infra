@@ -30,7 +30,7 @@ export const handler = async (event) => {
       const oldestEc2DnsName = await ec2.getPublicDnsName();
 
       // 관리자가 직접 롤백 요청을 한 경우 (EC2 health check 는 통과했지만, 비즈니스 로직 에러가 발생한 경우)
-      const cloudFront = new CloudFront(process.env.DISTRIBUTION_ID);
+      const cloudFront = new CloudFront(await parameterStore.getBackendDistributionId());
       if (!await cloudFront.isCurrentOriginDomainName(oldestEc2DnsName)) {
         await slack.sendMessage("CF 업데이트 요청");
         const isDeployed = await cloudFront.updateOriginDomainName(oldestEc2DnsName);

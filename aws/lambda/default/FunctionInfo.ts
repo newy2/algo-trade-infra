@@ -3,7 +3,6 @@ import * as pulumi from "@pulumi/pulumi";
 import { IamInfo } from "../../iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
-import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import LayerInfo from "../additional_resource/LayerInfo";
 import * as path from "path";
 
@@ -14,19 +13,13 @@ export default class FunctionInfo extends BaseAwsInfo {
   private readonly backendDeliveryProcessingFunction: aws.lambda.Function;
   private readonly backendDeliveryCompleteFunction: aws.lambda.Function;
 
-  constructor(
-    iamInfo: IamInfo,
-    sqsInfo: SqsInfo,
-    cloudfrontInfo: CloudFrontInfo,
-    layerInfo: LayerInfo,
-  ) {
+  constructor(iamInfo: IamInfo, sqsInfo: SqsInfo, layerInfo: LayerInfo) {
     super();
 
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
     this.frontendDeliveryFunction = this.createFrontendDeliveryFunction(
       iamInfo,
       sqsInfo,
-      cloudfrontInfo,
       layerInfo,
     );
     this.backendDeliveryInitFunction = this.createBackendDeliveryInitFunction(
@@ -34,19 +27,9 @@ export default class FunctionInfo extends BaseAwsInfo {
       layerInfo,
     );
     this.backendDeliveryProcessingFunction =
-      this.createBackendDeliveryProcessingFunction(
-        iamInfo,
-        sqsInfo,
-        cloudfrontInfo,
-        layerInfo,
-      );
+      this.createBackendDeliveryProcessingFunction(iamInfo, sqsInfo, layerInfo);
     this.backendDeliveryCompleteFunction =
-      this.createBackendDeliveryCompleteFunction(
-        iamInfo,
-        sqsInfo,
-        cloudfrontInfo,
-        layerInfo,
-      );
+      this.createBackendDeliveryCompleteFunction(iamInfo, sqsInfo, layerInfo);
   }
 
   public getCleanupEcrImageFunctionArn() {
@@ -90,7 +73,6 @@ export default class FunctionInfo extends BaseAwsInfo {
   private createFrontendDeliveryFunction(
     iamInfo: IamInfo,
     sqsInfo: SqsInfo,
-    cloudfrontInfo: CloudFrontInfo,
     layerInfo: LayerInfo,
   ) {
     const result = new aws.lambda.Function("frontend-delivery-lambda", {
@@ -110,7 +92,6 @@ export default class FunctionInfo extends BaseAwsInfo {
       environment: {
         variables: {
           BUCKET_NAME: this.getFrontendBucketName(),
-          DISTRIBUTION_ID: cloudfrontInfo.getFrontendDistributionId(),
         },
       },
     });
@@ -154,7 +135,6 @@ export default class FunctionInfo extends BaseAwsInfo {
   private createBackendDeliveryProcessingFunction(
     iamInfo: IamInfo,
     sqsInfo: SqsInfo,
-    cloudfrontInfo: CloudFrontInfo,
     layerInfo: LayerInfo,
   ) {
     const name = "backend-delivery-processing-lambda";
@@ -175,7 +155,6 @@ export default class FunctionInfo extends BaseAwsInfo {
       ],
       environment: {
         variables: {
-          DISTRIBUTION_ID: cloudfrontInfo.getBackendDistributionId(),
           AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
           SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
         },
@@ -186,7 +165,6 @@ export default class FunctionInfo extends BaseAwsInfo {
   private createBackendDeliveryCompleteFunction(
     iamInfo: IamInfo,
     sqsInfo: SqsInfo,
-    cloudfrontInfo: CloudFrontInfo,
     layerInfo: LayerInfo,
   ) {
     const name = "backend-delivery-complete-lambda";
@@ -207,7 +185,6 @@ export default class FunctionInfo extends BaseAwsInfo {
       ],
       environment: {
         variables: {
-          DISTRIBUTION_ID: cloudfrontInfo.getBackendDistributionId(),
           AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
           SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
         },

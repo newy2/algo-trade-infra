@@ -3,6 +3,8 @@ import { GetParametersByPathCommand, SSMClient } from "@aws-sdk/client-ssm";
 export default class ParameterStore {
   static _PREFIX = "/code/delivery";
   static _SLACK_URL_KEY = `${ParameterStore._PREFIX}/slack/url`;
+  static _BACKEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/backend/cloudfront/distribution/id`;
+  static _FRONTEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/frontend/cloudfront/distribution/id`;
 
   constructor() {
     this.ssmClient = new SSMClient();
@@ -10,8 +12,15 @@ export default class ParameterStore {
   }
 
   async getSlackUrl() {
-
     return await this._getParameter(ParameterStore._SLACK_URL_KEY);
+  }
+
+  async getBackendDistributionId() {
+    return await this._getParameter(ParameterStore._BACKEND_DISTRIBUTION_ID_KEY);
+  }
+
+  async getFrontendDistributionId() {
+    return await this._getParameter(ParameterStore._FRONTEND_DISTRIBUTION_ID_KEY);
   }
 
   async _getParameter(key) {

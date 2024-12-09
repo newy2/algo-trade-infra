@@ -30,7 +30,7 @@ export const handler = async (event) => {
       return;
     }
 
-    const cloudFront = new CloudFront(process.env.DISTRIBUTION_ID);
+    const cloudFront = new CloudFront(await parameterStore.getBackendDistributionId());
 
     await slack.sendMessage("CF 업데이트 요청");
     const isDeployed = await cloudFront.updateOriginDomainName(await ec2.getPublicDnsName());

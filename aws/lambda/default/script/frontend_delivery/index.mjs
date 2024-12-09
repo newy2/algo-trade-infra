@@ -22,7 +22,7 @@ export const handler = async (event, context) => {
   try {
     await slack.sendMessage("프론트엔드 배포시작");
     const s3 = new S3(bucketName);
-    const cloudFront = new CloudFront();
+    const cloudFront = new CloudFront(await parameterStore.getFrontendDistributionId());
 
     const s3ObjectKeys = await s3.getObjectKeys();
     const model = getModel(s3ObjectKeys, getModelType(event));
@@ -109,12 +109,13 @@ class S3 {
 }
 
 class CloudFront {
-  constructor() {
+  constructor(distributionId) {
     this.cloudFrontClient = new CloudFrontClient();
+    this.distributionId = distributionId;
   }
 
   getDistributionId() {
-    return process.env.DISTRIBUTION_ID;
+    return this.distributionId;
   }
 
   async updateOriginPath(originPath) {
