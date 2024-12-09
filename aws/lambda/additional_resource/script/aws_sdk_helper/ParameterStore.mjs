@@ -7,6 +7,7 @@ export default class ParameterStore {
   static _BACKEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/backend/cloudfront/distribution/id`;
   static _BACKEND_SQS_COMPLETE_URL_KEY = `${ParameterStore._PREFIX}/backend/sqs/complete/url`;
   static _FRONTEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/frontend/cloudfront/distribution/id`;
+  static _FRONTEND_BUCKET_NAME_KEY = `${ParameterStore._PREFIX}/frontend/s3/bucket/name`;
 
   constructor() {
     this.ssmClient = new SSMClient();
@@ -31,6 +32,10 @@ export default class ParameterStore {
 
   async getFrontendDistributionId() {
     return await this._getParameter(ParameterStore._FRONTEND_DISTRIBUTION_ID_KEY);
+  }
+
+  async getFrontendBucketName() {
+    return await this._getParameter(ParameterStore._FRONTEND_BUCKET_NAME_KEY);
   }
 
   async _getParameter(key) {

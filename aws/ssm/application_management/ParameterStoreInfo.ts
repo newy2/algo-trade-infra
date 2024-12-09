@@ -22,6 +22,8 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     "/code/delivery/frontend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY =
     "/code/delivery/frontend/cloudfront/distribution/url";
+  public static readonly CODE_DELIVERY_FRONTEND_BUCKET_NAME_KEY =
+    "/code/delivery/frontend/s3/bucket/name";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY =
     "/code/delivery/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
@@ -121,6 +123,13 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
         value: pulumi.interpolate`https://${cloudFrontInfo.getFrontendDistributionDomainName()}`,
       },
     );
+
+    new aws.ssm.Parameter("code-delivery-frontend-bucket-name", {
+      name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_BUCKET_NAME_KEY,
+      description: "Frontend S3 Bucket name",
+      type: aws.ssm.ParameterType.String,
+      value: this.getFrontendBucketName(),
+    });
 
     new aws.ssm.Parameter("code-delivery-backend-cloudfront-distribution-id", {
       name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY,

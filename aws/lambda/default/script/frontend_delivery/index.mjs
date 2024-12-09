@@ -12,8 +12,6 @@ import {
 } from "@aws-sdk/client-cloudfront";
 
 export const handler = async (event, context) => {
-  const bucketName = getBucketName();
-
   const parameterStore = new ParameterStore();
   console.time("create Slack");
   const slack = new Slack(await parameterStore.getSlackUrl());
@@ -21,7 +19,7 @@ export const handler = async (event, context) => {
 
   try {
     await slack.sendMessage("프론트엔드 배포시작");
-    const s3 = new S3(bucketName);
+    const s3 = new S3(await parameterStore.getFrontendBucketName());
     const cloudFront = new CloudFront(await parameterStore.getFrontendDistributionId());
 
     const s3ObjectKeys = await s3.getObjectKeys();
@@ -43,10 +41,6 @@ export const handler = async (event, context) => {
     throw error;
   }
 };
-
-function getBucketName() {
-  return process.env.BUCKET_NAME;
-}
 
 function getModelType(event) {
   switch (event.Records[0].eventSource) {
