@@ -32,8 +32,11 @@ export const handler = async (event) => {
     const cloudFront = new CloudFront(await parameterStore.getBackendDistributionId());
 
     await slack.sendMessage("CF 업데이트 요청");
-    const isDeployed = await cloudFront.updateOriginDomainName(await ec2.getPublicDnsName());
-    await slack.sendMessage(`CF 업데이트 ${isDeployed ? "성공" : "실패"}`);
+    const isDeployed = await cloudFront.updateBackendOriginDomainName(await ec2.getPublicDnsName());
+    if (!isDeployed) {
+      throw new Error("CF 업데이트 실패");
+    }
+    await slack.sendMessage("CF 업데이트 성공");
 
     await sqs.sendDelaySuccessMessage();
     await slack.sendMessage("SQS success 메세지 전송 완료");

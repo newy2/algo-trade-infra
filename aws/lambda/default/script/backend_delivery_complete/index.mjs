@@ -40,8 +40,11 @@ export const handler = async (event) => {
       const cloudFront = new CloudFront(await parameterStore.getBackendDistributionId());
       if (!await cloudFront.isCurrentOriginDomainName(oldestEc2DnsName)) {
         await slack.sendMessage("CF 업데이트 요청");
-        const isDeployed = await cloudFront.updateOriginDomainName(oldestEc2DnsName);
-        await slack.sendMessage(`CF 업데이트 ${isDeployed ? "성공" : "실패"}`);
+        const isDeployed = await cloudFront.updateBackendOriginDomainName(oldestEc2DnsName);
+        if (!isDeployed) {
+          throw new Error("CF 업데이트 실패");
+        }
+        await slack.sendMessage("CF 업데이트 성공");
       }
     }
 

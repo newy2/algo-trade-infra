@@ -84,7 +84,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "frontend_delivery"),
       ),
-      timeout: 10,
+      timeout: 5 * 60,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
       environment: {
         variables: {

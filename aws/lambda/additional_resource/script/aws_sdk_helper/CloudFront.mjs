@@ -1,5 +1,6 @@
 import {
   CloudFrontClient,
+  CreateInvalidationCommand,
   GetDistributionCommand,
   GetDistributionConfigCommand,
   UpdateDistributionCommand
@@ -17,16 +18,21 @@ export default class CloudFront {
     return dnsName === configResponse.DistributionConfig.Origins.Items[0].DomainName;
   }
 
-  async _getDistributionConfig() {
-    const distributionId = this.distributionId;
-    return await this.cloudFrontClient.send(new GetDistributionConfigCommand({
-      Id: distributionId
-    }));
-  }
-
-  async updateOriginDomainName(dnsName) {
+  async updateBackendOriginDomainName(dnsName) {
     await this._updateOriginDomainName(dnsName);
     return await this._checkDeployStatus();
+  }
+
+  async updateFrontendOriginPath(originPath) {
+    await this._updateDistributionOriginPath(originPath);
+    await this._sendInvalidationAll();
+    return await this._checkDeployStatus();
+  }
+
+  async _getDistributionConfig() {
+    return await this.cloudFrontClient.send(new GetDistributionConfigCommand({
+      Id: this.distributionId
+    }));
   }
 
   async _updateOriginDomainName(dnsName) {
@@ -68,6 +74,61 @@ export default class CloudFront {
         key: "DefaultCacheBehavior.TargetOriginId",
         expected: dnsName,
         actual: responseDistributionConfig.DefaultCacheBehavior.TargetOriginId
+      }
+    ]);
+  }
+
+  async _updateDistributionOriginPath(originPath) {
+    const configResponse = await this.cloudFrontClient.send(new GetDistributionConfigCommand({
+      Id: this.distributionId
+    }));
+
+    const { DistributionConfig, ETag } = configResponse;
+    DistributionConfig.Origins.Items[0].OriginPath = originPath;
+
+    const response = await this.cloudFrontClient.send(new UpdateDistributionCommand({
+      DistributionConfig,
+      Id: this.distributionId,
+      IfMatch: ETag
+    }));
+
+    validate([
+      {
+        key: "responseStatusCode",
+        expected: 200,
+        actual: response["$metadata"].httpStatusCode
+      },
+      {
+        key: "fistOrigin.OriginPath",
+        expected: originPath,
+        actual: response.Distribution.DistributionConfig.Origins.Items[0].OriginPath
+      }
+    ]);
+  }
+
+  async _sendInvalidationAll() {
+    const allPath = "/*";
+    const response = await this.cloudFrontClient.send(new CreateInvalidationCommand({
+      DistributionId: this.distributionId,
+      InvalidationBatch: {
+        CallerReference: `${Date.now()}`,
+        Paths: {
+          Quantity: 1,
+          Items: [allPath]
+        }
+      }
+    }));
+
+    validate([
+      {
+        key: "responseStatusCode",
+        expected: 201,
+        actual: response["$metadata"].httpStatusCode
+      },
+      {
+        key: "fistInvalidation.Path",
+        expected: allPath,
+        actual: response.Invalidation.InvalidationBatch.Paths.Items[0]
       }
     ]);
   }

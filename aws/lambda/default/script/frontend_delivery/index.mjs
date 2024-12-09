@@ -1,16 +1,10 @@
-import { ParameterStore, Slack } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import { CloudFront, ParameterStore, Slack } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 import FrontendDeployModel from "./models/FrontendDeployModel.mjs";
 import FrontendRollbackModel from "./models/FrontendRollbackModel.mjs";
 import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
-import {
-  CloudFrontClient,
-  CreateInvalidationCommand,
-  GetDistributionConfigCommand,
-  UpdateDistributionCommand
-} from "@aws-sdk/client-cloudfront";
 
-export const handler = async (event, context) => {
+export const handler = async (event) => {
   const parameterStore = new ParameterStore();
   console.time("create Slack");
   const slack = new Slack(await parameterStore.getSlackUrl());
@@ -26,11 +20,16 @@ export const handler = async (event, context) => {
     const originPath = model.getDistributionOriginPath();
     const deleteObjects = model.getDeleteS3ObjectKeys();
 
-    await cloudFront.updateOriginPath(originPath);
-    await s3.deleteObjects(deleteObjects);
+    await slack.sendMessage("CF 업데이트 요청");
+    const isDeployed = await cloudFront.updateFrontendOriginPath(originPath);
+    if (!isDeployed) {
+      throw new Error("CF 업데이트 실패");
+    }
+    await slack.sendMessage("CF 업데이트 성공");
 
+    await s3.deleteObjects(deleteObjects);
     await slack.sendMessage([
-      "프론트엔드 배포 종료",
+      "S3 객체 삭제",
       `originPath: ${originPath}`,
       `deleteObjects: ${deleteObjects.join("\n")}`
     ].join("\n"));
@@ -98,68 +97,5 @@ class S3 {
     return await this.s3Client.send(new ListObjectsV2Command({
       Bucket: this.bucketName
     }));
-  }
-}
-
-class CloudFront {
-  constructor(distributionId) {
-    this.cloudFrontClient = new CloudFrontClient();
-    this.distributionId = distributionId;
-  }
-
-  getDistributionId() {
-    return this.distributionId;
-  }
-
-  async updateOriginPath(originPath) {
-    await this._updateDistributionOriginPath(originPath);
-    await this._sendInvalidationAll();
-  }
-
-  async _updateDistributionOriginPath(originPath) {
-    const distributionId = this.getDistributionId();
-    const configResponse = await this.cloudFrontClient.send(new GetDistributionConfigCommand({
-      Id: distributionId
-    }));
-
-    const { DistributionConfig, ETag } = configResponse;
-    DistributionConfig.Origins.Items[0].OriginPath = originPath;
-
-    const response = await this.cloudFrontClient.send(new UpdateDistributionCommand({
-      DistributionConfig,
-      Id: distributionId,
-      IfMatch: ETag
-    }));
-
-    const responseStatusCode = response["$metadata"].httpStatusCode;
-    const responseOriginPath = response.Distribution.DistributionConfig.Origins.Items[0].OriginPath;
-    if (responseStatusCode !== 200 || responseOriginPath !== originPath) {
-      console.error("responseStatusCode", responseStatusCode);
-      console.error("responseOriginPath", responseOriginPath);
-      throw new Error("CloudFront OriginPath 를 변경하지 못했습니다.");
-    }
-  }
-
-  async _sendInvalidationAll() {
-    const distributionId = this.getDistributionId();
-
-    const response = await this.cloudFrontClient.send(new CreateInvalidationCommand({
-      DistributionId: distributionId,
-      InvalidationBatch: {
-        CallerReference: `${Date.now()}`,
-        Paths: {
-          Quantity: 1,
-          Items: ["/*"]
-        }
-      }
-    }));
-
-    const responseStatusCode = response["$metadata"].httpStatusCode;
-    const responseInvalidationPath = response.Invalidation.InvalidationBatch.Paths.Items[0];
-    if (responseStatusCode !== 201 || responseInvalidationPath !== "/*") {
-      console.error("responseStatusCode", responseStatusCode);
-      console.error("responseInvalidationPath", responseInvalidationPath);
-      throw new Error("CloudFront Invaldation 을 실행하지 못했습니다.");
-    }
   }
 }
