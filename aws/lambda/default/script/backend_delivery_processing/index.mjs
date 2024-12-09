@@ -1,5 +1,4 @@
-import { Slack } from "/opt/nodejs/send_slack_api/index.mjs";
-import { CloudFront, Ec2, ParameterStore, sleep, Sqs } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import { CloudFront, Ec2, ParameterStore, Slack, sleep, Sqs } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
   const ec2InstanceId = event.detail.EC2InstanceId;

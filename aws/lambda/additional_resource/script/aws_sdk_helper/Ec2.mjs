@@ -1,5 +1,5 @@
 import { DescribeInstancesCommand, EC2Client } from "@aws-sdk/client-ec2";
-import { retryCall } from "./utils.mjs";
+import { retryCall } from "./util/utils.mjs";
 
 export default class Ec2 {
   constructor(instanceId) {

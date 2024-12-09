@@ -4,7 +4,8 @@ import Ec2 from "./Ec2.mjs";
 import Ec2List from "./Ec2List.mjs";
 import ParameterStore from "./ParameterStore.mjs";
 import Sqs from "./Sqs.mjs";
-import { sleep } from "./utils.mjs";
+import Slack from "./util/Slack.mjs";
+import { sleep } from "./util/utils.mjs";
 
 export {
   AutoScaling,
@@ -13,5 +14,6 @@ export {
   Ec2List,
   ParameterStore,
   Sqs,
+  Slack,
   sleep
 };

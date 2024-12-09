@@ -3,7 +3,7 @@ import {
   DescribeAutoScalingInstancesCommand,
   UpdateAutoScalingGroupCommand
 } from "@aws-sdk/client-auto-scaling";
-import { retryCall, validate } from "./utils.mjs";
+import { retryCall, validate } from "./util/utils.mjs";
 
 export default class AutoScaling {
   static TERMINATION_POLICY = {

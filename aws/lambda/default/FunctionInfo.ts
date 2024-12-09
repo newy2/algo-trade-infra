@@ -27,7 +27,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       layerInfo,
     );
     this.backendDeliveryProcessingFunction =
-      this.createBackendDeliveryProcessingFunction(iamInfo, sqsInfo, layerInfo);
+      this.createBackendDeliveryProcessingFunction(iamInfo, layerInfo);
     this.backendDeliveryCompleteFunction =
       this.createBackendDeliveryCompleteFunction(iamInfo, sqsInfo, layerInfo);
   }
@@ -85,10 +85,7 @@ export default class FunctionInfo extends BaseAwsInfo {
         path.join(__dirname, "script", "frontend_delivery"),
       ),
       timeout: 10,
-      layers: [
-        layerInfo.getSendSlackApiLayerArn(),
-        layerInfo.getAwsSdkHelperLayerArn(),
-      ],
+      layers: [layerInfo.getAwsSdkHelperLayerArn()],
       environment: {
         variables: {
           BUCKET_NAME: this.getFrontendBucketName(),
@@ -120,16 +117,12 @@ export default class FunctionInfo extends BaseAwsInfo {
         path.join(__dirname, "script", "backend_delivery_init"),
       ),
       timeout: 10,
-      layers: [
-        layerInfo.getSendSlackApiLayerArn(),
-        layerInfo.getAwsSdkHelperLayerArn(),
-      ],
+      layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
   }
 
   private createBackendDeliveryProcessingFunction(
     iamInfo: IamInfo,
-    sqsInfo: SqsInfo,
     layerInfo: LayerInfo,
   ) {
     const name = "backend-delivery-processing-lambda";
@@ -144,10 +137,7 @@ export default class FunctionInfo extends BaseAwsInfo {
         path.join(__dirname, "script", "backend_delivery_processing"),
       ),
       timeout: 10 * 60,
-      layers: [
-        layerInfo.getSendSlackApiLayerArn(),
-        layerInfo.getAwsSdkHelperLayerArn(),
-      ],
+      layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
   }
 
@@ -168,10 +158,7 @@ export default class FunctionInfo extends BaseAwsInfo {
         path.join(__dirname, "script", "backend_delivery_complete"),
       ),
       timeout: 5 * 60,
-      layers: [
-        layerInfo.getSendSlackApiLayerArn(),
-        layerInfo.getAwsSdkHelperLayerArn(),
-      ],
+      layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
 
     new aws.lambda.EventSourceMapping(`${name}-mapping`, {

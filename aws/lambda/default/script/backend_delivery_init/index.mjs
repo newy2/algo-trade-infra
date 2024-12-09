@@ -1,5 +1,4 @@
-import { Slack } from "/opt/nodejs/send_slack_api/index.mjs";
-import { AutoScaling, ParameterStore } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import { AutoScaling, ParameterStore, Slack } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
   // console.log("JSON.stringify(event, null, 2)", JSON.stringify(event, null, 2));

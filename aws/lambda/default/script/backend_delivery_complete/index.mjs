@@ -1,5 +1,12 @@
-import { Slack } from "/opt/nodejs/send_slack_api/index.mjs";
-import { AutoScaling, CloudFront, Ec2, Ec2List, ParameterStore, Sqs } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import {
+  AutoScaling,
+  CloudFront,
+  Ec2,
+  Ec2List,
+  ParameterStore,
+  Slack,
+  Sqs
+} from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
   const isSuccessMessage = event.Records[0].body === Sqs.SUCCESS_MESSAGE;

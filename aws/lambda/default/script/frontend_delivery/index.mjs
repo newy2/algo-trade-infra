@@ -1,5 +1,4 @@
-import { Slack } from "/opt/nodejs/send_slack_api/index.mjs";
-import { ParameterStore } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import { ParameterStore, Slack } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 import FrontendDeployModel from "./models/FrontendDeployModel.mjs";
 import FrontendRollbackModel from "./models/FrontendRollbackModel.mjs";

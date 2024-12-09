@@ -1,5 +1,5 @@
 import { GetQueueAttributesCommand, PurgeQueueCommand, SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
-import { validate } from "./utils.mjs";
+import { validate } from "./util/utils.mjs";
 
 export default class Sqs {
   static SUCCESS_MESSAGE = "success";

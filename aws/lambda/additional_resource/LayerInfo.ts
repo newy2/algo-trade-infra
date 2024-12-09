@@ -4,38 +4,14 @@ import * as pulumi from "@pulumi/pulumi";
 import * as path from "path";
 
 export default class LayerInfo {
-  private readonly sendSlackApiLayer: LayerVersion;
   private readonly awsSdkHelperLayer: LayerVersion;
 
   constructor() {
-    this.sendSlackApiLayer = this.createSendSlackApiLayer();
     this.awsSdkHelperLayer = this.createAwsSdkHelper();
-  }
-
-  public getSendSlackApiLayerArn() {
-    return this.sendSlackApiLayer.arn;
   }
 
   public getAwsSdkHelperLayerArn() {
     return this.awsSdkHelperLayer.arn;
-  }
-
-  private createSendSlackApiLayer() {
-    const layerName = "send-slack-api";
-    const folderName = "send_slack_api";
-
-    return new aws.lambda.LayerVersion(layerName, {
-      layerName,
-      description: "Slack API 호출 로직",
-      compatibleRuntimes: [aws.lambda.Runtime.NodeJS20dX],
-      code: new pulumi.asset.AssetArchive({
-        nodejs: new pulumi.asset.AssetArchive({
-          [folderName]: new pulumi.asset.FileArchive(
-            path.join(__dirname, "script", folderName),
-          ),
-        }),
-      }),
-    });
   }
 
   private createAwsSdkHelper() {

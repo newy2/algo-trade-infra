@@ -4,7 +4,7 @@ import {
   GetDistributionConfigCommand,
   UpdateDistributionCommand
 } from "@aws-sdk/client-cloudfront";
-import { retryCall, validate } from "./utils.mjs";
+import { retryCall, validate } from "./util/utils.mjs";
 
 export default class CloudFront {
   constructor(distributionId) {
