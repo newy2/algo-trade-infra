@@ -19,7 +19,6 @@ export default class FunctionInfo extends BaseAwsInfo {
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
     this.frontendDeliveryFunction = this.createFrontendDeliveryFunction(
       iamInfo,
-      sqsInfo,
       layerInfo,
     );
     this.backendDeliveryInitFunction = this.createBackendDeliveryInitFunction(
@@ -72,7 +71,6 @@ export default class FunctionInfo extends BaseAwsInfo {
 
   private createFrontendDeliveryFunction(
     iamInfo: IamInfo,
-    sqsInfo: SqsInfo,
     layerInfo: LayerInfo,
   ) {
     const result = new aws.lambda.Function("frontend-delivery-lambda", {
@@ -91,11 +89,6 @@ export default class FunctionInfo extends BaseAwsInfo {
           BUCKET_NAME: this.getFrontendBucketName(),
         },
       },
-    });
-
-    new aws.lambda.EventSourceMapping("frontend-rollback-queue-mapping", {
-      eventSourceArn: sqsInfo.getFrontendRollbackQueueArn(),
-      functionName: result.arn,
     });
 
     return result;

@@ -21,7 +21,7 @@ export default class RoleInfo extends BaseAwsInfo {
     super();
 
     this.ec2InstanceProfile = this.createEc2InstanceProfile();
-    this.ecrCleanupLambdaRole = this.createLambdaRole();
+    this.ecrCleanupLambdaRole = this.createEcrCleanupLambdaRole();
     this.frontendDeliveryLambdaRole =
       this.createFrontendDeliveryLambdaRole(policyInfo);
     this.backendDeliveryInitLambdaRole =
@@ -79,7 +79,7 @@ export default class RoleInfo extends BaseAwsInfo {
     });
   }
 
-  private createLambdaRole() {
+  private createEcrCleanupLambdaRole() {
     if (!this.isFastCleanupEcrImage()) {
       return undefined;
     }
@@ -118,8 +118,10 @@ export default class RoleInfo extends BaseAwsInfo {
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       aws.iam.ManagedPolicy.AmazonS3FullAccess,
-      aws.iam.ManagedPolicy.CloudFrontFullAccess,
-      aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
+      {
+        key: "CloudFrontUpdatePolicy",
+        value: policyInfo.getCloudFrontUpdatePolicyArn(),
+      },
       {
         key: "CodeDeliveryParameterStoreAccessPolicy",
         value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),

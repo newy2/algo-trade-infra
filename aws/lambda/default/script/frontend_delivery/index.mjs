@@ -40,10 +40,11 @@ export const handler = async (event) => {
 };
 
 function getModelType(event) {
-  switch (event.Records[0].eventSource) {
-    case "aws:s3":
+  const firstRecord = event.Records[0];
+  switch (firstRecord.eventSource || firstRecord.EventSource) {
+    case "aws:s3": // => firstRecord.eventSource
       return "DEPLOY";
-    case "aws:sqs":
+    case "aws:sns": // => firstRecord.EventSource
       return "ROLLBACK";
   }
 }

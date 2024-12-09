@@ -144,6 +144,7 @@ export default class PolicyInfo extends BaseAwsInfo {
               "cloudfront:GetDistribution",
               "cloudfront:GetDistributionConfig",
               "cloudfront:UpdateDistribution",
+              "cloudfront:CreateInvalidation",
               "ec2:DescribeInstances",
             ],
             Resource: "*", // TODO Resource 좁히기
