@@ -1,6 +1,5 @@
 import { DescribeInstancesCommand, EC2Client } from "@aws-sdk/client-ec2";
 import { retryCall } from "./utils.mjs";
-import ApiHelper from "./common/ApiHelper.mjs";
 
 export default class Ec2 {
   constructor(instanceId) {
@@ -15,12 +14,11 @@ export default class Ec2 {
       retryCount: 60,
       delay: 1000,
       func: async () => {
-        const response = await new ApiHelper().call({
-          url: healthCheckUrl,
+        const response = await fetch(healthCheckUrl, {
           method: "GET"
         });
 
-        return response.statusCode === 200;
+        return response.status === 200;
       }
     });
   }

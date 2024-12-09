@@ -30,9 +30,6 @@ export default class LayerInfo {
       compatibleRuntimes: [aws.lambda.Runtime.NodeJS20dX],
       code: new pulumi.asset.AssetArchive({
         nodejs: new pulumi.asset.AssetArchive({
-          common: new pulumi.asset.FileArchive(
-            path.join(__dirname, "script", "common"),
-          ),
           [folderName]: new pulumi.asset.FileArchive(
             path.join(__dirname, "script", folderName),
           ),
@@ -51,9 +48,6 @@ export default class LayerInfo {
       compatibleRuntimes: [aws.lambda.Runtime.NodeJS20dX],
       code: new pulumi.asset.AssetArchive({
         nodejs: new pulumi.asset.AssetArchive({
-          common: new pulumi.asset.FileArchive(
-            path.join(__dirname, "script", "common"),
-          ),
           [folderName]: new pulumi.asset.FileArchive(
             path.join(__dirname, "script", folderName),
           ),
