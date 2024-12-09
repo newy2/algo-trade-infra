@@ -1,17 +1,22 @@
-import { sendSlackMessage } from "/opt/nodejs/send_slack_api/index.mjs";
-import { AutoScaling } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import { Slack } from "/opt/nodejs/send_slack_api/index.mjs";
+import { AutoScaling, ParameterStore } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
   // console.log("JSON.stringify(event, null, 2)", JSON.stringify(event, null, 2));
-  // await sendSlackMessage(`백엔드 배포 ASG Scale Up 요청 시작\n${JSON.stringify(event, null, 2)}`);
+  const parameterStore = new ParameterStore();
+  console.time("create Slack");
+  const slack = new Slack(await parameterStore.getSlackUrl());
+  console.timeEnd("create Slack");
+
+  // await slack.sendMessage(`백엔드 배포 ASG Scale Up 요청 시작\n${JSON.stringify(event, null, 2)}`);
   try {
-    await sendSlackMessage("백엔드 배포 ASG Scale Up 요청 시작");
+    await slack.sendMessage("백엔드 배포 ASG Scale Up 요청 시작");
     const autoScaling = new AutoScaling(process.env.AUTO_SCALING_GROUP_NAME);
     await autoScaling.scaleUp();
-    await sendSlackMessage("백엔드 배포 ASG Scale Up 요청 완료");
+    await slack.sendMessage("백엔드 배포 ASG Scale Up 요청 완료");
   } catch (error) {
     console.error(error);
-    await sendSlackMessage(`[backend_delivery_init] 에러발생\n${error}`);
+    await slack.sendMessage(`[backend_delivery_init] 에러발생\n${error}`);
     throw error;
   }
 };

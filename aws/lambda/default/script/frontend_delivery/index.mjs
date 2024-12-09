@@ -1,4 +1,5 @@
-import { sendSlackMessage } from "/opt/nodejs/send_slack_api/index.mjs";
+import { Slack } from "/opt/nodejs/send_slack_api/index.mjs";
+import { ParameterStore } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 import FrontendDeployModel from "./models/FrontendDeployModel.mjs";
 import FrontendRollbackModel from "./models/FrontendRollbackModel.mjs";
@@ -12,8 +13,14 @@ import {
 
 export const handler = async (event, context) => {
   const bucketName = getBucketName();
+
+  const parameterStore = new ParameterStore();
+  console.time("create Slack");
+  const slack = new Slack(await parameterStore.getSlackUrl());
+  console.timeEnd("create Slack");
+
   try {
-    await sendSlackMessage("프론트엔드 배포시작");
+    await slack.sendMessage("프론트엔드 배포시작");
     const s3 = new S3(bucketName);
     const cloudFront = new CloudFront();
 
@@ -25,14 +32,14 @@ export const handler = async (event, context) => {
     await cloudFront.updateOriginPath(originPath);
     await s3.deleteObjects(deleteObjects);
 
-    await sendSlackMessage([
-      "프론트엔드 배포 종료"
-        `originPath: ${originPath}`,
+    await slack.sendMessage([
+      "프론트엔드 배포 종료",
+      `originPath: ${originPath}`,
       `deleteObjects: ${deleteObjects.join("\n")}`
     ].join("\n"));
   } catch (error) {
     console.error(error);
-    await sendSlackMessage(`[frontend_delivery] 에러발생\n${error}`);
+    await slack.sendMessage(`[frontend_delivery] 에러발생\n${error}`);
     throw error;
   }
 };

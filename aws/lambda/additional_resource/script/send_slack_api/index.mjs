@@ -1,5 +1,5 @@
-import { sendSlackMessage } from "./sendSlackMessage.mjs";
+import Slack from "./Slack.mjs";
 
 export {
-  sendSlackMessage
+  Slack
 };

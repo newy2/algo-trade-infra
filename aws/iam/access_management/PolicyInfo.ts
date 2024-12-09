@@ -9,6 +9,7 @@ export default class PolicyInfo extends BaseAwsInfo {
   private readonly backendDeliveryCompleteQueuePurgeQueuePolicy: Policy;
   private readonly backedAutoScalingGroupUpdatePolicy: Policy;
   private readonly cloudFrontUpdatePolicy: Policy;
+  private readonly codeDeliveryParameterStoreAccessPolicy: Policy;
 
   constructor() {
     super();
@@ -21,6 +22,8 @@ export default class PolicyInfo extends BaseAwsInfo {
     this.backedAutoScalingGroupUpdatePolicy =
       this.createBackedAutoScalingGroupUpdatePolicy();
     this.cloudFrontUpdatePolicy = this.createCloudFrontUpdatePolicy();
+    this.codeDeliveryParameterStoreAccessPolicy =
+      this.createCodeDeliveryParameterStoreAccessPolicy();
   }
 
   public getRunCommandPolicyArn() {
@@ -41,6 +44,10 @@ export default class PolicyInfo extends BaseAwsInfo {
 
   public getCloudFrontUpdatePolicyArn() {
     return this.cloudFrontUpdatePolicy.arn;
+  }
+
+  public getCodeDeliveryParameterStoreAccessPolicyArn() {
+    return this.codeDeliveryParameterStoreAccessPolicy.arn;
   }
 
   private createRunCommandPolicy() {
@@ -140,6 +147,21 @@ export default class PolicyInfo extends BaseAwsInfo {
               "ec2:DescribeInstances",
             ],
             Resource: "*", // TODO Resource 좁히기
+          },
+        ],
+      },
+    });
+  }
+
+  private createCodeDeliveryParameterStoreAccessPolicy() {
+    return new aws.iam.Policy("code-delivery-parameter-store-access-policy", {
+      policy: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: "ssm:GetParametersByPath",
+            Resource: pulumi.interpolate`arn:aws:ssm:${this.getCurrentRegion()}:${this.getAccountId()}:parameter/code*`,
           },
         ],
       },

@@ -103,12 +103,14 @@ export default class FunctionInfo extends BaseAwsInfo {
         path.join(__dirname, "script", "frontend_delivery"),
       ),
       timeout: 10,
-      layers: [layerInfo.getSendSlackApiLayerArn()],
+      layers: [
+        layerInfo.getSendSlackApiLayerArn(),
+        layerInfo.getAwsSdkHelperLayerArn(),
+      ],
       environment: {
         variables: {
           BUCKET_NAME: this.getFrontendBucketName(),
           DISTRIBUTION_ID: cloudfrontInfo.getFrontendDistributionId(),
-          SLACK_URL: this.getSlackUrl(),
         },
       },
     });
@@ -144,7 +146,6 @@ export default class FunctionInfo extends BaseAwsInfo {
       environment: {
         variables: {
           AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-          SLACK_URL: this.getSlackUrl(),
         },
       },
     });
@@ -176,7 +177,6 @@ export default class FunctionInfo extends BaseAwsInfo {
         variables: {
           DISTRIBUTION_ID: cloudfrontInfo.getBackendDistributionId(),
           AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-          SLACK_URL: this.getSlackUrl(),
           SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
         },
       },
@@ -209,7 +209,6 @@ export default class FunctionInfo extends BaseAwsInfo {
         variables: {
           DISTRIBUTION_ID: cloudfrontInfo.getBackendDistributionId(),
           AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-          SLACK_URL: this.getSlackUrl(),
           SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
         },
       },

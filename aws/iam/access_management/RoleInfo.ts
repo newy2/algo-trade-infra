@@ -22,7 +22,8 @@ export default class RoleInfo extends BaseAwsInfo {
 
     this.ec2InstanceProfile = this.createEc2InstanceProfile();
     this.ecrCleanupLambdaRole = this.createLambdaRole();
-    this.frontendDeliveryLambdaRole = this.createFrontendDeliveryLambdaRole();
+    this.frontendDeliveryLambdaRole =
+      this.createFrontendDeliveryLambdaRole(policyInfo);
     this.backendDeliveryInitLambdaRole =
       this.createBackendDeliveryInitLambdaRole(policyInfo);
     this.backendDeliveryProcessingLambdaRole =
@@ -103,7 +104,7 @@ export default class RoleInfo extends BaseAwsInfo {
     return result;
   }
 
-  private createFrontendDeliveryLambdaRole() {
+  private createFrontendDeliveryLambdaRole(policyInfo: PolicyInfo) {
     const prefix = "frontend-delivery-lambda";
     const roleName = `${prefix}-role`;
 
@@ -119,6 +120,10 @@ export default class RoleInfo extends BaseAwsInfo {
       aws.iam.ManagedPolicy.AmazonS3FullAccess,
       aws.iam.ManagedPolicy.CloudFrontFullAccess,
       aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
+      {
+        key: "CodeDeliveryParameterStoreAccessPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
+      },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
     });
@@ -142,6 +147,10 @@ export default class RoleInfo extends BaseAwsInfo {
       {
         key: "BackedAutoScalingGroupUpdatePolicy",
         value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
+      },
+      {
+        key: "CodeDeliveryParameterStoreAccessPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -170,6 +179,10 @@ export default class RoleInfo extends BaseAwsInfo {
       {
         key: "CloudFrontUpdatePolicy",
         value: policyInfo.getCloudFrontUpdatePolicyArn(),
+      },
+      {
+        key: "CodeDeliveryParameterStoreAccessPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -203,6 +216,10 @@ export default class RoleInfo extends BaseAwsInfo {
       {
         key: "BackedAutoScalingGroupUpdatePolicy",
         value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
+      },
+      {
+        key: "CodeDeliveryParameterStoreAccessPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);

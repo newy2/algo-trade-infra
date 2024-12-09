@@ -38,6 +38,10 @@ export default class DistributionInfo {
     return this.backendDistribution.id;
   }
 
+  public getBackendDistributionDomainName() {
+    return this.backendDistribution.domainName;
+  }
+
   private createFrontendDistribution(
     s3Info: S3Info,
     functionInfo: FunctionInfo,
