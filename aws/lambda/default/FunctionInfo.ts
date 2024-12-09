@@ -156,7 +156,6 @@ export default class FunctionInfo extends BaseAwsInfo {
       environment: {
         variables: {
           AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-          SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
         },
       },
     });
@@ -186,7 +185,6 @@ export default class FunctionInfo extends BaseAwsInfo {
       environment: {
         variables: {
           AUTO_SCALING_GROUP_NAME: this.getBackendServerAutoScalingGroupName(),
-          SQS_URL: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
         },
       },
     });

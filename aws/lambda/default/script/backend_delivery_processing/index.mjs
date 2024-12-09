@@ -22,7 +22,7 @@ export const handler = async (event) => {
       await ec2.getHealthCheckUrl()
     ].join("\n"));
 
-    const sqs = new Sqs(process.env.SQS_URL);
+    const sqs = new Sqs(await parameterStore.getBackendSqsCompleteUrl());
     if (!isHealthy) {
       await slack.sendMessage("rollback 요청");
       await sqs.sendFailMessage();

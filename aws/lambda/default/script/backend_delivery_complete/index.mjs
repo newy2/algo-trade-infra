@@ -16,7 +16,7 @@ export const handler = async (event) => {
     await autoScaling.validateEc2InstanceSize();
 
     if (!isSuccessMessage) {
-      const sqs = new Sqs(process.env.SQS_URL);
+      const sqs = new Sqs(await parameterStore.getBackendSqsCompleteUrl());
       const hasDelayMessage = await sqs.hasDelayMessage();
 
       if (hasDelayMessage) {

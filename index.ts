@@ -23,4 +23,4 @@ const lambdaInfo = new LambdaInfo(iamInfo, sqsInfo, s3Info);
 new EventBridgeInfo(ecrInfo, lambdaInfo);
 
 // TODO Refector: 각 Info 에서 SsmInfo 를 호출하도록 할까?
-new SsmInfo(vpcInfo, ecrInfo, rdsInfo, cloudfrontInfo);
+new SsmInfo(vpcInfo, ecrInfo, rdsInfo, cloudfrontInfo, sqsInfo);

@@ -5,6 +5,7 @@ import { RdsInfo } from "../../rds/RdsInfo";
 import VpcInfo from "../../vpc/VpcInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
+import SqsInfo from "../../sqs/SqsInfo";
 
 export default class ParameterStoreInfo extends BaseAwsInfo {
   public static readonly ECR_PRIVATE_REPOSITORY_URL_KEY = "/ecr/repository/url";
@@ -25,19 +26,22 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     "/code/delivery/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
     "/code/delivery/backend/cloudfront/distribution/url";
+  public static readonly CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY =
+    "/code/delivery/backend/sqs/complete/url";
 
   constructor(
     vpcInfo: VpcInfo,
     ecrInfo: EcrInfo,
     rdsInfo: RdsInfo,
     cloudFrontInfo: CloudFrontInfo,
+    sqsInfo: SqsInfo,
   ) {
     super();
 
     this.setRdsConnectEndpointId(vpcInfo.getRdsConnectEndpointId());
     this.setEcrRepositoryUrl(ecrInfo.getPrivateRepositoryUrl());
     this.setRdsInfo(rdsInfo);
-    this.setCodeDeliveryInfo(cloudFrontInfo);
+    this.setCodeDeliveryInfo(cloudFrontInfo, sqsInfo);
   }
 
   private setRdsConnectEndpointId(rdsConnectEndpointId: pulumi.Output<string>) {
@@ -88,7 +92,10 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     });
   }
 
-  private setCodeDeliveryInfo(cloudFrontInfo: CloudFrontInfo) {
+  private setCodeDeliveryInfo(
+    cloudFrontInfo: CloudFrontInfo,
+    sqsInfo: SqsInfo,
+  ) {
     new aws.ssm.Parameter("code-delivery-slack-url", {
       name: ParameterStoreInfo.CODE_DELIVERY_SLACK_URL_KEY,
       description: "슬렉 알림 URL",
@@ -125,6 +132,13 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       description: "Backend Distribution URL",
       type: aws.ssm.ParameterType.String,
       value: pulumi.interpolate`https://${cloudFrontInfo.getBackendDistributionDomainName()}`,
+    });
+
+    new aws.ssm.Parameter("code-delivery-backend-sqs-complete-url", {
+      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY,
+      description: "Backend SQS URL",
+      type: aws.ssm.ParameterType.String,
+      value: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
     });
   }
 }

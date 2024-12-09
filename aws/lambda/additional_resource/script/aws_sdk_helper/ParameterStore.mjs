@@ -4,6 +4,7 @@ export default class ParameterStore {
   static _PREFIX = "/code/delivery";
   static _SLACK_URL_KEY = `${ParameterStore._PREFIX}/slack/url`;
   static _BACKEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/backend/cloudfront/distribution/id`;
+  static _BACKEND_SQS_COMPLETE_URL_KEY = `${ParameterStore._PREFIX}/backend/sqs/complete/url`;
   static _FRONTEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/frontend/cloudfront/distribution/id`;
 
   constructor() {
@@ -17,6 +18,10 @@ export default class ParameterStore {
 
   async getBackendDistributionId() {
     return await this._getParameter(ParameterStore._BACKEND_DISTRIBUTION_ID_KEY);
+  }
+
+  async getBackendSqsCompleteUrl() {
+    return await this._getParameter(ParameterStore._BACKEND_SQS_COMPLETE_URL_KEY);
   }
 
   async getFrontendDistributionId() {
