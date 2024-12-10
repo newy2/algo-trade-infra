@@ -6,6 +6,7 @@ import VpcInfo from "../../vpc/VpcInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
+import FrontendCloudFrontInfo from "../../../frontend_infra/cloudfront/FrontendCloudFrontInfo";
 
 export default class ParameterStoreInfo extends BaseAwsInfo {
   public static readonly ECR_PRIVATE_REPOSITORY_URL_KEY = "/ecr/repository/url";
@@ -44,6 +45,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     ecrInfo: EcrInfo,
     rdsInfo: RdsInfo,
     cloudFrontInfo: CloudFrontInfo,
+    frontendCloudFrontInfo: FrontendCloudFrontInfo,
     sqsInfo: SqsInfo,
   ) {
     super();
@@ -51,7 +53,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     this.setRdsConnectEndpointId(vpcInfo.getRdsConnectEndpointId());
     this.setEcrRepositoryUrl(ecrInfo.getPrivateRepositoryUrl());
     this.setRdsInfo(rdsInfo);
-    this.setCodeDeliveryInfo(cloudFrontInfo, sqsInfo);
+    this.setCodeDeliveryInfo(cloudFrontInfo, frontendCloudFrontInfo, sqsInfo);
   }
 
   private setRdsConnectEndpointId(rdsConnectEndpointId: pulumi.Output<string>) {
@@ -104,6 +106,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
 
   private setCodeDeliveryInfo(
     cloudFrontInfo: CloudFrontInfo,
+    frontendCloudFrontInfo: FrontendCloudFrontInfo,
     sqsInfo: SqsInfo,
   ) {
     new aws.ssm.Parameter("code-delivery-slack-url", {
@@ -117,7 +120,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY,
       description: "Frontend Distribution ID",
       type: aws.ssm.ParameterType.String,
-      value: cloudFrontInfo.getFrontendDistributionId(),
+      value: frontendCloudFrontInfo.getFrontendDistributionId(),
     });
 
     new aws.ssm.Parameter(
@@ -126,7 +129,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
         name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY,
         description: "Frontend Distribution URL",
         type: aws.ssm.ParameterType.String,
-        value: pulumi.interpolate`https://${cloudFrontInfo.getFrontendDistributionDomainName()}`,
+        value: pulumi.interpolate`https://${frontendCloudFrontInfo.getFrontendDistributionDomainName()}`,
       },
     );
 

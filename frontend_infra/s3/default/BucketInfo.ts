@@ -1,9 +1,9 @@
 import * as aws from "@pulumi/aws";
 import { BucketV2 } from "@pulumi/aws/s3";
 import * as pulumi from "@pulumi/pulumi";
-import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
-import BaseAwsInfo from "../../BaseAwsInfo";
-import LambdaInfo from "../../lambda/LambdaInfo";
+import BaseAwsInfo from "../../../aws/BaseAwsInfo";
+import LambdaInfo from "../../../aws/lambda/LambdaInfo";
+import FrontendCloudFrontInfo from "../../cloudfront/FrontendCloudFrontInfo";
 
 export default class BucketInfo extends BaseAwsInfo {
   private readonly frontendBucket: BucketV2;
@@ -18,7 +18,7 @@ export default class BucketInfo extends BaseAwsInfo {
     return this.frontendBucket.bucketRegionalDomainName;
   }
 
-  public setFrontendBucketPolicy(cloudFrontInfo: CloudFrontInfo) {
+  public setFrontendBucketPolicy(cloudFrontInfo: FrontendCloudFrontInfo) {
     new aws.s3.BucketPolicy("frontend-bucket-policy", {
       bucket: this.frontendBucket.id,
       policy: {

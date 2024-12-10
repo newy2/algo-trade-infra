@@ -1,6 +1,6 @@
 import FunctionInfo from "./default/FunctionInfo";
 import { IamInfo } from "../iam/IamInfo";
-import S3Info from "../s3/S3Info";
+import S3Info from "../../frontend_infra/s3/S3Info";
 import LayerInfo from "./additional_resource/LayerInfo";
 
 export default class LambdaInfo {

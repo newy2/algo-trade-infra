@@ -4,6 +4,7 @@ import { RdsInfo } from "../rds/RdsInfo";
 import VpcInfo from "../vpc/VpcInfo";
 import CloudFrontInfo from "../cloudfront/CloudFrontInfo";
 import SqsInfo from "../sqs/SqsInfo";
+import FrontendCloudFrontInfo from "../../frontend_infra/cloudfront/FrontendCloudFrontInfo";
 
 export default class SsmInfo {
   private readonly parameterStoreInfo: ParameterStoreInfo;
@@ -13,6 +14,7 @@ export default class SsmInfo {
     ecrInfo: EcrInfo,
     rdsInfo: RdsInfo,
     cloudFrontInfo: CloudFrontInfo,
+    frontendCloudFrontInfo: FrontendCloudFrontInfo,
     sqsInfo: SqsInfo,
   ) {
     this.parameterStoreInfo = new ParameterStoreInfo(
@@ -20,6 +22,7 @@ export default class SsmInfo {
       ecrInfo,
       rdsInfo,
       cloudFrontInfo,
+      frontendCloudFrontInfo,
       sqsInfo,
     );
   }
