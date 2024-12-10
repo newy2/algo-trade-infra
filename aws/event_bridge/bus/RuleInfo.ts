@@ -9,10 +9,6 @@ export default class RuleInfo extends BaseAwsInfo {
   constructor(ecrInfo: EcrInfo, lambdaInfo: LambdaInfo) {
     super();
 
-    this.createPushEcrEventRule(ecrInfo, lambdaInfo);
-  }
-
-  private createPushEcrEventRule(ecrInfo: EcrInfo, lambdaInfo: LambdaInfo) {
     this.createPushEcrRepositoryEventRule(ecrInfo, lambdaInfo);
     this.createAutoscalingGroupInstanceSizeUpEventRule(lambdaInfo);
     this.createAutoscalingGroupInstanceSizeDownEventRule(lambdaInfo);

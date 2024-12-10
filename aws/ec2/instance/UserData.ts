@@ -2,7 +2,7 @@ import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreI
 import BaseAwsInfo from "../../BaseAwsInfo";
 
 export default class UserData extends BaseAwsInfo {
-  private readonly firstLine = `#!/bin/bash
+  private readonly updateYum = `#!/bin/bash
 sudo yum update -y`;
 
   private readonly installDocker = `# docker 설치
@@ -17,7 +17,7 @@ sudo mkswap /swapfile
 sudo swapon /swapfile
 echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab`;
 
-  private readonly runCommandBackendServerContainer = `# 백엔드 서버 실행
+  private readonly runBackendServerContainer = `# 백엔드 서버 실행
 PORT=80
 ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.ECR_PRIVATE_REPOSITORY_URL_KEY}" --query "Parameter.Value" --output text)
 DB_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_ENDPOINT_KEY}" --query "Parameter.Value" --output text)
@@ -42,10 +42,10 @@ fi`;
 
   public getUserData() {
     return [
-      this.firstLine,
+      this.updateYum,
       this.installDocker,
       this.setVirtualMemory,
-      this.runCommandBackendServerContainer,
+      this.runBackendServerContainer,
     ].join("\n\n");
   }
 

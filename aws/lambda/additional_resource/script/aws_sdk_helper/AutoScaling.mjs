@@ -7,7 +7,6 @@ import { retryCall, validate } from "./util/utils.mjs";
 
 export default class AutoScaling {
   static TERMINATION_POLICY = {
-    DEFAULT: "Default",
     NEWEST_INSTANCE: "NewestInstance",
     OLDEST_INSTANCE: "OldestInstance"
   };
