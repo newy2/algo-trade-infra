@@ -131,7 +131,7 @@ export default class RoleInfo extends BaseAwsInfo {
       },
       {
         key: "CodeDeliveryParameterStoreAccessPolicy",
-        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -158,8 +158,8 @@ export default class RoleInfo extends BaseAwsInfo {
         value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
       },
       {
-        key: "CodeDeliveryParameterStoreAccessPolicy",
-        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
+        key: "CodeDeliveryParameterStoreReadPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -194,8 +194,8 @@ export default class RoleInfo extends BaseAwsInfo {
         value: policyInfo.getBackedAutoScalingGroupReadPolicyArn(),
       },
       {
-        key: "CodeDeliveryParameterStoreAccessPolicy",
-        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
+        key: "CodeDeliveryParameterStoreReadPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -231,8 +231,8 @@ export default class RoleInfo extends BaseAwsInfo {
         value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
       },
       {
-        key: "CodeDeliveryParameterStoreAccessPolicy",
-        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
+        key: "CodeDeliveryParameterStoreReadPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -269,8 +269,8 @@ export default class RoleInfo extends BaseAwsInfo {
         value: policyInfo.getCodeDeliveryParameterStoreUpdatePolicyArn(),
       },
       {
-        key: "CodeDeliveryParameterStoreAccessPolicy",
-        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
+        key: "CodeDeliveryParameterStoreReadPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);

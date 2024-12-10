@@ -11,7 +11,7 @@ export default class PolicyInfo extends BaseAwsInfo {
   private readonly backedAutoScalingGroupReadPolicy: Policy;
   private readonly backedAutoScalingGroupUpdatePolicy: Policy;
   private readonly cloudFrontUpdatePolicy: Policy;
-  private readonly codeDeliveryParameterStoreAccessPolicy: Policy;
+  private readonly codeDeliveryParameterStoreReadPolicy: Policy;
   private readonly codeDeliveryParameterStoreUpdatePolicy: Policy;
   private readonly changeLambdaEventSourceMappingPolicy: Policy;
 
@@ -28,8 +28,8 @@ export default class PolicyInfo extends BaseAwsInfo {
     this.backedAutoScalingGroupUpdatePolicy =
       this.createBackedAutoScalingGroupUpdatePolicy();
     this.cloudFrontUpdatePolicy = this.createCloudFrontUpdatePolicy();
-    this.codeDeliveryParameterStoreAccessPolicy =
-      this.createCodeDeliveryParameterStoreAccessPolicy();
+    this.codeDeliveryParameterStoreReadPolicy =
+      this.createCodeDeliveryParameterStoreReadPolicy();
     this.codeDeliveryParameterStoreUpdatePolicy =
       this.createCodeDeliveryParameterStoreUpdatePolicy();
     this.changeLambdaEventSourceMappingPolicy =
@@ -60,8 +60,8 @@ export default class PolicyInfo extends BaseAwsInfo {
     return this.cloudFrontUpdatePolicy.arn;
   }
 
-  public getCodeDeliveryParameterStoreAccessPolicyArn() {
-    return this.codeDeliveryParameterStoreAccessPolicy.arn;
+  public getCodeDeliveryParameterStoreReadPolicyArn() {
+    return this.codeDeliveryParameterStoreReadPolicy.arn;
   }
 
   public getCodeDeliveryParameterStoreUpdatePolicyArn() {
@@ -191,8 +191,8 @@ export default class PolicyInfo extends BaseAwsInfo {
     });
   }
 
-  private createCodeDeliveryParameterStoreAccessPolicy() {
-    return new aws.iam.Policy("code-delivery-parameter-store-access-policy", {
+  private createCodeDeliveryParameterStoreReadPolicy() {
+    return new aws.iam.Policy("code-delivery-parameter-store-read-policy", {
       policy: {
         Version: "2012-10-17",
         Statement: [
