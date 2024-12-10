@@ -1,17 +1,17 @@
 import OriginAccessInfo from "./security/OriginAccessInfo";
 import S3Info from "../s3/S3Info";
-import DistributionInfo from "./default/DistributionInfo";
+import FrontendDistributionInfo from "./default/FrontendDistributionInfo";
 import FunctionInfo from "./default/FunctionInfo";
 
-export default class CloudFrontInfo {
+export default class FrontendCloudFrontInfo {
   private readonly functionInfo: FunctionInfo;
   private readonly originAccessInfo: OriginAccessInfo;
-  private readonly distributionInfo: DistributionInfo;
+  private readonly distributionInfo: FrontendDistributionInfo;
 
   constructor(s3Info: S3Info) {
     this.functionInfo = new FunctionInfo();
     this.originAccessInfo = new OriginAccessInfo(s3Info);
-    this.distributionInfo = new DistributionInfo(
+    this.distributionInfo = new FrontendDistributionInfo(
       s3Info,
       this.functionInfo,
       this.originAccessInfo,
