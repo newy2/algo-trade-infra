@@ -18,7 +18,7 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
 
   private readonly defaultVpcId: pulumi.Output<string>;
   private readonly ssh: SecurityGroup;
-  private readonly https: SecurityGroup;
+  private readonly http: SecurityGroup;
   private readonly rdsClient: SecurityGroup;
   private readonly rdsServer: SecurityGroup;
   private readonly eice: SecurityGroup;
@@ -28,7 +28,7 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
 
     this.defaultVpcId = defaultVpc.id;
     this.ssh = this.createSshSecurityGroup();
-    this.https = this.createHttpsSecurityGroup();
+    this.http = this.createHttpSecurityGroup();
     this.rdsClient = this.createRdsClientSecurityGroup();
     this.rdsServer = this.createRdsServerSecurityGroup(this.rdsClient);
     this.eice = this.createEiceSecurityGroup();
@@ -45,7 +45,7 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
   }
 
   public getEc2SecurityGroupIds() {
-    return [this.ssh.id, this.https.id, this.rdsClient.id];
+    return [this.ssh.id, this.http.id, this.rdsClient.id];
   }
 
   private createSshSecurityGroup() {
@@ -71,12 +71,12 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
     });
   }
 
-  private createHttpsSecurityGroup() {
+  private createHttpSecurityGroup() {
     const cidrBlockMap: SecurityGroupCidrBlockMap = {
       cidrBlocks: ["0.0.0.0/0"],
     };
 
-    return new aws.ec2.SecurityGroup("https-security-group", {
+    return new aws.ec2.SecurityGroup("http-security-group", {
       vpcId: this.defaultVpcId,
       ingress: [
         {
@@ -86,17 +86,10 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
           description: "HTTP",
           ...cidrBlockMap,
         },
-        {
-          protocol: ProtocolType.TCP,
-          fromPort: 443,
-          toPort: 443,
-          description: "HTTPS",
-          ...cidrBlockMap,
-        },
       ],
       egress: [SecurityGroupInfo.ALLOW_ALL_ACCESS],
       tags: {
-        Name: "HTTPS Security Group",
+        Name: "HTTP Security Group",
       },
     });
   }
