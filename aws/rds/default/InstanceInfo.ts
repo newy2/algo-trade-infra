@@ -56,7 +56,7 @@ export default class InstanceInfo extends BaseAwsInfo {
       password: this.getRdsPassword(),
       availabilityZone: this.getFirstAvailabilityZoneName(),
       dbSubnetGroupName: subnetGroupInfo.getSubnetGroupName(),
-      vpcSecurityGroupIds: vpcInfo.getRdsSecurityGroupIds(),
+      vpcSecurityGroupIds: vpcInfo.securityGroupInfo.getRdsSecurityGroupIds(),
     });
   }
 }

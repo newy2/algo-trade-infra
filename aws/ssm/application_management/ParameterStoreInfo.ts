@@ -42,7 +42,9 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
   ) {
     super();
 
-    this.setRdsConnectEndpointId(vpcInfo.getRdsConnectEndpointId());
+    this.setRdsConnectEndpointId(
+      vpcInfo.endpointInfo.getRdsConnectEndpointId(),
+    );
     this.setEcrRepositoryUrl(
       ecrInfo.privateRepositoryInfo.getPrivateRepositoryUrl(),
     );

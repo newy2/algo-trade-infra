@@ -52,7 +52,7 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
         {
           associatePublicIpAddress: "true",
           deleteOnTermination: "true",
-          securityGroups: vpcInfo.getEc2SecurityGroupIds(),
+          securityGroups: vpcInfo.securityGroupInfo.getEc2SecurityGroupIds(),
         },
       ],
       tagSpecifications: [

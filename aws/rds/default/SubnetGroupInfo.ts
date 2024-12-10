@@ -15,7 +15,7 @@ export default class SubnetGroupInfo {
 
   private createSubnetGroup(defaultVpcInfo: VpcInfo) {
     return new aws.rds.SubnetGroup("rds-subnet-group", {
-      subnetIds: defaultVpcInfo.getRdsSubnetGroupIds(),
+      subnetIds: defaultVpcInfo.subnetInfo.getRdsSubnetGroupIds(),
       description: "RDS Subnet Group",
     });
   }

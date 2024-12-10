@@ -20,7 +20,7 @@ export default class AutoScalingInfo extends BaseAwsInfo {
       desiredCapacity: 1,
       maxSize: 1,
       minSize: 1,
-      vpcZoneIdentifiers: [vpcInfo.getFirstPublicSubnetId()],
+      vpcZoneIdentifiers: [vpcInfo.subnetInfo.getFirstPublicSubnetId()],
       healthCheckType: "EC2",
       launchTemplate: {
         id: launchTemplateInfo.getBackendSeverLaunchTemplateId(),
