@@ -1,5 +1,5 @@
 import S3Info from "./s3/S3Info";
-import FrontendCloudFrontInfo from "./cloudfront/FrontendCloudFrontInfo";
+import CloudFrontInfo from "./cloudfront/CloudFrontInfo";
 import FrontendLambdaInfo from "./lambda/FrontendLambdaInfo";
 import SnsInfo from "./sns/SnsInfo";
 import FrontendSsmInfo from "./ssm/FrontendSsmInfo";
@@ -14,13 +14,13 @@ export default class FrontendInfra {
   ) {
     const s3Info = new S3Info();
     const frontendIamInfo = new FrontendIamInfo(commonIamInfo.commonPolicyInfo);
-    const frontendCloudfrontInfo = new FrontendCloudFrontInfo(s3Info);
+    const cloudFrontInfo = new CloudFrontInfo(s3Info);
     const frontendLambdaInfo = new FrontendLambdaInfo(
       frontendIamInfo,
       s3Info,
       commonLambdaInfo,
     );
     new SnsInfo(frontendLambdaInfo);
-    new FrontendSsmInfo(frontendCloudfrontInfo);
+    new FrontendSsmInfo(cloudFrontInfo);
   }
 }

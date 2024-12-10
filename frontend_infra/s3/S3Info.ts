@@ -1,5 +1,5 @@
 import BucketInfo from "./default/BucketInfo";
-import FrontendCloudFrontInfo from "../cloudfront/FrontendCloudFrontInfo";
+import CloudFrontInfo from "../cloudfront/CloudFrontInfo";
 import FrontendLambdaInfo from "../lambda/FrontendLambdaInfo";
 
 export default class S3Info {
@@ -17,7 +17,7 @@ export default class S3Info {
     this.bucketInfo.setFrontendBucketNotification(frontendLambdaInfo);
   }
 
-  public setFrontendBucketPolicy(cloudFrontInfo: FrontendCloudFrontInfo) {
+  public setFrontendBucketPolicy(cloudFrontInfo: CloudFrontInfo) {
     this.bucketInfo.setFrontendBucketPolicy(cloudFrontInfo);
   }
 }
