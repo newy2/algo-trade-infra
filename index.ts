@@ -4,6 +4,8 @@ import EventBridgeInfo from "./aws/event_bridge/EventBridgeInfo";
 import SsmInfo from "./aws/ssm/SsmInfo";
 import EcrInfo from "./aws/ecr/EcrInfo";
 import LambdaInfo from "./aws/lambda/LambdaInfo";
+import CommonLambdaInfo from "./common_infra/lambda/CommonLambdaInfo";
+import FrontendLambdaInfo from "./frontend_infra/lambda/FrontendLambdaInfo";
 import { RdsInfo } from "./aws/rds/RdsInfo";
 import S3Info from "./frontend_infra/s3/S3Info";
 import CloudFrontInfo from "./aws/cloudfront/CloudFrontInfo";
@@ -22,8 +24,16 @@ const rdsInfo = new RdsInfo(vpcInfo);
 new Ec2Info(vpcInfo, iamInfo);
 const cloudfrontInfo = new CloudFrontInfo();
 const frontendCloudfrontInfo = new FrontendCloudFrontInfo(s3Info);
-const lambdaInfo = new LambdaInfo(iamInfo, s3Info);
-new SnsInfo(lambdaInfo);
+
+const commonLambdaInfo = new CommonLambdaInfo();
+const lambdaInfo = new LambdaInfo(iamInfo, commonLambdaInfo);
+const frontendLambdaInfo = new FrontendLambdaInfo(
+  iamInfo,
+  s3Info,
+  commonLambdaInfo,
+);
+
+new SnsInfo(frontendLambdaInfo);
 new EventBridgeInfo(ecrInfo, lambdaInfo);
 
 // TODO Refector: 각 Info 에서 SsmInfo 를 호출하도록 할까?

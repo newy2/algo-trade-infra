@@ -1,13 +1,16 @@
 import TopicInfo from "./default/TopicInfo";
 import SubscriptionInfo from "./default/SubscriptionInfo";
-import LambdaInfo from "../lambda/LambdaInfo";
+import FrontendLambdaInfo from "../../frontend_infra/lambda/FrontendLambdaInfo";
 
 export default class SnsInfo {
   private readonly topicInfo: TopicInfo;
   private readonly subscriptionInfo: SubscriptionInfo;
 
-  constructor(lambdaInfo: LambdaInfo) {
+  constructor(frontendLambdaInfo: FrontendLambdaInfo) {
     this.topicInfo = new TopicInfo();
-    this.subscriptionInfo = new SubscriptionInfo(this.topicInfo, lambdaInfo);
+    this.subscriptionInfo = new SubscriptionInfo(
+      this.topicInfo,
+      frontendLambdaInfo,
+    );
   }
 }

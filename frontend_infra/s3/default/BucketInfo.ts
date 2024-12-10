@@ -2,8 +2,8 @@ import * as aws from "@pulumi/aws";
 import { BucketV2 } from "@pulumi/aws/s3";
 import * as pulumi from "@pulumi/pulumi";
 import BaseAwsInfo from "../../../aws/BaseAwsInfo";
-import LambdaInfo from "../../../aws/lambda/LambdaInfo";
 import FrontendCloudFrontInfo from "../../cloudfront/FrontendCloudFrontInfo";
+import FrontendLambdaInfo from "../../lambda/FrontendLambdaInfo";
 
 export default class BucketInfo extends BaseAwsInfo {
   private readonly frontendBucket: BucketV2;
@@ -44,13 +44,13 @@ export default class BucketInfo extends BaseAwsInfo {
     });
   }
 
-  public setFrontendBucketNotification(lambdaInfo: LambdaInfo) {
+  public setFrontendBucketNotification(frontendLambdaInfo: FrontendLambdaInfo) {
     const allowBucket = new aws.lambda.Permission(
       "frontend-bucket-lambda-permission",
       {
         statementId: "AllowExecutionFromS3Bucket",
         action: "lambda:InvokeFunction",
-        function: lambdaInfo.getFrontendDeliveryFunctionArn(),
+        function: frontendLambdaInfo.getFrontendDeliveryFunctionArn(),
         principal: "s3.amazonaws.com",
         sourceArn: this.frontendBucket.arn,
       },
@@ -62,7 +62,8 @@ export default class BucketInfo extends BaseAwsInfo {
         bucket: this.frontendBucket.id,
         lambdaFunctions: [
           {
-            lambdaFunctionArn: lambdaInfo.getFrontendDeliveryFunctionArn(),
+            lambdaFunctionArn:
+              frontendLambdaInfo.getFrontendDeliveryFunctionArn(),
             events: ["s3:ObjectCreated:*"],
             filterSuffix: "index.html",
           },
