@@ -40,7 +40,7 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
       // disableApiStop: false,
       // disableApiTermination: false,
       iamInstanceProfile: {
-        arn: iamInfo.getEc2InstanceProfileArn(),
+        arn: iamInfo.roleInfo.getEc2InstanceProfileArn(),
       },
       imageId: this.getAmazonAmiId(),
       metadataOptions: {

@@ -54,7 +54,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       description:
         "과거 ECR 이미지 자동 삭제 기능 (Push 이벤트에 실시간으로 반응)",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getEcrCleanupLambdaRoleArn()!,
+      role: iamInfo.roleInfo.getEcrCleanupLambdaRoleArn()!,
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "cleanup_ecr_image"),
@@ -76,7 +76,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       name,
       description: "ASG 인스턴스 사이즈 업 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getBackendDeliveryInitRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getInitRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_init"),
@@ -96,7 +96,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       name,
       description: "CloudFront 의 Origin 변경",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getBackendDeliveryProcessingRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getProcessingRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_processing"),
@@ -116,7 +116,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       name,
       description: "ASG 인스턴스 사이즈 다운 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getBackendDeliveryCompleteRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getCompleteRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_complete"),
@@ -136,7 +136,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       name,
       description: "백엔드 배포 SQS EventSource 매핑 함수",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getBackendDeliveryEventSourceMapperRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getEventSourceMapperRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_event_source_mapping"),

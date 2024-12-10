@@ -7,33 +7,17 @@ import CommonPolicyInfo from "../../../common_infra/iam/access_management/Common
 export default class RoleInfo extends BaseRoleInfo {
   private readonly ec2InstanceProfile: InstanceProfile;
   private readonly ecrCleanupLambdaRole?: Role;
-  private readonly backendDeliveryInitLambdaRole: Role;
-  private readonly backendDeliveryProcessingLambdaRole: Role;
-  private readonly backendDeliveryCompleteLambdaRole: Role;
-  private readonly backendDeliveryEventSourceMapperLambdaRole: Role;
+  public readonly backendDelivery: BackendDeliveryRoleInfo;
 
   constructor(policyInfo: PolicyInfo, commonPolicyInfo: CommonPolicyInfo) {
     super();
 
     this.ec2InstanceProfile = this.createEc2InstanceProfile();
     this.ecrCleanupLambdaRole = this.createEcrCleanupLambdaRole();
-    this.backendDeliveryInitLambdaRole =
-      this.createBackendDeliveryInitLambdaRole(policyInfo, commonPolicyInfo);
-    this.backendDeliveryProcessingLambdaRole =
-      this.createBackendDeliveryProcessingLambdaRole(
-        policyInfo,
-        commonPolicyInfo,
-      );
-    this.backendDeliveryCompleteLambdaRole =
-      this.createBackendDeliveryCompleteLambdaRole(
-        policyInfo,
-        commonPolicyInfo,
-      );
-    this.backendDeliveryEventSourceMapperLambdaRole =
-      this.createBackendDeliveryEventSourceMapperLambdaRole(
-        policyInfo,
-        commonPolicyInfo,
-      );
+    this.backendDelivery = new BackendDeliveryRoleInfo(
+      policyInfo,
+      commonPolicyInfo,
+    );
   }
 
   public getEc2InstanceProfileArn() {
@@ -42,22 +26,6 @@ export default class RoleInfo extends BaseRoleInfo {
 
   public getEcrCleanupLambdaRoleArn() {
     return this.ecrCleanupLambdaRole?.arn;
-  }
-
-  public getBackendDeliveryInitRoleArn() {
-    return this.backendDeliveryInitLambdaRole.arn;
-  }
-
-  public getBackendDeliveryProcessingRoleArn() {
-    return this.backendDeliveryProcessingLambdaRole.arn;
-  }
-
-  public getBackendDeliveryCompleteRoleArn() {
-    return this.backendDeliveryCompleteLambdaRole.arn;
-  }
-
-  public getBackendDeliveryEventSourceMapperRoleArn() {
-    return this.backendDeliveryEventSourceMapperLambdaRole.arn;
   }
 
   private createEc2InstanceProfile() {
@@ -107,8 +75,52 @@ export default class RoleInfo extends BaseRoleInfo {
 
     return result;
   }
+}
 
-  private createBackendDeliveryInitLambdaRole(
+class BackendDeliveryRoleInfo extends BaseRoleInfo {
+  private readonly initLambdaRole: Role;
+  private readonly processingLambdaRole: Role;
+  private readonly completeLambdaRole: Role;
+  private readonly eventSourceMapperLambdaRole: Role;
+
+  constructor(policyInfo: PolicyInfo, commonPolicyInfo: CommonPolicyInfo) {
+    super();
+
+    this.initLambdaRole = this.createInitLambdaRole(
+      policyInfo,
+      commonPolicyInfo,
+    );
+    this.processingLambdaRole = this.createProcessingLambdaRole(
+      policyInfo,
+      commonPolicyInfo,
+    );
+    this.completeLambdaRole = this.createCompleteLambdaRole(
+      policyInfo,
+      commonPolicyInfo,
+    );
+    this.eventSourceMapperLambdaRole = this.createEventSourceMapperLambdaRole(
+      policyInfo,
+      commonPolicyInfo,
+    );
+  }
+
+  public getInitRoleArn() {
+    return this.initLambdaRole.arn;
+  }
+
+  public getProcessingRoleArn() {
+    return this.processingLambdaRole.arn;
+  }
+
+  public getCompleteRoleArn() {
+    return this.completeLambdaRole.arn;
+  }
+
+  public getEventSourceMapperRoleArn() {
+    return this.eventSourceMapperLambdaRole.arn;
+  }
+
+  private createInitLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {
@@ -139,7 +151,7 @@ export default class RoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createBackendDeliveryProcessingLambdaRole(
+  private createProcessingLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {
@@ -178,7 +190,7 @@ export default class RoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createBackendDeliveryCompleteLambdaRole(
+  private createCompleteLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {
@@ -218,7 +230,7 @@ export default class RoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createBackendDeliveryEventSourceMapperLambdaRole(
+  private createEventSourceMapperLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {
