@@ -3,7 +3,7 @@ import * as aws from "@pulumi/aws";
 import BaseAwsInfo from "../../../aws/BaseAwsInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 
-export default class FrontendParameterStoreInfo extends BaseAwsInfo {
+export default class ParameterStoreInfo extends BaseAwsInfo {
   public static readonly CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY =
     "/code/delivery/frontend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY =
@@ -19,7 +19,7 @@ export default class FrontendParameterStoreInfo extends BaseAwsInfo {
 
   private setCodeDeliveryInfo(cloudFrontInfo: CloudFrontInfo) {
     new aws.ssm.Parameter("code-delivery-frontend-cloudfront-distribution-id", {
-      name: FrontendParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY,
+      name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY,
       description: "Frontend Distribution ID",
       type: aws.ssm.ParameterType.String,
       value: cloudFrontInfo.getFrontendDistributionId(),
@@ -28,7 +28,7 @@ export default class FrontendParameterStoreInfo extends BaseAwsInfo {
     new aws.ssm.Parameter(
       "code-delivery-frontend-cloudfront-distribution-url",
       {
-        name: FrontendParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY,
+        name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY,
         description: "Frontend Distribution URL",
         type: aws.ssm.ParameterType.String,
         value: pulumi.interpolate`https://${cloudFrontInfo.getFrontendDistributionDomainName()}`,
@@ -36,7 +36,7 @@ export default class FrontendParameterStoreInfo extends BaseAwsInfo {
     );
 
     new aws.ssm.Parameter("code-delivery-frontend-bucket-name", {
-      name: FrontendParameterStoreInfo.CODE_DELIVERY_FRONTEND_BUCKET_NAME_KEY,
+      name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_BUCKET_NAME_KEY,
       description: "Frontend S3 Bucket name",
       type: aws.ssm.ParameterType.String,
       value: this.getFrontendBucketName(),
