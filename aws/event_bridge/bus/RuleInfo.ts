@@ -29,7 +29,9 @@ export default class RuleInfo extends BaseAwsInfo {
         detail: {
           "action-type": ["PUSH"],
           result: ["SUCCESS"],
-          "repository-name": [ecrInfo.getPrivateRepositoryName()],
+          "repository-name": [
+            ecrInfo.privateRepositoryInfo.getPrivateRepositoryName(),
+          ],
         },
       }),
     });
