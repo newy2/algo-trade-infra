@@ -35,7 +35,8 @@ export default class BucketInfo extends BaseAwsInfo {
             Resource: pulumi.interpolate`${this.frontendBucket.arn}/*`,
             Condition: {
               StringEquals: {
-                "AWS:SourceArn": pulumi.interpolate`${cloudFrontInfo.distributionInfo.getFrontendDistributionArn()}`,
+                "AWS:SourceArn":
+                  cloudFrontInfo.distributionInfo.getFrontendDistributionArn(),
               },
             },
           },

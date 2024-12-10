@@ -1,4 +1,3 @@
-import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import BaseAwsInfo from "../../../aws/BaseAwsInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
@@ -31,7 +30,8 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
         name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY,
         description: "Frontend Distribution URL",
         type: aws.ssm.ParameterType.String,
-        value: pulumi.interpolate`https://${cloudFrontInfo.distributionInfo.getFrontendDistributionDomainName()}`,
+        value:
+          cloudFrontInfo.distributionInfo.getFrontendDistributionFullDomainName(),
       },
     );
 

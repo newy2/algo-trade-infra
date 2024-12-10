@@ -3,6 +3,7 @@ import { Distribution } from "@pulumi/aws/cloudfront";
 import S3Info from "../../s3/S3Info";
 import FunctionInfo from "./FunctionInfo";
 import OriginAccessInfo from "../security/OriginAccessInfo";
+import * as pulumi from "@pulumi/pulumi";
 
 export default class DistributionInfo {
   private static readonly ROOT_OBJECT = "index.html";
@@ -24,8 +25,8 @@ export default class DistributionInfo {
     return this.distribution.arn;
   }
 
-  public getFrontendDistributionDomainName() {
-    return this.distribution.domainName;
+  public getFrontendDistributionFullDomainName() {
+    return pulumi.interpolate`https://${this.distribution.domainName}`;
   }
 
   public getFrontendDistributionId() {
