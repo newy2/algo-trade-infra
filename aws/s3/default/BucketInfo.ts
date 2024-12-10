@@ -74,16 +74,10 @@ export default class BucketInfo extends BaseAwsInfo {
   private createFrontendBucket() {
     const bucketName = this.getFrontendBucketName();
 
-    const result = new aws.s3.BucketV2(
-      bucketName,
-      {
-        bucket: bucketName,
-        forceDestroy: true,
-      },
-      {
-        // retainOnDelete: true, // TODO Refector
-      },
-    );
+    const result = new aws.s3.BucketV2(bucketName, {
+      bucket: bucketName,
+      forceDestroy: true,
+    });
 
     new aws.s3.BucketServerSideEncryptionConfigurationV2("bucket-encryption", {
       bucket: result.id,

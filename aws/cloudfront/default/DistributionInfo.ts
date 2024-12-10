@@ -47,42 +47,33 @@ export default class DistributionInfo {
     functionInfo: FunctionInfo,
     originAccessInfo: OriginAccessInfo,
   ) {
-    return new aws.cloudfront.Distribution(
-      "frontend-algo-trade-distribution",
-      {
-        comment: "Static site distribution",
-        customErrorResponses: this.getCustomErrorResponses(),
-        defaultCacheBehavior: this.getDefaultCacheBehavior(
-          s3Info,
-          functionInfo,
-        ),
-        defaultRootObject: DistributionInfo.ROOT_OBJECT,
-        enabled: true,
-        httpVersion: "http2",
-        orderedCacheBehaviors: this.getOrderedCacheBehaviors(s3Info),
-        origins: [
-          {
-            domainName: s3Info.getFrontendBucketRegionalDomainName(),
-            originId: s3Info.getFrontendBucketRegionalDomainName(),
-            originAccessControlId:
-              originAccessInfo.getFrontendBucketOriginAccessControlId(),
-          },
-        ],
-        priceClass: "PriceClass_200",
-        restrictions: {
-          geoRestriction: {
-            restrictionType: "none",
-          },
+    return new aws.cloudfront.Distribution("frontend-algo-trade-distribution", {
+      comment: "Static site distribution",
+      customErrorResponses: this.getCustomErrorResponses(),
+      defaultCacheBehavior: this.getDefaultCacheBehavior(s3Info, functionInfo),
+      defaultRootObject: DistributionInfo.ROOT_OBJECT,
+      enabled: true,
+      httpVersion: "http2",
+      orderedCacheBehaviors: this.getOrderedCacheBehaviors(s3Info),
+      origins: [
+        {
+          domainName: s3Info.getFrontendBucketRegionalDomainName(),
+          originId: s3Info.getFrontendBucketRegionalDomainName(),
+          originAccessControlId:
+            originAccessInfo.getFrontendBucketOriginAccessControlId(),
         },
-        viewerCertificate: {
-          cloudfrontDefaultCertificate: true,
-          minimumProtocolVersion: "TLSv1",
+      ],
+      priceClass: "PriceClass_200",
+      restrictions: {
+        geoRestriction: {
+          restrictionType: "none",
         },
       },
-      {
-        // retainOnDelete: true, // TODO Refector (retainOnDelete 옵션 사용시 연관된 resource 가 삭제되지 않는 현상 발생)
+      viewerCertificate: {
+        cloudfrontDefaultCertificate: true,
+        minimumProtocolVersion: "TLSv1",
       },
-    );
+    });
   }
 
   private getCustomErrorResponses() {
