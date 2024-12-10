@@ -4,30 +4,16 @@ import DistributionInfo from "./default/DistributionInfo";
 import FunctionInfo from "./default/FunctionInfo";
 
 export default class CloudFrontInfo {
-  private readonly functionInfo: FunctionInfo;
-  private readonly originAccessInfo: OriginAccessInfo;
-  private readonly distributionInfo: DistributionInfo;
+  public readonly distributionInfo: DistributionInfo;
 
   constructor(s3Info: S3Info) {
-    this.functionInfo = new FunctionInfo();
-    this.originAccessInfo = new OriginAccessInfo(s3Info);
+    const functionInfo = new FunctionInfo();
+    const originAccessInfo = new OriginAccessInfo(s3Info);
     this.distributionInfo = new DistributionInfo(
       s3Info,
-      this.functionInfo,
-      this.originAccessInfo,
+      functionInfo,
+      originAccessInfo,
     );
     s3Info.setFrontendBucketPolicy(this);
-  }
-
-  public getFrontendDistributionArn() {
-    return this.distributionInfo.getFrontendDistributionArn();
-  }
-
-  public getFrontendDistributionDomainName() {
-    return this.distributionInfo.getFrontendDistributionDomainName();
-  }
-
-  public getFrontendDistributionId() {
-    return this.distributionInfo.getFrontendDistributionId();
   }
 }

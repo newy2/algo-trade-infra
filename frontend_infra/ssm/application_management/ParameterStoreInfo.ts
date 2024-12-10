@@ -22,7 +22,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY,
       description: "Frontend Distribution ID",
       type: aws.ssm.ParameterType.String,
-      value: cloudFrontInfo.getFrontendDistributionId(),
+      value: cloudFrontInfo.distributionInfo.getFrontendDistributionId(),
     });
 
     new aws.ssm.Parameter(
@@ -31,7 +31,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
         name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY,
         description: "Frontend Distribution URL",
         type: aws.ssm.ParameterType.String,
-        value: pulumi.interpolate`https://${cloudFrontInfo.getFrontendDistributionDomainName()}`,
+        value: pulumi.interpolate`https://${cloudFrontInfo.distributionInfo.getFrontendDistributionDomainName()}`,
       },
     );
 
