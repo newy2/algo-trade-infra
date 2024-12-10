@@ -1,7 +1,7 @@
 import FrontendDeployModel
-  from "../../../../../aws/lambda/default/script/frontend_delivery/models/FrontendDeployModel.mjs";
+  from "../../../../../../aws/lambda/default/script/frontend_delivery/models/FrontendDeployModel.mjs";
 import assert from "assert";
-import { assertDeepEquals, assertEquals } from "../../../../helper/Assertions.mjs";
+import { assertDeepEquals, assertEquals } from "../../../../../helper/Assertions.mjs";
 
 describe("프론트엔드 배포용 모델 테스트", () => {
   const MAX_FOLDER_COUNT = 2;

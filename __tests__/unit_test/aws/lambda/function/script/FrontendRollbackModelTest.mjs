@@ -1,7 +1,7 @@
 import * as assert from "assert";
-import { assertDeepEquals, assertEquals } from "../../../../helper/Assertions.mjs";
+import { assertDeepEquals, assertEquals } from "../../../../../helper/Assertions.mjs";
 import FrontendRollbackModel
-  from "../../../../../aws/lambda/default/script/frontend_delivery/models/FrontendRollbackModel.mjs";
+  from "../../../../../../aws/lambda/default/script/frontend_delivery/models/FrontendRollbackModel.mjs";
 
 
 describe("프론트엔드 롤백용 모델 테스트", () => {
