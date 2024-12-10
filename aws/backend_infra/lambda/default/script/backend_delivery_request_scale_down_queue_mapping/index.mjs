@@ -13,25 +13,25 @@ export const handler = async (event) => {
 
       const lambda = new Lambda();
       const uuid = await lambda.createEventSourceMapping({
-        eventSourceArn: await parameterStore.getBackendSqsCompleteArn(),
-        functionName: await parameterStore.getBackendDeliveryCompleteLambdaName()
+        eventSourceArn: await parameterStore.getBackendRequestScaleDownSqsArn(),
+        functionName: await parameterStore.getBackendDeliveryScaleDownLambdaName()
       });
-      await parameterStore.setBackendDeliveryCompleteLambdaEventSourceUuid(uuid);
+      await parameterStore.setBackendDeliveryScaleDownLambdaEventSourceUuid(uuid);
 
       await slack.sendMessage(`EventSource 매핑 완료 (UUID: ${uuid})`);
     } else {
       await slack.sendMessage("EventSource 매핑 제거 작업 시작");
 
       const lambda = new Lambda();
-      const uuid = await parameterStore.getBackendDeliveryCompleteLambdaEventSourceUuid();
+      const uuid = await parameterStore.getBackendDeliveryScaleDownLambdaEventSourceUuid();
       await lambda.deleteEventSourceMapping(uuid);
-      await parameterStore.deleteBackendDeliveryCompleteLambdaEventSourceUuid();
+      await parameterStore.deleteBackendDeliveryScaleDownLambdaEventSourceUuid();
 
       await slack.sendMessage("EventSource 매핑 제거 완료");
     }
 
   } catch (error) {
     console.error(error);
-    await slack.sendMessage(`[backend_delivery_event_mapping] 에러발생\n${error}`);
+    await slack.sendMessage(`[backend_delivery_request_scale_down_queue_mapping] 에러발생\n${error}`);
   }
 };

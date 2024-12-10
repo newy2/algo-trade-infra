@@ -78,53 +78,54 @@ export default class RoleInfo extends BaseRoleInfo {
 }
 
 class BackendDeliveryRoleInfo extends BaseRoleInfo {
-  private readonly initLambdaRole: Role;
-  private readonly processingLambdaRole: Role;
-  private readonly completeLambdaRole: Role;
-  private readonly eventSourceMapperLambdaRole: Role;
+  private readonly scaleUpLambdaRole: Role;
+  private readonly verifyInstanceLambdaRole: Role;
+  private readonly scaleDownLambdaRole: Role;
+  private readonly requestScaleDownQueueMappingLambdaRole: Role;
 
   constructor(policyInfo: PolicyInfo, commonPolicyInfo: CommonPolicyInfo) {
     super();
 
-    this.initLambdaRole = this.createInitLambdaRole(
+    this.scaleUpLambdaRole = this.createScaleUpLambdaRole(
       policyInfo,
       commonPolicyInfo,
     );
-    this.processingLambdaRole = this.createProcessingLambdaRole(
+    this.verifyInstanceLambdaRole = this.createVerifyInstanceLambdaRole(
       policyInfo,
       commonPolicyInfo,
     );
-    this.completeLambdaRole = this.createCompleteLambdaRole(
+    this.scaleDownLambdaRole = this.createScaleDownLambdaRole(
       policyInfo,
       commonPolicyInfo,
     );
-    this.eventSourceMapperLambdaRole = this.createEventSourceMapperLambdaRole(
-      policyInfo,
-      commonPolicyInfo,
-    );
+    this.requestScaleDownQueueMappingLambdaRole =
+      this.createRequestScaleDownQueueMappingLambdaRole(
+        policyInfo,
+        commonPolicyInfo,
+      );
   }
 
-  public getInitRoleArn() {
-    return this.initLambdaRole.arn;
+  public getScaleUpLambdaRoleArn() {
+    return this.scaleUpLambdaRole.arn;
   }
 
-  public getProcessingRoleArn() {
-    return this.processingLambdaRole.arn;
+  public getVerifyInstanceLambdaRoleArn() {
+    return this.verifyInstanceLambdaRole.arn;
   }
 
-  public getCompleteRoleArn() {
-    return this.completeLambdaRole.arn;
+  public getScaleDownLambdaRoleArn() {
+    return this.scaleDownLambdaRole.arn;
   }
 
-  public getEventSourceMapperRoleArn() {
-    return this.eventSourceMapperLambdaRole.arn;
+  public getRequestScaleDownQueueMappingLambdaRoleArn() {
+    return this.requestScaleDownQueueMappingLambdaRole.arn;
   }
 
-  private createInitLambdaRole(
+  private createScaleUpLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {
-    const prefix = "backend-delivery-init-lambda";
+    const prefix = "backend-delivery-scale-up-lambda";
     const roleName = `${prefix}-role`;
 
     const result = new aws.iam.Role(roleName, {
@@ -151,11 +152,11 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createProcessingLambdaRole(
+  private createVerifyInstanceLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {
-    const prefix = "backend-delivery-processing-lambda";
+    const prefix = "backend-delivery-verify-instance-lambda";
     const roleName = `${prefix}-role`;
 
     const result = new aws.iam.Role(roleName, {
@@ -168,8 +169,9 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     [
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       {
-        key: "BackendDeliveryCompleteQueueSendMessage",
-        value: policyInfo.getBackendDeliveryCompleteQueueSendMessagePolicyArn(),
+        key: "BackendDeliveryRequestScaleDownQueueSendMessagePolicy",
+        value:
+          policyInfo.getBackendDeliveryRequestScaleDownQueueSendMessagePolicyArn(),
       },
       {
         key: "BackedAutoScalingGroupReadPolicy",
@@ -190,11 +192,11 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createCompleteLambdaRole(
+  private createScaleDownLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {
-    const prefix = "backend-delivery-complete-lambda";
+    const prefix = "backend-delivery-scale-down-lambda";
     const roleName = `${prefix}-role`;
 
     const result = new aws.iam.Role(roleName, {
@@ -208,8 +210,9 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       aws.iam.ManagedPolicy.AWSLambdaSQSQueueExecutionRole,
       {
-        key: "BackendDeliveryCompleteQueuePurgeQueue",
-        value: policyInfo.getBackendDeliveryCompleteQueuePurgeQueuePolicyArn(),
+        key: "BackendDeliveryRequestScaleDownQueuePurgeQueuePolicy",
+        value:
+          policyInfo.getBackendDeliveryRequestScaleDownQueuePurgeQueuePolicyArn(),
       },
       {
         key: "BackedAutoScalingGroupUpdatePolicy",
@@ -230,7 +233,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createEventSourceMapperLambdaRole(
+  private createRequestScaleDownQueueMappingLambdaRole(
     policyInfo: PolicyInfo,
     commonPolicyInfo: CommonPolicyInfo,
   ) {

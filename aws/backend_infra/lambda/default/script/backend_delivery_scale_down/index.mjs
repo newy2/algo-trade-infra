@@ -23,7 +23,7 @@ export const handler = async (event) => {
     await autoScaling.validateEc2InstanceSize();
 
     if (!isSuccessMessage) {
-      const sqs = new Sqs(await parameterStore.getBackendSqsCompleteUrl());
+      const sqs = new Sqs(await parameterStore.getBackendRequestScaleDownSqsUrl());
       const hasDelayMessage = await sqs.hasDelayMessage();
 
       if (hasDelayMessage) {
@@ -54,7 +54,7 @@ export const handler = async (event) => {
     await slack.sendMessage(`ASG 사이즈 조정 ${isTerminated ? "완료" : "실패"}`);
   } catch (error) {
     console.error(error);
-    await slack.sendMessage(`[backend_delivery_complete] 에러발생\n${error}`);
+    await slack.sendMessage(`[backend_delivery_scale_down] 에러발생\n${error}`);
     throw error;
   }
 };

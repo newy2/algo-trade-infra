@@ -74,19 +74,19 @@ export default class BaseAwsInfo {
     return "backend-server-autoscaling-group";
   }
 
-  protected getBackendDeliveryCompleteQueueName() {
-    return "backend-delivery-complete-queue";
+  protected getBackendDeliveryRequestScaleDownQueueName() {
+    return "backend-delivery-request-scale-down-queue";
   }
 
-  protected getBackendDeliveryCompleteLambdaName() {
-    return "backend-delivery-complete-lambda";
+  protected getBackendDeliveryScaleDownLambdaName() {
+    return "backend-delivery-scale-down-lambda";
   }
 
-  protected getBackendDeliveryEventSourceMapperLambdaName() {
-    return "backend-delivery-event-source-mapper-lambda";
+  protected getBackendDeliveryRequestScaleDownQueueMappingLambdaName() {
+    return "backend-delivery-request-scale-down-queue-mapping-lambda";
   }
 
-  protected getBackendDeliveryCompletedQueueArn() {
-    return pulumi.interpolate`arn:aws:sqs:${this.getCurrentRegion()}:${this.getAccountId()}:${this.getBackendDeliveryCompleteQueueName()}`;
+  protected getBackendDeliveryRequestScaleDownQueueArn() {
+    return pulumi.interpolate`arn:aws:sqs:${this.getCurrentRegion()}:${this.getAccountId()}:${this.getBackendDeliveryRequestScaleDownQueueName()}`;
   }
 }

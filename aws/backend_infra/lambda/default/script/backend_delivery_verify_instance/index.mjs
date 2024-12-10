@@ -30,7 +30,7 @@ export const handler = async (event) => {
       await ec2.getHealthCheckUrl()
     ].join("\n"));
 
-    const sqs = new Sqs(await parameterStore.getBackendSqsCompleteUrl());
+    const sqs = new Sqs(await parameterStore.getBackendRequestScaleDownSqsUrl());
     if (!isHealthy) {
       await slack.sendMessage("rollback 요청");
       await sqs.sendFailMessage();
@@ -51,6 +51,6 @@ export const handler = async (event) => {
     await slack.sendMessage("SQS success 메세지 전송 완료");
   } catch (error) {
     console.error(error);
-    await slack.sendMessage(`[backend_delivery_processing] 에러발생\n${error}`);
+    await slack.sendMessage(`[backend_delivery_verify_instance] 에러발생\n${error}`);
   }
 };

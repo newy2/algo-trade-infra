@@ -15,6 +15,6 @@ export const handler = async (event) => {
     await slack.sendMessage("백엔드 배포 ASG Scale Up 요청 완료");
   } catch (error) {
     console.error(error);
-    await slack.sendMessage(`[backend_delivery_init] 에러발생\n${error}`);
+    await slack.sendMessage(`[backend_delivery_scale_up] 에러발생\n${error}`);
   }
 };

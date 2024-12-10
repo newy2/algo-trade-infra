@@ -10,8 +10,8 @@ export default class RuleInfo extends BaseAwsInfo {
     super();
 
     this.createPushEcrRepositoryEventRule(ecrInfo, lambdaInfo);
-    this.createAutoscalingGroupInstanceSizeUpEventRule(lambdaInfo);
-    this.createAutoscalingGroupInstanceSizeDownEventRule(lambdaInfo);
+    this.createEc2InstanceScaleUpEventRule(lambdaInfo);
+    this.createEc2InstanceScaleDownEventRule(lambdaInfo);
   }
 
   private createPushEcrRepositoryEventRule(
@@ -37,7 +37,7 @@ export default class RuleInfo extends BaseAwsInfo {
     });
 
     this.createFastCleanupEcrImageEventTarget(eventRule, lambdaInfo);
-    this.createBackendDeliveryInitEventTarget(eventRule, lambdaInfo);
+    this.createBackendDeliveryStartScaleUpEventTarget(eventRule, lambdaInfo);
   }
 
   private createFastCleanupEcrImageEventTarget(
@@ -63,13 +63,13 @@ export default class RuleInfo extends BaseAwsInfo {
     });
   }
 
-  private createBackendDeliveryInitEventTarget(
+  private createBackendDeliveryStartScaleUpEventTarget(
     eventRule: EventRule,
     lambdaInfo: LambdaInfo,
   ) {
-    const prefix = "backend-delivery-init";
+    const prefix = "backend-delivery-scale-up";
     const functionArn =
-      lambdaInfo.functionInfo.backendDelivery.getInitFunctionArn();
+      lambdaInfo.functionInfo.backendDelivery.getScaleUpFunctionArn();
 
     new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",
@@ -84,10 +84,8 @@ export default class RuleInfo extends BaseAwsInfo {
     });
   }
 
-  private createAutoscalingGroupInstanceSizeUpEventRule(
-    lambdaInfo: LambdaInfo,
-  ) {
-    const name = "backend-autoscaling-group-instance-size-up-event-rule";
+  private createEc2InstanceScaleUpEventRule(lambdaInfo: LambdaInfo) {
+    const name = "ec2-instance-scale-up-event-rule";
 
     const eventRule = new aws.cloudwatch.EventRule(name, {
       name,
@@ -101,21 +99,21 @@ export default class RuleInfo extends BaseAwsInfo {
       }),
     });
 
-    this.createBackendDeliveryProcessingEventTarget(eventRule, lambdaInfo);
-    this.createBackendDeliveryEventSourceMapperEventTarget(
-      "backend-create-event-source-mapping",
+    this.createBackendDeliveryVerifyInstanceEventTarget(eventRule, lambdaInfo);
+    this.createBackendDeliveryRequestScaleDownQueueMappingEventTarget(
+      "create-mapping",
       eventRule,
       lambdaInfo,
     );
   }
 
-  private createBackendDeliveryProcessingEventTarget(
+  private createBackendDeliveryVerifyInstanceEventTarget(
     eventRule: EventRule,
     lambdaInfo: LambdaInfo,
   ) {
-    const prefix = "backend-delivery-processing";
+    const prefix = "backend-delivery-verify-instance";
     const functionArn =
-      lambdaInfo.functionInfo.backendDelivery.getProcessingFunctionArn();
+      lambdaInfo.functionInfo.backendDelivery.getVerifyInstanceFunctionArn();
 
     new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",
@@ -130,10 +128,8 @@ export default class RuleInfo extends BaseAwsInfo {
     });
   }
 
-  private createAutoscalingGroupInstanceSizeDownEventRule(
-    lambdaInfo: LambdaInfo,
-  ) {
-    const name = "backend-autoscaling-group-instance-size-down-event-rule";
+  private createEc2InstanceScaleDownEventRule(lambdaInfo: LambdaInfo) {
+    const name = "ec2-instance-scale-down-event-rule";
 
     const eventRule = new aws.cloudwatch.EventRule(name, {
       name,
@@ -147,20 +143,20 @@ export default class RuleInfo extends BaseAwsInfo {
       }),
     });
 
-    this.createBackendDeliveryEventSourceMapperEventTarget(
-      "backend-delete-event-source-mapping",
+    this.createBackendDeliveryRequestScaleDownQueueMappingEventTarget(
+      "delete-mapping",
       eventRule,
       lambdaInfo,
     );
   }
 
-  private createBackendDeliveryEventSourceMapperEventTarget(
+  private createBackendDeliveryRequestScaleDownQueueMappingEventTarget(
     prefix: string,
     eventRule: EventRule,
     lambdaInfo: LambdaInfo,
   ) {
     const functionArn =
-      lambdaInfo.functionInfo.backendDelivery.getEventSourceMapperFunctionArn();
+      lambdaInfo.functionInfo.backendDelivery.getRequestScaleDownQueueMappingFunctionArn();
 
     new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",

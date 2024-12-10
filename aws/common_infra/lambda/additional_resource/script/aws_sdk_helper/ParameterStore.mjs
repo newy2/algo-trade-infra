@@ -11,10 +11,10 @@ export default class ParameterStore {
   static _SLACK_URL_KEY = `${ParameterStore._PREFIX}/slack/url`;
   static _BACKEND_AUTO_SCALING_GROUP_NAME_KEY = `${ParameterStore._PREFIX}/backend/auto_scaling_group/name`;
   static _BACKEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/backend/cloudfront/distribution/id`;
-  static _BACKEND_SQS_COMPLETE_URL_KEY = `${ParameterStore._PREFIX}/backend/sqs/complete/url`;
-  static _BACKEND_SQS_COMPLETE_ARN_KEY = `${ParameterStore._PREFIX}/backend/sqs/complete/arn`;
-  static _BACKEND_DELIVERY_COMPLETE_LAMBDA_NAME_KEY = `${ParameterStore._PREFIX}/backend/delivery_complete_lambda/name`;
-  static _BACKEND_DELIVERY_COMPLETE_LAMBDA_EVENT_SOURCE_UUID_KEY = `${ParameterStore._PREFIX}/backend/delivery_complete_lambda/event_source/uuid`;
+  static _BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY = `${ParameterStore._PREFIX}/backend/sqs/request_scale_down/url`;
+  static _BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY = `${ParameterStore._PREFIX}/backend/sqs/request_scale_down/arn`;
+  static _BACKEND_SCALE_DOWN_LAMBDA_NAME_KEY = `${ParameterStore._PREFIX}/backend/lambda/scale_down/name`;
+  static _BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY = `${ParameterStore._PREFIX}/backend/lambda/scale_down/event_source/uuid`;
   static _FRONTEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/frontend/cloudfront/distribution/id`;
   static _FRONTEND_BUCKET_NAME_KEY = `${ParameterStore._PREFIX}/frontend/s3/bucket/name`;
 
@@ -35,20 +35,20 @@ export default class ParameterStore {
     return await this._getParameter(ParameterStore._BACKEND_DISTRIBUTION_ID_KEY);
   }
 
-  async getBackendSqsCompleteArn() {
-    return await this._getParameter(ParameterStore._BACKEND_SQS_COMPLETE_ARN_KEY);
+  async getBackendRequestScaleDownSqsArn() {
+    return await this._getParameter(ParameterStore._BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY);
   }
 
-  async getBackendSqsCompleteUrl() {
-    return await this._getParameter(ParameterStore._BACKEND_SQS_COMPLETE_URL_KEY);
+  async getBackendRequestScaleDownSqsUrl() {
+    return await this._getParameter(ParameterStore._BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY);
   }
 
-  async getBackendDeliveryCompleteLambdaName() {
-    return await this._getParameter(ParameterStore._BACKEND_DELIVERY_COMPLETE_LAMBDA_NAME_KEY);
+  async getBackendDeliveryScaleDownLambdaName() {
+    return await this._getParameter(ParameterStore._BACKEND_SCALE_DOWN_LAMBDA_NAME_KEY);
   }
 
-  async getBackendDeliveryCompleteLambdaEventSourceUuid() {
-    return await this._getParameter(ParameterStore._BACKEND_DELIVERY_COMPLETE_LAMBDA_EVENT_SOURCE_UUID_KEY);
+  async getBackendDeliveryScaleDownLambdaEventSourceUuid() {
+    return await this._getParameter(ParameterStore._BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY);
   }
 
   async getFrontendDistributionId() {
@@ -59,9 +59,9 @@ export default class ParameterStore {
     return await this._getParameter(ParameterStore._FRONTEND_BUCKET_NAME_KEY);
   }
 
-  async setBackendDeliveryCompleteLambdaEventSourceUuid(uuid) {
+  async setBackendDeliveryScaleDownLambdaEventSourceUuid(uuid) {
     const response = await this.ssmClient.send(new PutParameterCommand({
-      Name: ParameterStore._BACKEND_DELIVERY_COMPLETE_LAMBDA_EVENT_SOURCE_UUID_KEY,
+      Name: ParameterStore._BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY,
       Value: uuid,
       Type: "String",
       Overwrite: true
@@ -76,9 +76,9 @@ export default class ParameterStore {
     ]);
   }
 
-  async deleteBackendDeliveryCompleteLambdaEventSourceUuid() {
+  async deleteBackendDeliveryScaleDownLambdaEventSourceUuid() {
     const response = await this.ssmClient.send(new DeleteParameterCommand({
-      Name: ParameterStore._BACKEND_DELIVERY_COMPLETE_LAMBDA_EVENT_SOURCE_UUID_KEY
+      Name: ParameterStore._BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY
     }));
 
     validate([

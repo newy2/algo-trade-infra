@@ -5,8 +5,8 @@ import { Policy } from "@pulumi/aws/iam";
 import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreInfo";
 
 export default class PolicyInfo extends BaseAwsInfo {
-  private readonly backendDeliveryCompleteQueueSendMessagePolicy: Policy;
-  private readonly backendDeliveryCompleteQueuePurgeQueuePolicy: Policy;
+  private readonly backendDeliveryRequestScaleDownQueueSendMessagePolicy: Policy;
+  private readonly backendDeliveryRequestScaleDownQueuePurgeQueuePolicy: Policy;
   private readonly backedAutoScalingGroupReadPolicy: Policy;
   private readonly backedAutoScalingGroupUpdatePolicy: Policy;
   private readonly codeDeliveryParameterStoreUpdatePolicy: Policy;
@@ -15,10 +15,10 @@ export default class PolicyInfo extends BaseAwsInfo {
   constructor() {
     super();
 
-    this.backendDeliveryCompleteQueueSendMessagePolicy =
-      this.createBackendDeliveryCompleteQueueSendMessagePolicy();
-    this.backendDeliveryCompleteQueuePurgeQueuePolicy =
-      this.createBackendDeliveryCompleteQueuePurgeQueuePolicy();
+    this.backendDeliveryRequestScaleDownQueueSendMessagePolicy =
+      this.createBackendDeliveryRequestScaleDownQueueSendMessagePolicy();
+    this.backendDeliveryRequestScaleDownQueuePurgeQueuePolicy =
+      this.createBackendDeliveryRequestScaleDownQueuePurgeQueuePolicy();
     this.backedAutoScalingGroupReadPolicy =
       this.createBackedAutoScalingGroupReadPolicy();
     this.backedAutoScalingGroupUpdatePolicy =
@@ -29,12 +29,12 @@ export default class PolicyInfo extends BaseAwsInfo {
       this.createChangeLambdaEventSourceMappingPolicy();
   }
 
-  public getBackendDeliveryCompleteQueueSendMessagePolicyArn() {
-    return this.backendDeliveryCompleteQueueSendMessagePolicy.arn;
+  public getBackendDeliveryRequestScaleDownQueueSendMessagePolicyArn() {
+    return this.backendDeliveryRequestScaleDownQueueSendMessagePolicy.arn;
   }
 
-  public getBackendDeliveryCompleteQueuePurgeQueuePolicyArn() {
-    return this.backendDeliveryCompleteQueuePurgeQueuePolicy.arn;
+  public getBackendDeliveryRequestScaleDownQueuePurgeQueuePolicyArn() {
+    return this.backendDeliveryRequestScaleDownQueuePurgeQueuePolicy.arn;
   }
 
   public getBackedAutoScalingGroupReadPolicyArn() {
@@ -86,9 +86,9 @@ export default class PolicyInfo extends BaseAwsInfo {
     });
   }
 
-  private createBackendDeliveryCompleteQueueSendMessagePolicy() {
+  private createBackendDeliveryRequestScaleDownQueueSendMessagePolicy() {
     return new aws.iam.Policy(
-      "backend-delivery-complete-queue-send-message-policy",
+      "backend-delivery-request-scale-down-queue-send-message-policy",
       {
         policy: {
           Version: "2012-10-17",
@@ -96,7 +96,7 @@ export default class PolicyInfo extends BaseAwsInfo {
             {
               Effect: "Allow",
               Action: "sqs:SendMessage",
-              Resource: this.getBackendDeliveryCompletedQueueArn(),
+              Resource: this.getBackendDeliveryRequestScaleDownQueueArn(),
             },
           ],
         },
@@ -104,9 +104,9 @@ export default class PolicyInfo extends BaseAwsInfo {
     );
   }
 
-  private createBackendDeliveryCompleteQueuePurgeQueuePolicy() {
+  private createBackendDeliveryRequestScaleDownQueuePurgeQueuePolicy() {
     return new aws.iam.Policy(
-      "backend-delivery-complete-queue-purge-queue-policy",
+      "backend-delivery-request-scale-down-queue-purge-queue-policy",
       {
         policy: {
           Version: "2012-10-17",
@@ -114,7 +114,7 @@ export default class PolicyInfo extends BaseAwsInfo {
             {
               Effect: "Allow",
               Action: "sqs:PurgeQueue",
-              Resource: this.getBackendDeliveryCompletedQueueArn(),
+              Resource: this.getBackendDeliveryRequestScaleDownQueueArn(),
             },
           ],
         },
@@ -130,7 +130,7 @@ export default class PolicyInfo extends BaseAwsInfo {
           {
             Effect: "Allow",
             Action: ["ssm:PutParameter", "ssm:DeleteParameter"],
-            Resource: pulumi.interpolate`arn:aws:ssm:${this.getCurrentRegion()}:${this.getAccountId()}:parameter${ParameterStoreInfo.CODE_DELIVERY_BACKEND_DELIVERY_COMPLETE_LAMBDA_EVENT_SOURCE_UUID_NAME_KEY}`,
+            Resource: pulumi.interpolate`arn:aws:ssm:${this.getCurrentRegion()}:${this.getAccountId()}:parameter${ParameterStoreInfo.CODE_DELIVERY_BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_NAME_KEY}`,
           },
         ],
       },

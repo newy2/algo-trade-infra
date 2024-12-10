@@ -22,16 +22,16 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     "/code/delivery/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
     "/code/delivery/backend/cloudfront/distribution/url";
-  public static readonly CODE_DELIVERY_BACKEND_SQS_COMPLETE_ARN_KEY =
-    "/code/delivery/backend/sqs/complete/arn";
-  public static readonly CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY =
-    "/code/delivery/backend/sqs/complete/url";
+  public static readonly CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY =
+    "/code/delivery/backend/sqs/request_scale_down/arn";
+  public static readonly CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY =
+    "/code/delivery/backend/sqs/request_scale_down/url";
   public static readonly CODE_DELIVERY_BACKEND_AUTO_SCALING_GROUP_NAME_KEY =
     "/code/delivery/backend/auto_scaling_group/name";
-  public static readonly CODE_DELIVERY_BACKEND_DELIVERY_COMPLETE_LAMBDA_NAME_KEY =
-    "/code/delivery/backend/delivery_complete_lambda/name";
-  public static readonly CODE_DELIVERY_BACKEND_DELIVERY_COMPLETE_LAMBDA_EVENT_SOURCE_UUID_NAME_KEY =
-    "/code/delivery/backend/delivery_complete_lambda/event_source/uuid";
+  public static readonly CODE_DELIVERY_BACKEND_SCALE_DOWN_LAMBDA_NAME_KEY =
+    "/code/delivery/backend/lambda/scale_down/name";
+  public static readonly CODE_DELIVERY_BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_NAME_KEY =
+    "/code/delivery/backend/lambda/scale_down/event_source/uuid";
 
   constructor(
     vpcInfo: VpcInfo,
@@ -126,18 +126,18 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
         cloudFrontInfo.distributionInfo.getBackendDistributionFullDomainName(),
     });
 
-    new aws.ssm.Parameter("code-delivery-backend-sqs-complete-arn", {
-      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_COMPLETE_ARN_KEY,
+    new aws.ssm.Parameter("code-delivery-backend-sqs-request-scale-down-arn", {
+      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY,
       description: "Backend SQS ARN",
       type: aws.ssm.ParameterType.String,
-      value: sqsInfo.queueInfo.getBackendDeliveryCompleteQueueArn(),
+      value: sqsInfo.queueInfo.getBackendDeliveryRequestScaleDownQueueArn(),
     });
 
-    new aws.ssm.Parameter("code-delivery-backend-sqs-complete-url", {
-      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY,
+    new aws.ssm.Parameter("code-delivery-backend-sqs-request-scale-down-url", {
+      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY,
       description: "Backend SQS URL",
       type: aws.ssm.ParameterType.String,
-      value: sqsInfo.queueInfo.getBackendDeliveryCompleteQueueUrl(),
+      value: sqsInfo.queueInfo.getBackendDeliveryRequestScaleDownQueueUrl(),
     });
 
     new aws.ssm.Parameter("code-delivery-backend-auto-scaling-group-name", {
@@ -148,12 +148,12 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     });
 
     new aws.ssm.Parameter(
-      "code-delivery-backend-delivery-complete-lambda-name",
+      "code-delivery-backend-delivery-scale-down-lambda-name",
       {
-        name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_DELIVERY_COMPLETE_LAMBDA_NAME_KEY,
-        description: "Backend Delivery Complete Lambda name",
+        name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SCALE_DOWN_LAMBDA_NAME_KEY,
+        description: "Backend Delivery Scale Down Lambda name",
         type: aws.ssm.ParameterType.String,
-        value: this.getBackendDeliveryCompleteLambdaName(),
+        value: this.getBackendDeliveryScaleDownLambdaName(),
       },
     );
   }

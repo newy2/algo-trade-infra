@@ -44,100 +44,107 @@ export default class FunctionInfo extends BaseAwsInfo {
 }
 
 class BackendDeliveryFunctionInfo extends BaseAwsInfo {
-  private readonly eventSourceMapperFunction: aws.lambda.Function;
-  private readonly initFunction: aws.lambda.Function;
-  private readonly processingFunction: aws.lambda.Function;
-  private readonly completeFunction: aws.lambda.Function;
+  private readonly requestScaleDownQueueMappingFunction: aws.lambda.Function;
+
+  private readonly scaleUpFunction: aws.lambda.Function;
+  private readonly verifyInstanceFunction: aws.lambda.Function;
+  private readonly scaleDownFunction: aws.lambda.Function;
 
   constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
     super();
 
-    this.eventSourceMapperFunction = this.createEventSourceMapperFunction(
+    this.requestScaleDownQueueMappingFunction =
+      this.createRequestScaleDownQueueMappingFunction(iamInfo, layerInfo);
+    this.scaleUpFunction = this.createScaleUpFunction(iamInfo, layerInfo);
+    this.verifyInstanceFunction = this.createVerifyInstanceFunction(
       iamInfo,
       layerInfo,
     );
-    this.initFunction = this.createInitFunction(iamInfo, layerInfo);
-    this.processingFunction = this.createProcessingFunction(iamInfo, layerInfo);
-    this.completeFunction = this.createCompleteFunction(iamInfo, layerInfo);
+    this.scaleDownFunction = this.createScaleDownFunction(iamInfo, layerInfo);
   }
 
-  public getEventSourceMapperFunctionArn() {
-    return this.eventSourceMapperFunction.arn;
+  public getRequestScaleDownQueueMappingFunctionArn() {
+    return this.requestScaleDownQueueMappingFunction.arn;
   }
 
-  public getInitFunctionArn() {
-    return this.initFunction.arn;
+  public getScaleUpFunctionArn() {
+    return this.scaleUpFunction.arn;
   }
 
-  public getProcessingFunctionArn() {
-    return this.processingFunction.arn;
+  public getVerifyInstanceFunctionArn() {
+    return this.verifyInstanceFunction.arn;
   }
 
-  private createInitFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
-    const name = "backend-delivery-init-lambda";
+  private createScaleUpFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
+    const name = "backend-delivery-scale-up-lambda";
 
     return new aws.lambda.Function(name, {
       name,
       description: "ASG 인스턴스 사이즈 업 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getInitRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getScaleUpLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        path.join(__dirname, "script", "backend_delivery_init"),
+        path.join(__dirname, "script", "backend_delivery_scale_up"),
       ),
       timeout: 10,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
   }
 
-  private createProcessingFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
-    const name = "backend-delivery-processing-lambda";
+  private createVerifyInstanceFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
+    const name = "backend-delivery-verify-instance-lambda";
 
     return new aws.lambda.Function(name, {
       name,
       description: "CloudFront 의 Origin 변경",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getProcessingRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getVerifyInstanceLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        path.join(__dirname, "script", "backend_delivery_processing"),
+        path.join(__dirname, "script", "backend_delivery_verify_instance"),
       ),
       timeout: 10 * 60,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
   }
 
-  private createCompleteFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
-    const name = this.getBackendDeliveryCompleteLambdaName();
+  private createScaleDownFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
+    const name = this.getBackendDeliveryScaleDownLambdaName();
 
     return new aws.lambda.Function(name, {
       name,
       description: "ASG 인스턴스 사이즈 다운 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getCompleteRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getScaleDownLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        path.join(__dirname, "script", "backend_delivery_complete"),
+        path.join(__dirname, "script", "backend_delivery_scale_down"),
       ),
       timeout: 10 * 60,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
   }
 
-  private createEventSourceMapperFunction(
+  private createRequestScaleDownQueueMappingFunction(
     iamInfo: IamInfo,
     layerInfo: LayerInfo,
   ) {
-    const name = this.getBackendDeliveryEventSourceMapperLambdaName();
+    const name =
+      this.getBackendDeliveryRequestScaleDownQueueMappingLambdaName();
 
     const result = new aws.lambda.Function(name, {
       name,
       description: "백엔드 배포 SQS EventSource 매핑 함수",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getEventSourceMapperRoleArn(),
+      role: iamInfo.roleInfo.backendDelivery.getRequestScaleDownQueueMappingLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
-        path.join(__dirname, "script", "backend_delivery_event_source_mapping"),
+        path.join(
+          __dirname,
+          "script",
+          "backend_delivery_request_scale_down_queue_mapping",
+        ),
       ),
       timeout: 60,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],

@@ -3,25 +3,25 @@ import { Queue } from "@pulumi/aws/sqs";
 import BaseAwsInfo from "../../BaseAwsInfo";
 
 export default class QueueInfo extends BaseAwsInfo {
-  private readonly backendDeliveryCompleteQueue: Queue;
+  private readonly backendDeliveryRequestScaleDownQueue: Queue;
 
   constructor() {
     super();
 
-    this.backendDeliveryCompleteQueue =
-      this.createBackendDeliveryCompleteQueue();
+    this.backendDeliveryRequestScaleDownQueue =
+      this.createBackendDeliveryRequestScaleDownQueue();
   }
 
-  public getBackendDeliveryCompleteQueueArn() {
-    return this.backendDeliveryCompleteQueue.arn;
+  public getBackendDeliveryRequestScaleDownQueueArn() {
+    return this.backendDeliveryRequestScaleDownQueue.arn;
   }
 
-  public getBackendDeliveryCompleteQueueUrl() {
-    return this.backendDeliveryCompleteQueue.url;
+  public getBackendDeliveryRequestScaleDownQueueUrl() {
+    return this.backendDeliveryRequestScaleDownQueue.url;
   }
 
-  private createBackendDeliveryCompleteQueue() {
-    const name = this.getBackendDeliveryCompleteQueueName();
+  private createBackendDeliveryRequestScaleDownQueue() {
+    const name = this.getBackendDeliveryRequestScaleDownQueueName();
     return new aws.sqs.Queue(name, {
       name,
       visibilityTimeoutSeconds: 10 * 60,
