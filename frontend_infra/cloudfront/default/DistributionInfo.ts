@@ -4,7 +4,7 @@ import S3Info from "../../s3/S3Info";
 import FunctionInfo from "./FunctionInfo";
 import OriginAccessInfo from "../security/OriginAccessInfo";
 
-export default class FrontendDistributionInfo {
+export default class DistributionInfo {
   private static readonly ROOT_OBJECT = "index.html";
   private frontendDistribution: Distribution;
 
@@ -41,7 +41,7 @@ export default class FrontendDistributionInfo {
       comment: "Static site distribution",
       customErrorResponses: this.getCustomErrorResponses(),
       defaultCacheBehavior: this.getDefaultCacheBehavior(s3Info, functionInfo),
-      defaultRootObject: FrontendDistributionInfo.ROOT_OBJECT,
+      defaultRootObject: DistributionInfo.ROOT_OBJECT,
       enabled: true,
       httpVersion: "http2",
       orderedCacheBehaviors: this.getOrderedCacheBehaviors(s3Info),
@@ -72,7 +72,7 @@ export default class FrontendDistributionInfo {
       errorCode,
       responseCode: 200,
       errorCachingMinTtl: 10,
-      responsePagePath: `/${FrontendDistributionInfo.ROOT_OBJECT}`,
+      responsePagePath: `/${DistributionInfo.ROOT_OBJECT}`,
     }));
   }
 
