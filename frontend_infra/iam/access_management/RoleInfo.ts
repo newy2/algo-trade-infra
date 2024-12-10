@@ -3,7 +3,7 @@ import * as aws from "@pulumi/aws";
 import BaseRoleInfo from "../../../util/BaseRoleInfo";
 import CommonPolicyInfo from "../../../common_infra/iam/access_management/CommonPolicyInfo";
 
-export default class FrontendRoleInfo extends BaseRoleInfo {
+export default class RoleInfo extends BaseRoleInfo {
   private readonly frontendDeliveryLambdaRole: Role;
 
   constructor(commonPolicyInfo: CommonPolicyInfo) {
@@ -17,7 +17,7 @@ export default class FrontendRoleInfo extends BaseRoleInfo {
     return this.frontendDeliveryLambdaRole.arn;
   }
 
-  private createFrontendDeliveryLambdaRole(policyInfo: CommonPolicyInfo) {
+  private createFrontendDeliveryLambdaRole(commonPolicyInfo: CommonPolicyInfo) {
     const prefix = "frontend-delivery-lambda";
     const roleName = `${prefix}-role`;
 
@@ -33,11 +33,11 @@ export default class FrontendRoleInfo extends BaseRoleInfo {
       aws.iam.ManagedPolicy.AmazonS3FullAccess,
       {
         key: "CloudFrontUpdatePolicy",
-        value: policyInfo.getCloudFrontUpdatePolicyArn(),
+        value: commonPolicyInfo.getCloudFrontUpdatePolicyArn(),
       },
       {
         key: "CodeDeliveryParameterStoreAccessPolicy",
-        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
+        value: commonPolicyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);

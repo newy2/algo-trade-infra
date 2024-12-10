@@ -1,11 +1,11 @@
-import FrontendRoleInfo from "./access_management/FrontendRoleInfo";
+import RoleInfo from "./access_management/RoleInfo";
 import CommonPolicyInfo from "../../common_infra/iam/access_management/CommonPolicyInfo";
 
-export default class FrontendIamInfo {
-  private readonly frontendRoleInfo: FrontendRoleInfo;
+export default class IamInfo {
+  private readonly frontendRoleInfo: RoleInfo;
 
   constructor(commonPolicyInfo: CommonPolicyInfo) {
-    this.frontendRoleInfo = new FrontendRoleInfo(commonPolicyInfo);
+    this.frontendRoleInfo = new RoleInfo(commonPolicyInfo);
   }
 
   public getFrontendDeliveryLambdaRole() {
