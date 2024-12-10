@@ -1,4 +1,12 @@
-import { CloudFront, Ec2, ParameterStore, Slack, sleep, Sqs } from "/opt/nodejs/aws_sdk_helper/index.mjs";
+import {
+  CloudFront,
+  Ec2,
+  isValidScaleUp,
+  ParameterStore,
+  Slack,
+  sleep,
+  Sqs
+} from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
   const ec2InstanceId = event.detail.EC2InstanceId;
@@ -9,7 +17,8 @@ export const handler = async (event) => {
   console.timeEnd("create Slack");
 
   try {
-    // await slack.sendMessage(`Scale Down 메세지 수신 ${JSON.stringify(event, null, 2)}`);
+    await isValidScaleUp(event, parameterStore);
+
     await slack.sendMessage("ASG 인스턴스 Scale Up 완료 이벤트 수신");
     await sleep(60 * 1000);
 
@@ -43,6 +52,5 @@ export const handler = async (event) => {
   } catch (error) {
     console.error(error);
     await slack.sendMessage(`[backend_delivery_processing] 에러발생\n${error}`);
-    throw error;
   }
 };

@@ -15,6 +15,7 @@ export default class RuleInfo extends BaseAwsInfo {
   private createPushEcrEventRule(ecrInfo: EcrInfo, lambdaInfo: LambdaInfo) {
     this.createPushEcrRepositoryEventRule(ecrInfo, lambdaInfo);
     this.createAutoscalingGroupInstanceSizeUpEventRule(lambdaInfo);
+    this.createAutoscalingGroupInstanceSizeDownEventRule(lambdaInfo);
   }
 
   private createPushEcrRepositoryEventRule(
@@ -101,6 +102,11 @@ export default class RuleInfo extends BaseAwsInfo {
     });
 
     this.createBackendDeliveryProcessingEventTarget(eventRule, lambdaInfo);
+    this.createBackendDeliveryEventSourceMapperEventTarget(
+      "backend-create-event-source-mapping",
+      eventRule,
+      lambdaInfo,
+    );
   }
 
   private createBackendDeliveryProcessingEventTarget(
@@ -109,6 +115,51 @@ export default class RuleInfo extends BaseAwsInfo {
   ) {
     const prefix = "backend-delivery-processing";
     const functionArn = lambdaInfo.getBackendDeliveryProcessingFunctionArn();
+
+    new aws.lambda.Permission(`${prefix}-lambda-permission`, {
+      action: "lambda:InvokeFunction",
+      principal: "events.amazonaws.com",
+      sourceArn: eventRule.arn,
+      function: functionArn,
+    });
+
+    new aws.cloudwatch.EventTarget(`${prefix}-event-target`, {
+      rule: eventRule.name,
+      arn: functionArn,
+    });
+  }
+
+  private createAutoscalingGroupInstanceSizeDownEventRule(
+    lambdaInfo: LambdaInfo,
+  ) {
+    const name = "backend-autoscaling-group-instance-size-down-event-rule";
+
+    const eventRule = new aws.cloudwatch.EventRule(name, {
+      name,
+      description: "ASG 인스턴스 제거 상태 발생",
+      eventPattern: JSON.stringify({
+        source: ["aws.autoscaling"],
+        "detail-type": ["EC2 Instance Terminate Successful"],
+        detail: {
+          AutoScalingGroupName: [this.getBackendServerAutoScalingGroupName()],
+        },
+      }),
+    });
+
+    this.createBackendDeliveryEventSourceMapperEventTarget(
+      "backend-delete-event-source-mapping",
+      eventRule,
+      lambdaInfo,
+    );
+  }
+
+  private createBackendDeliveryEventSourceMapperEventTarget(
+    prefix: string,
+    eventRule: EventRule,
+    lambdaInfo: LambdaInfo,
+  ) {
+    const functionArn =
+      lambdaInfo.getBackendDeliveryEventSourceMapperFunctionArn();
 
     new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",

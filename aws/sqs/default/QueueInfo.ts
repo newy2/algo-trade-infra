@@ -24,7 +24,7 @@ export default class QueueInfo extends BaseAwsInfo {
     const name = this.getBackendDeliveryCompleteQueueName();
     return new aws.sqs.Queue(name, {
       name,
-      visibilityTimeoutSeconds: 5 * 60,
+      visibilityTimeoutSeconds: 10 * 60,
     });
   }
 }

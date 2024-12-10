@@ -20,7 +20,7 @@ const s3Info = new S3Info();
 const rdsInfo = new RdsInfo(vpcInfo);
 new Ec2Info(vpcInfo, iamInfo);
 const cloudfrontInfo = new CloudFrontInfo(s3Info);
-const lambdaInfo = new LambdaInfo(iamInfo, sqsInfo, s3Info);
+const lambdaInfo = new LambdaInfo(iamInfo, s3Info);
 new SnsInfo(lambdaInfo);
 new EventBridgeInfo(ecrInfo, lambdaInfo);
 

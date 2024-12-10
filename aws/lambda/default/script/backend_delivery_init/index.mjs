@@ -16,6 +16,5 @@ export const handler = async (event) => {
   } catch (error) {
     console.error(error);
     await slack.sendMessage(`[backend_delivery_init] 에러발생\n${error}`);
-    throw error;
   }
 };

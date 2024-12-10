@@ -9,6 +9,7 @@
     "@aws-sdk/client-cloudfront": "^3.699.0",
     "@aws-sdk/client-ec2": "^3.703.0",
     "@aws-sdk/client-ecr": "^3.699.0",
+    "@aws-sdk/client-lambda": "^3.699.0",
     "@aws-sdk/client-s3": "^3.701.0",
     "@aws-sdk/client-sqs": "^3.699.0",
     "@aws-sdk/client-ssm": "^3.699.0",

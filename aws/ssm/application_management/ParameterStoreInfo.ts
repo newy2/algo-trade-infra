@@ -28,10 +28,16 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     "/code/delivery/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
     "/code/delivery/backend/cloudfront/distribution/url";
+  public static readonly CODE_DELIVERY_BACKEND_SQS_COMPLETE_ARN_KEY =
+    "/code/delivery/backend/sqs/complete/arn";
   public static readonly CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY =
     "/code/delivery/backend/sqs/complete/url";
   public static readonly CODE_DELIVERY_BACKEND_AUTO_SCALING_GROUP_NAME_KEY =
     "/code/delivery/backend/auto_scaling_group/name";
+  public static readonly CODE_DELIVERY_BACKEND_DELIVERY_COMPLETE_LAMBDA_NAME_KEY =
+    "/code/delivery/backend/delivery_complete_lambda/name";
+  public static readonly CODE_DELIVERY_BACKEND_DELIVERY_COMPLETE_LAMBDA_EVENT_SOURCE_UUID_NAME_KEY =
+    "/code/delivery/backend/delivery_complete_lambda/event_source/uuid";
 
   constructor(
     vpcInfo: VpcInfo,
@@ -145,6 +151,13 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       value: pulumi.interpolate`https://${cloudFrontInfo.getBackendDistributionDomainName()}`,
     });
 
+    new aws.ssm.Parameter("code-delivery-backend-sqs-complete-arn", {
+      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_COMPLETE_ARN_KEY,
+      description: "Backend SQS ARN",
+      type: aws.ssm.ParameterType.String,
+      value: sqsInfo.getBackendDeliveryCompleteQueueArn(),
+    });
+
     new aws.ssm.Parameter("code-delivery-backend-sqs-complete-url", {
       name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY,
       description: "Backend SQS URL",
@@ -158,5 +171,15 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       type: aws.ssm.ParameterType.String,
       value: this.getBackendServerAutoScalingGroupName(),
     });
+
+    new aws.ssm.Parameter(
+      "code-delivery-backend-delivery-complete-lambda-name",
+      {
+        name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_DELIVERY_COMPLETE_LAMBDA_NAME_KEY,
+        description: "Backend Delivery Complete Lambda name",
+        type: aws.ssm.ParameterType.String,
+        value: this.getBackendDeliveryCompleteLambdaName(),
+      },
+    );
   }
 }

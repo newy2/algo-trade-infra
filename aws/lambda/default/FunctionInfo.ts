@@ -2,18 +2,18 @@ import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import { IamInfo } from "../../iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
-import SqsInfo from "../../sqs/SqsInfo";
 import LayerInfo from "../additional_resource/LayerInfo";
 import * as path from "path";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   private readonly frontendDeliveryFunction: aws.lambda.Function;
+  private readonly backendDeliveryEventSourceMapperFunction: aws.lambda.Function;
   private readonly backendDeliveryInitFunction: aws.lambda.Function;
   private readonly backendDeliveryProcessingFunction: aws.lambda.Function;
   private readonly backendDeliveryCompleteFunction: aws.lambda.Function;
 
-  constructor(iamInfo: IamInfo, sqsInfo: SqsInfo, layerInfo: LayerInfo) {
+  constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
     super();
 
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
@@ -21,6 +21,9 @@ export default class FunctionInfo extends BaseAwsInfo {
       iamInfo,
       layerInfo,
     );
+
+    this.backendDeliveryEventSourceMapperFunction =
+      this.createBackendDeliveryEventSourceMapperFunction(iamInfo, layerInfo);
     this.backendDeliveryInitFunction = this.createBackendDeliveryInitFunction(
       iamInfo,
       layerInfo,
@@ -28,7 +31,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     this.backendDeliveryProcessingFunction =
       this.createBackendDeliveryProcessingFunction(iamInfo, layerInfo);
     this.backendDeliveryCompleteFunction =
-      this.createBackendDeliveryCompleteFunction(iamInfo, sqsInfo, layerInfo);
+      this.createBackendDeliveryCompleteFunction(iamInfo, layerInfo);
   }
 
   public getCleanupEcrImageFunctionArn() {
@@ -37,6 +40,10 @@ export default class FunctionInfo extends BaseAwsInfo {
 
   public getFrontendDeliveryFunctionArn() {
     return this.frontendDeliveryFunction.arn;
+  }
+
+  public getBackendDeliveryEventSourceMapperFunctionArn() {
+    return this.backendDeliveryEventSourceMapperFunction.arn;
   }
 
   public getBackendDeliveryInitFunctionArn() {
@@ -136,12 +143,11 @@ export default class FunctionInfo extends BaseAwsInfo {
 
   private createBackendDeliveryCompleteFunction(
     iamInfo: IamInfo,
-    sqsInfo: SqsInfo,
     layerInfo: LayerInfo,
   ) {
-    const name = "backend-delivery-complete-lambda";
+    const name = this.getBackendDeliveryCompleteLambdaName();
 
-    const result = new aws.lambda.Function(name, {
+    return new aws.lambda.Function(name, {
       name,
       description: "ASG 인스턴스 사이즈 다운 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
@@ -150,13 +156,28 @@ export default class FunctionInfo extends BaseAwsInfo {
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_complete"),
       ),
-      timeout: 5 * 60,
+      timeout: 10 * 60,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
+  }
 
-    new aws.lambda.EventSourceMapping(`${name}-mapping`, {
-      eventSourceArn: sqsInfo.getBackendDeliveryCompleteQueueArn(),
-      functionName: result.arn,
+  private createBackendDeliveryEventSourceMapperFunction(
+    iamInfo: IamInfo,
+    layerInfo: LayerInfo,
+  ) {
+    const name = this.getBackendDeliveryEventSourceMapperLambdaName();
+
+    const result = new aws.lambda.Function(name, {
+      name,
+      description: "백엔드 배포 SQS EventSource 매핑 함수",
+      runtime: aws.lambda.Runtime.NodeJS20dX,
+      role: iamInfo.getBackendDeliveryEventSourceMapperRoleArn(),
+      handler: "index.handler",
+      code: new pulumi.asset.FileArchive(
+        path.join(__dirname, "script", "backend_delivery_event_source_mapping"),
+      ),
+      timeout: 60,
+      layers: [layerInfo.getAwsSdkHelperLayerArn()],
     });
 
     return result;

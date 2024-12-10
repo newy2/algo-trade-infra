@@ -33,4 +33,8 @@ export class IamInfo {
   public getBackendDeliveryCompleteRoleArn() {
     return this.roleInfo.getBackendDeliveryCompleteRoleArn();
   }
+
+  public getBackendDeliveryEventSourceMapperRoleArn() {
+    return this.roleInfo.getBackendDeliveryEventSourceMapperRoleArn();
+  }
 }

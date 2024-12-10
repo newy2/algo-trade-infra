@@ -78,6 +78,14 @@ export default class BaseAwsInfo {
     return "backend-delivery-complete-queue";
   }
 
+  protected getBackendDeliveryCompleteLambdaName() {
+    return "backend-delivery-complete-lambda";
+  }
+
+  protected getBackendDeliveryEventSourceMapperLambdaName() {
+    return "backend-delivery-event-source-mapper-lambda";
+  }
+
   protected getBackendDeliveryCompletedQueueArn() {
     return pulumi.interpolate`arn:aws:sqs:${this.getCurrentRegion()}:${this.getAccountId()}:${this.getBackendDeliveryCompleteQueueName()}`;
   }

@@ -16,6 +16,7 @@ export default class RoleInfo extends BaseAwsInfo {
   private readonly backendDeliveryInitLambdaRole: Role;
   private readonly backendDeliveryProcessingLambdaRole: Role;
   private readonly backendDeliveryCompleteLambdaRole: Role;
+  private readonly backendDeliveryEventSourceMapperLambdaRole: Role;
 
   constructor(policyInfo: PolicyInfo) {
     super();
@@ -30,6 +31,8 @@ export default class RoleInfo extends BaseAwsInfo {
       this.createBackendDeliveryProcessingLambdaRole(policyInfo);
     this.backendDeliveryCompleteLambdaRole =
       this.createBackendDeliveryCompleteLambdaRole(policyInfo);
+    this.backendDeliveryEventSourceMapperLambdaRole =
+      this.createBackendDeliveryEventSourceMapperLambdaRole(policyInfo);
   }
 
   public getEc2InstanceProfileArn() {
@@ -54,6 +57,10 @@ export default class RoleInfo extends BaseAwsInfo {
 
   public getBackendDeliveryCompleteRoleArn() {
     return this.backendDeliveryCompleteLambdaRole.arn;
+  }
+
+  public getBackendDeliveryEventSourceMapperRoleArn() {
+    return this.backendDeliveryEventSourceMapperLambdaRole.arn;
   }
 
   private createEc2InstanceProfile() {
@@ -183,6 +190,10 @@ export default class RoleInfo extends BaseAwsInfo {
         value: policyInfo.getCloudFrontUpdatePolicyArn(),
       },
       {
+        key: "BackedAutoScalingGroupReadPolicy",
+        value: policyInfo.getBackedAutoScalingGroupReadPolicyArn(),
+      },
+      {
         key: "CodeDeliveryParameterStoreAccessPolicy",
         value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
       },
@@ -218,6 +229,44 @@ export default class RoleInfo extends BaseAwsInfo {
       {
         key: "BackedAutoScalingGroupUpdatePolicy",
         value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
+      },
+      {
+        key: "CodeDeliveryParameterStoreAccessPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreAccessPolicyArn(),
+      },
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
+    });
+
+    return result;
+  }
+
+  private createBackendDeliveryEventSourceMapperLambdaRole(
+    policyInfo: PolicyInfo,
+  ) {
+    const prefix = "backend-delivery-event-source-mapping-lambda";
+    const roleName = `${prefix}-role`;
+
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
+      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+        Service: AssumeRoleKey.LAMBDA,
+      }),
+    });
+
+    [
+      aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+      {
+        key: "ChangeLambdaEventSourceMappingPolicy",
+        value: policyInfo.getChangeLambdaEventSourceMappingPolicyArn(),
+      },
+      {
+        key: "BackedAutoScalingGroupReadPolicy",
+        value: policyInfo.getBackedAutoScalingGroupReadPolicyArn(),
+      },
+      {
+        key: "CodeDeliveryParameterStoreUpdatePolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreUpdatePolicyArn(),
       },
       {
         key: "CodeDeliveryParameterStoreAccessPolicy",
