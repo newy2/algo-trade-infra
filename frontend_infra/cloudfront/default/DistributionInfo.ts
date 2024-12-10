@@ -47,8 +47,8 @@ export default class DistributionInfo {
       orderedCacheBehaviors: this.getOrderedCacheBehaviors(s3Info),
       origins: [
         {
-          domainName: s3Info.getFrontendBucketRegionalDomainName(),
-          originId: s3Info.getFrontendBucketRegionalDomainName(),
+          domainName: s3Info.bucketInfo.getFrontendBucketRegionalDomainName(),
+          originId: s3Info.bucketInfo.getFrontendBucketRegionalDomainName(),
           originAccessControlId:
             originAccessInfo.getFrontendBucketOriginAccessControlId(),
         },
@@ -107,7 +107,7 @@ export default class DistributionInfo {
       cachedMethods: ["GET", "HEAD"],
       cachePolicyId: cachePolicyId.then((it) => it.id!),
       compress: true,
-      targetOriginId: s3Info.getFrontendBucketRegionalDomainName(),
+      targetOriginId: s3Info.bucketInfo.getFrontendBucketRegionalDomainName(),
       viewerProtocolPolicy: "redirect-to-https",
     };
   }

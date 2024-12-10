@@ -14,6 +14,6 @@ export default class CloudFrontInfo {
       functionInfo,
       originAccessInfo,
     );
-    s3Info.setFrontendBucketPolicy(this);
+    s3Info.bucketInfo.setFrontendBucketPolicy(this);
   }
 }

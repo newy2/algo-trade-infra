@@ -15,6 +15,6 @@ export default class LambdaInfo {
       iamInfo,
       commonLambdaInfo.layerInfo,
     );
-    s3Info.setFrontendBucketNotification(this); // TODO Refector (functionInfo 를 직접 전달할까?)
+    s3Info.bucketInfo.setFrontendBucketNotification(this); // TODO Refector (functionInfo 를 직접 전달할까?)
   }
 }

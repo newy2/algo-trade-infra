@@ -17,7 +17,7 @@ export default class OriginAccessInfo {
   private createFrontendBucketOriginAccessControl(s3Info: S3Info) {
     return new aws.cloudfront.OriginAccessControl("origin-access-control", {
       description: "Front end S3 Bucket Access",
-      name: s3Info.getFrontendBucketRegionalDomainName(),
+      name: s3Info.bucketInfo.getFrontendBucketRegionalDomainName(),
       originAccessControlOriginType: "s3",
       signingBehavior: "always",
       signingProtocol: "sigv4",
