@@ -4,17 +4,14 @@ import CommonLambdaInfo from "../../common_infra/lambda/CommonLambdaInfo";
 import IamInfo from "../iam/IamInfo";
 
 export default class LambdaInfo {
-  public readonly frontendFunctionInfo: FunctionInfo;
+  public readonly functionInfo: FunctionInfo;
 
   constructor(
     iamInfo: IamInfo,
     s3Info: S3Info,
     commonLambdaInfo: CommonLambdaInfo,
   ) {
-    this.frontendFunctionInfo = new FunctionInfo(
-      iamInfo,
-      commonLambdaInfo.layerInfo,
-    );
+    this.functionInfo = new FunctionInfo(iamInfo, commonLambdaInfo.layerInfo);
     s3Info.bucketInfo.setFrontendBucketNotification(this); // TODO Refector (functionInfo 를 직접 전달할까?)
   }
 }

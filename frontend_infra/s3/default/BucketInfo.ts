@@ -51,8 +51,7 @@ export default class BucketInfo extends BaseAwsInfo {
       {
         statementId: "AllowExecutionFromS3Bucket",
         action: "lambda:InvokeFunction",
-        function:
-          lambdaInfo.frontendFunctionInfo.getFrontendDeliveryFunctionArn(),
+        function: lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(),
         principal: "s3.amazonaws.com",
         sourceArn: this.frontendBucket.arn,
       },
@@ -65,7 +64,7 @@ export default class BucketInfo extends BaseAwsInfo {
         lambdaFunctions: [
           {
             lambdaFunctionArn:
-              lambdaInfo.frontendFunctionInfo.getFrontendDeliveryFunctionArn(),
+              lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(),
             events: ["s3:ObjectCreated:*"],
             filterSuffix: "index.html",
           },
