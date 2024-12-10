@@ -7,41 +7,17 @@ import * as path from "path";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
-  private readonly backendDeliveryEventSourceMapperFunction: aws.lambda.Function;
-  private readonly backendDeliveryInitFunction: aws.lambda.Function;
-  private readonly backendDeliveryProcessingFunction: aws.lambda.Function;
-  private readonly backendDeliveryCompleteFunction: aws.lambda.Function;
+  public readonly backendDelivery: BackendDeliveryFunctionInfo;
 
   constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
     super();
 
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
-    this.backendDeliveryEventSourceMapperFunction =
-      this.createBackendDeliveryEventSourceMapperFunction(iamInfo, layerInfo);
-    this.backendDeliveryInitFunction = this.createBackendDeliveryInitFunction(
-      iamInfo,
-      layerInfo,
-    );
-    this.backendDeliveryProcessingFunction =
-      this.createBackendDeliveryProcessingFunction(iamInfo, layerInfo);
-    this.backendDeliveryCompleteFunction =
-      this.createBackendDeliveryCompleteFunction(iamInfo, layerInfo);
+    this.backendDelivery = new BackendDeliveryFunctionInfo(iamInfo, layerInfo);
   }
 
   public getCleanupEcrImageFunctionArn() {
     return this.cleanupEcrImageFunction?.arn;
-  }
-
-  public getBackendDeliveryEventSourceMapperFunctionArn() {
-    return this.backendDeliveryEventSourceMapperFunction.arn;
-  }
-
-  public getBackendDeliveryInitFunctionArn() {
-    return this.backendDeliveryInitFunction.arn;
-  }
-
-  public getBackendDeliveryProcessingFunctionArn() {
-    return this.backendDeliveryProcessingFunction.arn;
   }
 
   private createCleanupEcrImageFunction(iamInfo: IamInfo) {
@@ -65,11 +41,39 @@ export default class FunctionInfo extends BaseAwsInfo {
       },
     });
   }
+}
 
-  private createBackendDeliveryInitFunction(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
-  ) {
+class BackendDeliveryFunctionInfo extends BaseAwsInfo {
+  private readonly eventSourceMapperFunction: aws.lambda.Function;
+  private readonly initFunction: aws.lambda.Function;
+  private readonly processingFunction: aws.lambda.Function;
+  private readonly completeFunction: aws.lambda.Function;
+
+  constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
+    super();
+
+    this.eventSourceMapperFunction = this.createEventSourceMapperFunction(
+      iamInfo,
+      layerInfo,
+    );
+    this.initFunction = this.createInitFunction(iamInfo, layerInfo);
+    this.processingFunction = this.createProcessingFunction(iamInfo, layerInfo);
+    this.completeFunction = this.createCompleteFunction(iamInfo, layerInfo);
+  }
+
+  public getEventSourceMapperFunctionArn() {
+    return this.eventSourceMapperFunction.arn;
+  }
+
+  public getInitFunctionArn() {
+    return this.initFunction.arn;
+  }
+
+  public getProcessingFunctionArn() {
+    return this.processingFunction.arn;
+  }
+
+  private createInitFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
     const name = "backend-delivery-init-lambda";
 
     return new aws.lambda.Function(name, {
@@ -86,10 +90,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createBackendDeliveryProcessingFunction(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
-  ) {
+  private createProcessingFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
     const name = "backend-delivery-processing-lambda";
 
     return new aws.lambda.Function(name, {
@@ -106,10 +107,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createBackendDeliveryCompleteFunction(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
-  ) {
+  private createCompleteFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
     const name = this.getBackendDeliveryCompleteLambdaName();
 
     return new aws.lambda.Function(name, {
@@ -126,7 +124,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createBackendDeliveryEventSourceMapperFunction(
+  private createEventSourceMapperFunction(
     iamInfo: IamInfo,
     layerInfo: LayerInfo,
   ) {

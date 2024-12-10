@@ -48,7 +48,8 @@ export default class RuleInfo extends BaseAwsInfo {
       return;
     }
 
-    const functionArn = lambdaInfo.getEcrImageCleanupFunctionArn()!;
+    const functionArn =
+      lambdaInfo.functionInfo.getCleanupEcrImageFunctionArn()!;
     new aws.lambda.Permission("allow-event-bridge-invoke", {
       action: "lambda:InvokeFunction",
       function: functionArn,
@@ -67,7 +68,8 @@ export default class RuleInfo extends BaseAwsInfo {
     lambdaInfo: LambdaInfo,
   ) {
     const prefix = "backend-delivery-init";
-    const functionArn = lambdaInfo.getBackendDeliveryInitFunctionArn();
+    const functionArn =
+      lambdaInfo.functionInfo.backendDelivery.getInitFunctionArn();
 
     new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",
@@ -112,7 +114,8 @@ export default class RuleInfo extends BaseAwsInfo {
     lambdaInfo: LambdaInfo,
   ) {
     const prefix = "backend-delivery-processing";
-    const functionArn = lambdaInfo.getBackendDeliveryProcessingFunctionArn();
+    const functionArn =
+      lambdaInfo.functionInfo.backendDelivery.getProcessingFunctionArn();
 
     new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",
@@ -157,7 +160,7 @@ export default class RuleInfo extends BaseAwsInfo {
     lambdaInfo: LambdaInfo,
   ) {
     const functionArn =
-      lambdaInfo.getBackendDeliveryEventSourceMapperFunctionArn();
+      lambdaInfo.functionInfo.backendDelivery.getEventSourceMapperFunctionArn();
 
     new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",
