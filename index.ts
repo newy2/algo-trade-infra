@@ -11,7 +11,7 @@ import S3Info from "./frontend_infra/s3/S3Info";
 import CloudFrontInfo from "./aws/cloudfront/CloudFrontInfo";
 import FrontendCloudFrontInfo from "./frontend_infra/cloudfront/FrontendCloudFrontInfo";
 import SqsInfo from "./aws/sqs/SqsInfo";
-import SnsInfo from "./aws/sns/SnsInfo";
+import SnsInfo from "./frontend_infra/sns/SnsInfo";
 import Ec2Info from "./aws/ec2/Ec2Info";
 
 const vpcInfo = new VpcInfo();

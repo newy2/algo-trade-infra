@@ -1,4 +1,4 @@
-import BaseAwsInfo from "../../BaseAwsInfo";
+import BaseAwsInfo from "../../../aws/BaseAwsInfo";
 import * as aws from "@pulumi/aws";
 
 export default class TopicInfo extends BaseAwsInfo {

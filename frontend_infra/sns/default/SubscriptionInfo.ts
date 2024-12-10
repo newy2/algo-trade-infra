@@ -1,7 +1,7 @@
 import * as aws from "@pulumi/aws";
 import { TopicSubscription } from "@pulumi/aws/sns";
 import TopicInfo from "./TopicInfo";
-import FrontendLambdaInfo from "../../../frontend_infra/lambda/FrontendLambdaInfo";
+import FrontendLambdaInfo from "../../lambda/FrontendLambdaInfo";
 
 export default class SubscriptionInfo {
   private readonly frontendRollbackTopicSubscription: TopicSubscription;

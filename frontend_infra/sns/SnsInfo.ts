@@ -1,6 +1,6 @@
 import TopicInfo from "./default/TopicInfo";
 import SubscriptionInfo from "./default/SubscriptionInfo";
-import FrontendLambdaInfo from "../../frontend_infra/lambda/FrontendLambdaInfo";
+import FrontendLambdaInfo from "../lambda/FrontendLambdaInfo";
 
 export default class SnsInfo {
   private readonly topicInfo: TopicInfo;
