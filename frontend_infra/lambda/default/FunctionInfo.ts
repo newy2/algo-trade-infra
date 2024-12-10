@@ -29,7 +29,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       name: "frontend-delivery",
       description: "프론트엔드 배포 & 롤백",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getFrontendDeliveryLambdaRole(),
+      role: iamInfo.frontendRoleInfo.getFrontendDeliveryLambdaRole(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "frontend_delivery"),
