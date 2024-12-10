@@ -41,16 +41,16 @@ else
   echo "Image not found. Container not started.";
 fi`;
 
-  public getUserData() {
+  public toBase64String() {
+    return Buffer.from(this.getUserData()).toString("base64");
+  }
+
+  private getUserData() {
     return [
       this.updateYum,
       this.installDocker,
       this.setVirtualMemory,
       this.runBackendServerContainer,
     ].join("\n\n");
-  }
-
-  public toBase64String() {
-    return Buffer.from(this.getUserData()).toString("base64");
   }
 }
