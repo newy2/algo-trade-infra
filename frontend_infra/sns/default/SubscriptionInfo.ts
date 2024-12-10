@@ -20,7 +20,8 @@ export default class SubscriptionInfo {
       action: "lambda:InvokeFunction",
       principal: "sns.amazonaws.com",
       sourceArn: topicInfo.getCodeDeliveryStateTopicArn(),
-      function: lambdaInfo.getFrontendDeliveryFunctionArn(),
+      function:
+        lambdaInfo.frontendFunctionInfo.getFrontendDeliveryFunctionArn(),
     });
 
     return new aws.sns.TopicSubscription(
@@ -28,7 +29,8 @@ export default class SubscriptionInfo {
       {
         protocol: "lambda",
         topic: topicInfo.getCodeDeliveryStateTopicArn(),
-        endpoint: lambdaInfo.getFrontendDeliveryFunctionArn(),
+        endpoint:
+          lambdaInfo.frontendFunctionInfo.getFrontendDeliveryFunctionArn(),
       },
     );
   }
