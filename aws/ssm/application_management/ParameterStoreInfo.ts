@@ -73,28 +73,28 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       name: ParameterStoreInfo.RDS_ENDPOINT_KEY,
       description: "RDS Endpoint (with port)",
       type: aws.ssm.ParameterType.String,
-      value: rdsInfo.getEndpoint(),
+      value: rdsInfo.instanceInfo.getEndpoint(),
     });
 
     new aws.ssm.Parameter("rds-port", {
       name: ParameterStoreInfo.RDS_ADDRESS_KEY,
       description: "RDS Address (without port)",
       type: aws.ssm.ParameterType.String,
-      value: rdsInfo.getAddress().apply((it) => it.toString()),
+      value: rdsInfo.instanceInfo.getAddress().apply((it) => it.toString()),
     });
 
     new aws.ssm.Parameter("rds-username", {
       name: ParameterStoreInfo.RDS_USERNAME_KEY,
       description: "RDS username",
       type: aws.ssm.ParameterType.String,
-      value: rdsInfo.getUsername(),
+      value: rdsInfo.instanceInfo.getUsername(),
     });
 
     new aws.ssm.Parameter("rds-password", {
       name: ParameterStoreInfo.RDS_PASSWORD_KEY,
       description: "RDS password",
       type: aws.ssm.ParameterType.SecureString,
-      value: rdsInfo.getPassword().apply((it) => it!),
+      value: rdsInfo.instanceInfo.getPassword().apply((it) => it!),
     });
   }
 
