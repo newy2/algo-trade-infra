@@ -101,7 +101,7 @@ export default class DistributionInfo {
       functionAssociations: [
         {
           eventType: "viewer-request",
-          functionArn: functionInfo.getGenerateRedirectUriFunctionArn(),
+          functionArn: functionInfo.getGenerateRedirectUrlFunctionArn(),
         },
       ],
     };

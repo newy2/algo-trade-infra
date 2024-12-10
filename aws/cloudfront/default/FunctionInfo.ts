@@ -3,24 +3,25 @@ import * as fs from "fs";
 import * as path from "path";
 
 export default class FunctionInfo {
-  private readonly functionForFrontEndRouter: aws.cloudfront.Function;
+  private readonly generateRedirectUrlFunction: aws.cloudfront.Function;
 
   constructor() {
-    this.functionForFrontEndRouter = this.createFunctionForFrontEndRouter();
+    this.generateRedirectUrlFunction = this.createGenerateRedirectUrlFunction();
   }
 
-  public getGenerateRedirectUriFunctionArn() {
-    return this.functionForFrontEndRouter.arn;
+  public getGenerateRedirectUrlFunctionArn() {
+    return this.generateRedirectUrlFunction.arn;
   }
 
-  private createFunctionForFrontEndRouter() {
+  private createGenerateRedirectUrlFunction() {
     const functionCode = fs.readFileSync(
-      path.join(__dirname, "script", "generate_redirect_uri.js"),
+      path.join(__dirname, "script", "generateRedirectUrl.mjs"),
       "utf8",
     );
 
-    return new aws.cloudfront.Function("generate-redirect-uri-function", {
-      name: "generate_redirect_uri",
+    const name = "generate-redirect-url";
+    return new aws.cloudfront.Function(`${name}-function`, {
+      name,
       runtime: "cloudfront-js-2.0",
       code: functionCode,
     });
