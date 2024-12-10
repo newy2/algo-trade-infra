@@ -6,8 +6,6 @@ import CloudFrontInfo from "../cloudfront/CloudFrontInfo";
 import SqsInfo from "../sqs/SqsInfo";
 
 export default class SsmInfo {
-  private readonly parameterStoreInfo: ParameterStoreInfo;
-
   constructor(
     vpcInfo: VpcInfo,
     ecrInfo: EcrInfo,
@@ -15,12 +13,6 @@ export default class SsmInfo {
     cloudFrontInfo: CloudFrontInfo,
     sqsInfo: SqsInfo,
   ) {
-    this.parameterStoreInfo = new ParameterStoreInfo(
-      vpcInfo,
-      ecrInfo,
-      rdsInfo,
-      cloudFrontInfo,
-      sqsInfo,
-    );
+    new ParameterStoreInfo(vpcInfo, ecrInfo, rdsInfo, cloudFrontInfo, sqsInfo);
   }
 }
