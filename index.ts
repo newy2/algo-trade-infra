@@ -2,6 +2,7 @@ import VpcInfo from "./aws/vpc/VpcInfo";
 import { IamInfo } from "./aws/iam/IamInfo";
 import EventBridgeInfo from "./aws/event_bridge/EventBridgeInfo";
 import SsmInfo from "./aws/ssm/SsmInfo";
+import FrontendSsmInfo from "./frontend_infra/ssm/FrontendSsmInfo";
 import EcrInfo from "./aws/ecr/EcrInfo";
 import LambdaInfo from "./aws/lambda/LambdaInfo";
 import CommonLambdaInfo from "./common_infra/lambda/CommonLambdaInfo";
@@ -37,11 +38,5 @@ new SnsInfo(frontendLambdaInfo);
 new EventBridgeInfo(ecrInfo, lambdaInfo);
 
 // TODO Refector: 각 Info 에서 SsmInfo 를 호출하도록 할까?
-new SsmInfo(
-  vpcInfo,
-  ecrInfo,
-  rdsInfo,
-  cloudfrontInfo,
-  frontendCloudfrontInfo,
-  sqsInfo,
-);
+new SsmInfo(vpcInfo, ecrInfo, rdsInfo, cloudfrontInfo, sqsInfo);
+new FrontendSsmInfo(frontendCloudfrontInfo);

@@ -6,7 +6,6 @@ import VpcInfo from "../../vpc/VpcInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
-import FrontendCloudFrontInfo from "../../../frontend_infra/cloudfront/FrontendCloudFrontInfo";
 
 export default class ParameterStoreInfo extends BaseAwsInfo {
   public static readonly ECR_PRIVATE_REPOSITORY_URL_KEY = "/ecr/repository/url";
@@ -19,12 +18,6 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
 
   public static readonly CODE_DELIVERY_SLACK_URL_KEY =
     "/code/delivery/slack/url";
-  public static readonly CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY =
-    "/code/delivery/frontend/cloudfront/distribution/id";
-  public static readonly CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY =
-    "/code/delivery/frontend/cloudfront/distribution/url";
-  public static readonly CODE_DELIVERY_FRONTEND_BUCKET_NAME_KEY =
-    "/code/delivery/frontend/s3/bucket/name";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY =
     "/code/delivery/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
@@ -45,7 +38,6 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     ecrInfo: EcrInfo,
     rdsInfo: RdsInfo,
     cloudFrontInfo: CloudFrontInfo,
-    frontendCloudFrontInfo: FrontendCloudFrontInfo,
     sqsInfo: SqsInfo,
   ) {
     super();
@@ -53,7 +45,7 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     this.setRdsConnectEndpointId(vpcInfo.getRdsConnectEndpointId());
     this.setEcrRepositoryUrl(ecrInfo.getPrivateRepositoryUrl());
     this.setRdsInfo(rdsInfo);
-    this.setCodeDeliveryInfo(cloudFrontInfo, frontendCloudFrontInfo, sqsInfo);
+    this.setCodeDeliveryInfo(cloudFrontInfo, sqsInfo);
   }
 
   private setRdsConnectEndpointId(rdsConnectEndpointId: pulumi.Output<string>) {
@@ -106,7 +98,6 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
 
   private setCodeDeliveryInfo(
     cloudFrontInfo: CloudFrontInfo,
-    frontendCloudFrontInfo: FrontendCloudFrontInfo,
     sqsInfo: SqsInfo,
   ) {
     new aws.ssm.Parameter("code-delivery-slack-url", {
@@ -114,30 +105,6 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       description: "슬렉 알림 URL",
       type: aws.ssm.ParameterType.String,
       value: this.getSlackUrl(),
-    });
-
-    new aws.ssm.Parameter("code-delivery-frontend-cloudfront-distribution-id", {
-      name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY,
-      description: "Frontend Distribution ID",
-      type: aws.ssm.ParameterType.String,
-      value: frontendCloudFrontInfo.getFrontendDistributionId(),
-    });
-
-    new aws.ssm.Parameter(
-      "code-delivery-frontend-cloudfront-distribution-url",
-      {
-        name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY,
-        description: "Frontend Distribution URL",
-        type: aws.ssm.ParameterType.String,
-        value: pulumi.interpolate`https://${frontendCloudFrontInfo.getFrontendDistributionDomainName()}`,
-      },
-    );
-
-    new aws.ssm.Parameter("code-delivery-frontend-bucket-name", {
-      name: ParameterStoreInfo.CODE_DELIVERY_FRONTEND_BUCKET_NAME_KEY,
-      description: "Frontend S3 Bucket name",
-      type: aws.ssm.ParameterType.String,
-      value: this.getFrontendBucketName(),
     });
 
     new aws.ssm.Parameter("code-delivery-backend-cloudfront-distribution-id", {
