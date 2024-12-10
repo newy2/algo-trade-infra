@@ -1,6 +1,6 @@
 import BucketInfo from "./default/BucketInfo";
 import CloudFrontInfo from "../cloudfront/CloudFrontInfo";
-import FrontendLambdaInfo from "../lambda/FrontendLambdaInfo";
+import LambdaInfo from "../lambda/LambdaInfo";
 
 export default class S3Info {
   private readonly bucketInfo: BucketInfo;
@@ -13,8 +13,8 @@ export default class S3Info {
     return this.bucketInfo.getFrontendBucketRegionalDomainName();
   }
 
-  public setFrontendBucketNotification(frontendLambdaInfo: FrontendLambdaInfo) {
-    this.bucketInfo.setFrontendBucketNotification(frontendLambdaInfo);
+  public setFrontendBucketNotification(lambdaInfo: LambdaInfo) {
+    this.bucketInfo.setFrontendBucketNotification(lambdaInfo);
   }
 
   public setFrontendBucketPolicy(cloudFrontInfo: CloudFrontInfo) {

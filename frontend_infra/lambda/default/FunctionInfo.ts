@@ -5,7 +5,7 @@ import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInf
 import * as path from "path";
 import IamInfo from "../../iam/IamInfo";
 
-export default class FrontendFunctionInfo extends BaseAwsInfo {
+export default class FunctionInfo extends BaseAwsInfo {
   private readonly frontendDeliveryFunction: aws.lambda.Function;
 
   constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
