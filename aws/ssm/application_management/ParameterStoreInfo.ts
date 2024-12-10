@@ -128,14 +128,14 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_COMPLETE_ARN_KEY,
       description: "Backend SQS ARN",
       type: aws.ssm.ParameterType.String,
-      value: sqsInfo.getBackendDeliveryCompleteQueueArn(),
+      value: sqsInfo.queueInfo.getBackendDeliveryCompleteQueueArn(),
     });
 
     new aws.ssm.Parameter("code-delivery-backend-sqs-complete-url", {
       name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_SQS_COMPLETE_URL_KEY,
       description: "Backend SQS URL",
       type: aws.ssm.ParameterType.String,
-      value: sqsInfo.getBackendDeliveryCompleteQueueUrl(),
+      value: sqsInfo.queueInfo.getBackendDeliveryCompleteQueueUrl(),
     });
 
     new aws.ssm.Parameter("code-delivery-backend-auto-scaling-group-name", {
