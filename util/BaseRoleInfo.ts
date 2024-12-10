@@ -1,6 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
-import BaseAwsInfo from "../backend_infra/BaseAwsInfo";
+import BaseAwsInfo from "../aws/backend_infra/BaseAwsInfo";
 
 type ManagedPolicyArn = string;
 type CustomPolicyArn = {

@@ -1,5 +1,5 @@
 import FrontendDeployModel
-  from "../../../../../../frontend_infra/lambda/default/script/frontend_delivery/models/FrontendDeployModel.mjs";
+  from "../../../../../../aws/frontend_infra/lambda/default/script/frontend_delivery/models/FrontendDeployModel.mjs";
 import assert from "assert";
 import { assertDeepEquals, assertEquals } from "../../../../../helper/Assertions.mjs";
 

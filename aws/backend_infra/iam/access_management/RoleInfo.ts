@@ -1,7 +1,7 @@
 import { InstanceProfile, Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
 import PolicyInfo from "./PolicyInfo";
-import BaseRoleInfo from "../../../util/BaseRoleInfo";
+import BaseRoleInfo from "../../../../util/BaseRoleInfo";
 import CommonPolicyInfo from "../../../common_infra/iam/access_management/CommonPolicyInfo";
 
 export default class RoleInfo extends BaseRoleInfo {
