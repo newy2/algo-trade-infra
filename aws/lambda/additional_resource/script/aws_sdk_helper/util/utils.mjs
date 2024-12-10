@@ -42,5 +42,9 @@ export async function isValidScaleUp(autoScalingGroupEvent, parameterStore) {
     return true;
   }
 
+  /**
+   * 1. 최초 `pulumi up` 명령어 호출 시 발생
+   * 2. `pulumi down` 명령어 호출 시 발생
+   * */
   throw new Error(`지원하지 않는 조건입니다. (detailType: ${detailType}, ec2InstanceCount: ${ec2InstanceCount})`);
 }
