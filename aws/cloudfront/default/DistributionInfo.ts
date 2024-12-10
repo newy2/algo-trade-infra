@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { Distribution } from "@pulumi/aws/cloudfront";
+import * as pulumi from "@pulumi/pulumi";
 
 export default class DistributionInfo {
   private readonly backendDistribution: Distribution;
@@ -12,8 +13,8 @@ export default class DistributionInfo {
     return this.backendDistribution.id;
   }
 
-  public getBackendDistributionDomainName() {
-    return this.backendDistribution.domainName;
+  public getBackendDistributionFullDomainName() {
+    return pulumi.interpolate`https://${this.backendDistribution.domainName}`;
   }
 
   private createBackendDistribution() {

@@ -111,14 +111,15 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY,
       description: "Backend Distribution ID",
       type: aws.ssm.ParameterType.String,
-      value: cloudFrontInfo.getBackendDistributionId(),
+      value: cloudFrontInfo.distributionInfo.getBackendDistributionId(),
     });
 
     new aws.ssm.Parameter("code-delivery-backend-cloudfront-distribution-url", {
       name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY,
       description: "Backend Distribution URL",
       type: aws.ssm.ParameterType.String,
-      value: pulumi.interpolate`https://${cloudFrontInfo.getBackendDistributionDomainName()}`,
+      value:
+        cloudFrontInfo.distributionInfo.getBackendDistributionFullDomainName(),
     });
 
     new aws.ssm.Parameter("code-delivery-backend-sqs-complete-arn", {
