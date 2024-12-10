@@ -5,7 +5,6 @@ import { Policy } from "@pulumi/aws/iam";
 import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreInfo";
 
 export default class PolicyInfo extends BaseAwsInfo {
-  private readonly runCommandPolicy: Policy;
   private readonly backendDeliveryCompleteQueueSendMessagePolicy: Policy;
   private readonly backendDeliveryCompleteQueuePurgeQueuePolicy: Policy;
   private readonly backedAutoScalingGroupReadPolicy: Policy;
@@ -18,7 +17,6 @@ export default class PolicyInfo extends BaseAwsInfo {
   constructor() {
     super();
 
-    this.runCommandPolicy = this.createRunCommandPolicy();
     this.backendDeliveryCompleteQueueSendMessagePolicy =
       this.createBackendDeliveryCompleteQueueSendMessagePolicy();
     this.backendDeliveryCompleteQueuePurgeQueuePolicy =
@@ -34,10 +32,6 @@ export default class PolicyInfo extends BaseAwsInfo {
       this.createCodeDeliveryParameterStoreUpdatePolicy();
     this.changeLambdaEventSourceMappingPolicy =
       this.createChangeLambdaEventSourceMappingPolicy();
-  }
-
-  public getRunCommandPolicyArn() {
-    return this.runCommandPolicy.arn;
   }
 
   public getBackendDeliveryCompleteQueueSendMessagePolicyArn() {
@@ -70,35 +64,6 @@ export default class PolicyInfo extends BaseAwsInfo {
 
   public getChangeLambdaEventSourceMappingPolicyArn() {
     return this.changeLambdaEventSourceMappingPolicy.arn;
-  }
-
-  private createRunCommandPolicy() {
-    return new aws.iam.Policy("ssm-run-command-policy", {
-      policy: {
-        Version: "2012-10-17",
-        Statement: [
-          {
-            Effect: "Allow",
-            Action: "ssm:SendCommand",
-            Resource: [
-              `arn:aws:ssm:${this.getCurrentRegion()}:*:document/AWS-RunShellScript`,
-            ],
-          },
-          {
-            Action: "ssm:SendCommand",
-            Effect: "Allow",
-            Resource: [
-              pulumi.interpolate`arn:aws:ec2:${this.getCurrentRegion()}:${this.getAccountId()}:instance/*`,
-            ],
-            Condition: {
-              StringEquals: {
-                "ec2:ResourceTag/*": [this.getEc2ServerName()],
-              },
-            },
-          },
-        ],
-      },
-    });
   }
 
   private createBackedAutoScalingGroupReadPolicy() {
