@@ -1,21 +1,18 @@
 import RoleInfo from "./access_management/RoleInfo";
 import PolicyInfo from "./access_management/PolicyInfo";
+import CommonPolicyInfo from "../../common_infra/iam/access_management/CommonPolicyInfo";
 
-export class IamInfo {
+export default class IamInfo {
   private readonly policyInfo: PolicyInfo;
   private readonly roleInfo: RoleInfo;
 
-  constructor() {
+  constructor(commonPolicyInfo: CommonPolicyInfo) {
     this.policyInfo = new PolicyInfo();
-    this.roleInfo = new RoleInfo(this.policyInfo);
+    this.roleInfo = new RoleInfo(this.policyInfo, commonPolicyInfo);
   }
 
   public getEcrCleanupLambdaRoleArn() {
     return this.roleInfo.getEcrCleanupLambdaRoleArn();
-  }
-
-  public getFrontendDeliveryLambdaRole() {
-    return this.roleInfo.getFrontendDeliveryLambdaRole();
   }
 
   public getEc2InstanceProfileArn() {

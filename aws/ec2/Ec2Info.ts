@@ -1,4 +1,4 @@
-import { IamInfo } from "../iam/IamInfo";
+import IamInfo from "../iam/IamInfo";
 import VpcInfo from "../vpc/VpcInfo";
 import BaseAwsInfo from "../BaseAwsInfo";
 import LaunchTemplateInfo from "./instance/LaunchTemplateInfo";

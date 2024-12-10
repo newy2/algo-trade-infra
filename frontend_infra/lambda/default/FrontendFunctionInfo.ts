@@ -1,18 +1,18 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import { IamInfo } from "../../../aws/iam/IamInfo";
 import BaseAwsInfo from "../../../aws/BaseAwsInfo";
 import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInfo";
 import * as path from "path";
+import FrontendIamInfo from "../../iam/FrontendIamInfo";
 
 export default class FrontendFunctionInfo extends BaseAwsInfo {
   private readonly frontendDeliveryFunction: aws.lambda.Function;
 
-  constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
+  constructor(frontendIamInfo: FrontendIamInfo, layerInfo: LayerInfo) {
     super();
 
     this.frontendDeliveryFunction = this.createFrontendDeliveryFunction(
-      iamInfo,
+      frontendIamInfo,
       layerInfo,
     );
   }
@@ -22,14 +22,14 @@ export default class FrontendFunctionInfo extends BaseAwsInfo {
   }
 
   private createFrontendDeliveryFunction(
-    iamInfo: IamInfo,
+    frontendIamInfo: FrontendIamInfo,
     layerInfo: LayerInfo,
   ) {
     const result = new aws.lambda.Function("frontend-delivery-lambda", {
       name: "frontend-delivery",
       description: "프론트엔드 배포 & 롤백",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.getFrontendDeliveryLambdaRole(),
+      role: frontendIamInfo.getFrontendDeliveryLambdaRole(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "frontend_delivery"),

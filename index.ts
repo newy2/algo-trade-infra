@@ -1,5 +1,7 @@
 import VpcInfo from "./aws/vpc/VpcInfo";
-import { IamInfo } from "./aws/iam/IamInfo";
+import IamInfo from "./aws/iam/IamInfo";
+import CommonIamInfo from "./common_infra/iam/CommonIamInfo";
+import FrontendIamInfo from "./frontend_infra/iam/FrontendIamInfo";
 import EventBridgeInfo from "./aws/event_bridge/EventBridgeInfo";
 import SsmInfo from "./aws/ssm/SsmInfo";
 import FrontendSsmInfo from "./frontend_infra/ssm/FrontendSsmInfo";
@@ -17,7 +19,10 @@ import Ec2Info from "./aws/ec2/Ec2Info";
 
 const vpcInfo = new VpcInfo();
 
-const iamInfo = new IamInfo();
+const commonIamInfo = new CommonIamInfo();
+const iamInfo = new IamInfo(commonIamInfo.commonPolicyInfo);
+const frontendIamInfo = new FrontendIamInfo(commonIamInfo.commonPolicyInfo);
+
 const ecrInfo = new EcrInfo();
 const sqsInfo = new SqsInfo();
 const s3Info = new S3Info();
@@ -29,7 +34,7 @@ const frontendCloudfrontInfo = new FrontendCloudFrontInfo(s3Info);
 const commonLambdaInfo = new CommonLambdaInfo();
 const lambdaInfo = new LambdaInfo(iamInfo, commonLambdaInfo);
 const frontendLambdaInfo = new FrontendLambdaInfo(
-  iamInfo,
+  frontendIamInfo,
   s3Info,
   commonLambdaInfo,
 );

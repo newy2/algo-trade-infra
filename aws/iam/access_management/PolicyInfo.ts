@@ -9,8 +9,6 @@ export default class PolicyInfo extends BaseAwsInfo {
   private readonly backendDeliveryCompleteQueuePurgeQueuePolicy: Policy;
   private readonly backedAutoScalingGroupReadPolicy: Policy;
   private readonly backedAutoScalingGroupUpdatePolicy: Policy;
-  private readonly cloudFrontUpdatePolicy: Policy;
-  private readonly codeDeliveryParameterStoreReadPolicy: Policy;
   private readonly codeDeliveryParameterStoreUpdatePolicy: Policy;
   private readonly changeLambdaEventSourceMappingPolicy: Policy;
 
@@ -25,9 +23,6 @@ export default class PolicyInfo extends BaseAwsInfo {
       this.createBackedAutoScalingGroupReadPolicy();
     this.backedAutoScalingGroupUpdatePolicy =
       this.createBackedAutoScalingGroupUpdatePolicy();
-    this.cloudFrontUpdatePolicy = this.createCloudFrontUpdatePolicy();
-    this.codeDeliveryParameterStoreReadPolicy =
-      this.createCodeDeliveryParameterStoreReadPolicy();
     this.codeDeliveryParameterStoreUpdatePolicy =
       this.createCodeDeliveryParameterStoreUpdatePolicy();
     this.changeLambdaEventSourceMappingPolicy =
@@ -48,14 +43,6 @@ export default class PolicyInfo extends BaseAwsInfo {
 
   public getBackedAutoScalingGroupUpdatePolicyArn() {
     return this.backedAutoScalingGroupUpdatePolicy.arn;
-  }
-
-  public getCloudFrontUpdatePolicyArn() {
-    return this.cloudFrontUpdatePolicy.arn;
-  }
-
-  public getCodeDeliveryParameterStoreReadPolicyArn() {
-    return this.codeDeliveryParameterStoreReadPolicy.arn;
   }
 
   public getCodeDeliveryParameterStoreUpdatePolicyArn() {
@@ -133,42 +120,6 @@ export default class PolicyInfo extends BaseAwsInfo {
         },
       },
     );
-  }
-
-  private createCloudFrontUpdatePolicy() {
-    return new aws.iam.Policy("cloud-front-update-policy", {
-      policy: {
-        Version: "2012-10-17",
-        Statement: [
-          {
-            Effect: "Allow",
-            Action: [
-              "cloudfront:GetDistribution",
-              "cloudfront:GetDistributionConfig",
-              "cloudfront:UpdateDistribution",
-              "cloudfront:CreateInvalidation",
-              "ec2:DescribeInstances",
-            ],
-            Resource: "*", // TODO Resource 좁히기
-          },
-        ],
-      },
-    });
-  }
-
-  private createCodeDeliveryParameterStoreReadPolicy() {
-    return new aws.iam.Policy("code-delivery-parameter-store-read-policy", {
-      policy: {
-        Version: "2012-10-17",
-        Statement: [
-          {
-            Effect: "Allow",
-            Action: "ssm:GetParametersByPath",
-            Resource: pulumi.interpolate`arn:aws:ssm:${this.getCurrentRegion()}:${this.getAccountId()}:parameter/code*`,
-          },
-        ],
-      },
-    });
   }
 
   private createCodeDeliveryParameterStoreUpdatePolicy() {

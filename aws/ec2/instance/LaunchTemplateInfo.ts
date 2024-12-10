@@ -1,5 +1,5 @@
 import * as aws from "@pulumi/aws";
-import { IamInfo } from "../../iam/IamInfo";
+import IamInfo from "../../iam/IamInfo";
 import { LaunchTemplate } from "@pulumi/aws/ec2";
 import VpcInfo from "../../vpc/VpcInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";

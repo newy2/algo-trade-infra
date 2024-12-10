@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import { IamInfo } from "../../iam/IamInfo";
+import IamInfo from "../../iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInfo";
 import * as path from "path";
