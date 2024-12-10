@@ -1,4 +1,4 @@
-import BaseAwsInfo from "../../../aws/BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import { Policy } from "@pulumi/aws/iam";

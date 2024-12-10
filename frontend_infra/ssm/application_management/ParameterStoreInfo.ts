@@ -1,5 +1,5 @@
 import * as aws from "@pulumi/aws";
-import BaseAwsInfo from "../../../aws/BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 
 export default class ParameterStoreInfo extends BaseAwsInfo {

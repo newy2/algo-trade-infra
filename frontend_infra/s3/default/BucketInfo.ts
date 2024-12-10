@@ -1,7 +1,7 @@
 import * as aws from "@pulumi/aws";
 import { BucketV2 } from "@pulumi/aws/s3";
 import * as pulumi from "@pulumi/pulumi";
-import BaseAwsInfo from "../../../aws/BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import LambdaInfo from "../../lambda/LambdaInfo";
 
