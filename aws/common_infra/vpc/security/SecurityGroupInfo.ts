@@ -2,7 +2,7 @@ import { ProtocolType } from "@pulumi/aws/types/enums/ec2";
 import { DefaultVpc, SecurityGroup } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 
 type SecurityGroupCidrBlockMap = {
   cidrBlocks: string[];

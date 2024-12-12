@@ -1,4 +1,4 @@
-import VpcInfo from "../../vpc/VpcInfo";
+import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import { SubnetGroup } from "@pulumi/aws/rds";
 import * as aws from "@pulumi/aws";
 

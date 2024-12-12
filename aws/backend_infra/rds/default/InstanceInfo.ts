@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { Instance } from "@pulumi/aws/rds";
-import VpcInfo from "../../vpc/VpcInfo";
+import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import SubnetGroupInfo from "./SubnetGroupInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 

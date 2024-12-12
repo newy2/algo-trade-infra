@@ -1,5 +1,5 @@
 import { DefaultVpc } from "@pulumi/aws/ec2";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 
 export default class NetworkAclInfo extends BaseAwsInfo {
   constructor(defaultVpc: DefaultVpc) {

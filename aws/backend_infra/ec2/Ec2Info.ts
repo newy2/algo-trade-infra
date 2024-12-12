@@ -1,5 +1,5 @@
 import IamInfo from "../iam/IamInfo";
-import VpcInfo from "../vpc/VpcInfo";
+import VpcInfo from "../../common_infra/vpc/VpcInfo";
 import LaunchTemplateInfo from "./instance/LaunchTemplateInfo";
 import AutoScalingInfo from "./auto_scaling/AutoScalingInfo";
 

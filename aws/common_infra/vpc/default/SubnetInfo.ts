@@ -1,4 +1,4 @@
-import BaseAwsInfo from "../../BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import { DefaultSubnet, DefaultVpc, Subnet } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";

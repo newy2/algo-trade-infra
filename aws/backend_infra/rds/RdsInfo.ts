@@ -1,4 +1,4 @@
-import VpcInfo from "../vpc/VpcInfo";
+import VpcInfo from "../../common_infra/vpc/VpcInfo";
 import SubnetGroupInfo from "./default/SubnetGroupInfo";
 import InstanceInfo from "./default/InstanceInfo";
 

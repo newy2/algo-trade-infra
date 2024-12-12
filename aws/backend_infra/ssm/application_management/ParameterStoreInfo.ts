@@ -2,7 +2,6 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import EcrInfo from "../../ecr/EcrInfo";
 import { RdsInfo } from "../../rds/RdsInfo";
-import VpcInfo from "../../vpc/VpcInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
@@ -13,8 +12,6 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
   public static readonly RDS_ADDRESS_KEY = "/rds/address";
   public static readonly RDS_USERNAME_KEY = "/rds/username";
   public static readonly RDS_PASSWORD_KEY = "/rds/password";
-  public static readonly RDS_EICE_RDS_CONNECT_ID_KEY =
-    "/vpc/eice/rds-connect/id";
 
   public static readonly CODE_DELIVERY_SLACK_URL_KEY =
     "/code/delivery/slack/url";
@@ -34,7 +31,6 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     "/code/delivery/backend/lambda/scale_down/event_source/uuid";
 
   constructor(
-    vpcInfo: VpcInfo,
     ecrInfo: EcrInfo,
     rdsInfo: RdsInfo,
     cloudFrontInfo: CloudFrontInfo,
@@ -42,23 +38,11 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
   ) {
     super();
 
-    this.setRdsConnectEndpointId(
-      vpcInfo.endpointInfo.getRdsConnectEndpointId(),
-    );
     this.setEcrRepositoryUrl(
       ecrInfo.privateRepositoryInfo.getPrivateRepositoryUrl(),
     );
     this.setRdsInfo(rdsInfo);
     this.setCodeDeliveryInfo(cloudFrontInfo, sqsInfo);
-  }
-
-  private setRdsConnectEndpointId(rdsConnectEndpointId: pulumi.Output<string>) {
-    new aws.ssm.Parameter("rds-connect-endpoint-id", {
-      name: ParameterStoreInfo.RDS_EICE_RDS_CONNECT_ID_KEY,
-      description: "RDS Connect Endpoint Id",
-      type: aws.ssm.ParameterType.String,
-      value: rdsConnectEndpointId,
-    });
   }
 
   public setEcrRepositoryUrl(repositoryUrl: pulumi.Output<string>) {

@@ -1,7 +1,7 @@
 import * as aws from "@pulumi/aws";
 import IamInfo from "../../iam/IamInfo";
 import { LaunchTemplate } from "@pulumi/aws/ec2";
-import VpcInfo from "../../vpc/VpcInfo";
+import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import UserData from "./UserData";
 

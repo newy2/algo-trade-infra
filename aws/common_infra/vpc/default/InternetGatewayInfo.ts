@@ -1,7 +1,7 @@
 import { Output } from "@pulumi/pulumi";
 import { DefaultVpc, GetInternetGatewayResult } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 
 export default class InternetGatewayInfo extends BaseAwsInfo {
   private readonly internetGateway: Output<GetInternetGatewayResult>;

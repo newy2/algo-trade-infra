@@ -1,4 +1,4 @@
-import BaseAwsInfo from "../BaseAwsInfo";
+import BaseAwsInfo from "../../backend_infra/BaseAwsInfo";
 import * as aws from "@pulumi/aws";
 import SubnetInfo from "./default/SubnetInfo";
 import RouteTableInfo from "./default/RouteTableInfo";
