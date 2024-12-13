@@ -6,8 +6,10 @@ import InternetGatewayInfo from "./default/InternetGatewayInfo";
 import SecurityGroupInfo from "./security/SecurityGroupInfo";
 import NetworkAclInfo from "./security/NetworkAclInfo";
 import EndpointInfo from "./default/EndpointInfo";
+import { DefaultVpc } from "@pulumi/aws/ec2";
 
 export default class VpcInfo extends BaseAwsInfo {
+  public readonly defaultVpc: DefaultVpc;
   public readonly securityGroupInfo: SecurityGroupInfo;
   public readonly subnetInfo: SubnetInfo;
   public readonly endpointInfo: EndpointInfo;
@@ -15,12 +17,12 @@ export default class VpcInfo extends BaseAwsInfo {
   constructor() {
     super();
 
-    const defaultVpc = this.findDefaultVpc();
-    const internetGatewayInfo = new InternetGatewayInfo(defaultVpc);
-    this.securityGroupInfo = new SecurityGroupInfo(defaultVpc);
-    this.subnetInfo = new SubnetInfo(defaultVpc);
-    new NetworkAclInfo(defaultVpc);
-    new RouteTableInfo(defaultVpc, internetGatewayInfo, this.subnetInfo);
+    this.defaultVpc = this.findDefaultVpc();
+    const internetGatewayInfo = new InternetGatewayInfo(this.defaultVpc);
+    this.securityGroupInfo = new SecurityGroupInfo(this.defaultVpc);
+    this.subnetInfo = new SubnetInfo(this.defaultVpc);
+    new NetworkAclInfo(this.defaultVpc);
+    new RouteTableInfo(this.defaultVpc, internetGatewayInfo, this.subnetInfo);
     this.endpointInfo = new EndpointInfo(
       this.subnetInfo,
       this.securityGroupInfo,

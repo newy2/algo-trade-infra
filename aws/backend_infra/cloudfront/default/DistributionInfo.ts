@@ -44,7 +44,7 @@ export default class DistributionInfo {
       origins: [
         {
           customOriginConfig: {
-            httpPort: 80,
+            httpPort: 8080,
             httpsPort: 443,
             originProtocolPolicy: "http-only",
             originSslProtocols: ["SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"],

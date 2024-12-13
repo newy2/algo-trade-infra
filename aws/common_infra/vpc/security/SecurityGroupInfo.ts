@@ -3,22 +3,11 @@ import { DefaultVpc, SecurityGroup } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
-
-type SecurityGroupCidrBlockMap = {
-  cidrBlocks: string[];
-};
+import { ALLOW_ALL_ACCESS } from "../../../../util/consts";
 
 export default class SecurityGroupInfo extends BaseAwsInfo {
-  private static ALLOW_ALL_ACCESS = {
-    protocol: ProtocolType.All,
-    fromPort: 0,
-    toPort: 0,
-    cidrBlocks: ["0.0.0.0/0"],
-  };
-
   private readonly defaultVpcId: pulumi.Output<string>;
   private readonly ssh: SecurityGroup;
-  private readonly http: SecurityGroup;
   private readonly rdsClient: SecurityGroup;
   private readonly rdsServer: SecurityGroup;
   private readonly eice: SecurityGroup;
@@ -28,7 +17,6 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
 
     this.defaultVpcId = defaultVpc.id;
     this.ssh = this.createSshSecurityGroup();
-    this.http = this.createHttpSecurityGroup();
     this.rdsClient = this.createRdsClientSecurityGroup();
     this.rdsServer = this.createRdsServerSecurityGroup(this.rdsClient);
     this.eice = this.createEiceSecurityGroup();
@@ -45,7 +33,7 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
   }
 
   public getEc2SecurityGroupIds() {
-    return [this.ssh.id, this.http.id, this.rdsClient.id];
+    return [this.ssh.id, this.rdsClient.id];
   }
 
   private createSshSecurityGroup() {
@@ -64,32 +52,9 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
           description: "SSH",
         },
       ],
-      egress: [SecurityGroupInfo.ALLOW_ALL_ACCESS],
+      egress: [ALLOW_ALL_ACCESS],
       tags: {
         Name: "SSH Security Group",
-      },
-    });
-  }
-
-  private createHttpSecurityGroup() {
-    const cidrBlockMap: SecurityGroupCidrBlockMap = {
-      cidrBlocks: ["0.0.0.0/0"],
-    };
-
-    return new aws.ec2.SecurityGroup("http-security-group", {
-      vpcId: this.defaultVpcId,
-      ingress: [
-        {
-          protocol: ProtocolType.TCP,
-          fromPort: 80,
-          toPort: 80,
-          description: "HTTP",
-          ...cidrBlockMap,
-        },
-      ],
-      egress: [SecurityGroupInfo.ALLOW_ALL_ACCESS],
-      tags: {
-        Name: "HTTP Security Group",
       },
     });
   }
@@ -114,7 +79,7 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
           securityGroups: [rdsClientSecurityGroup.id],
         },
       ],
-      egress: [SecurityGroupInfo.ALLOW_ALL_ACCESS],
+      egress: [ALLOW_ALL_ACCESS],
       tags: {
         Name: "RDS Server Security Group",
       },
@@ -124,8 +89,8 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
   private createEiceSecurityGroup() {
     return new aws.ec2.SecurityGroup("eice-security-group", {
       vpcId: this.defaultVpcId,
-      ingress: [SecurityGroupInfo.ALLOW_ALL_ACCESS],
-      egress: [SecurityGroupInfo.ALLOW_ALL_ACCESS],
+      ingress: [ALLOW_ALL_ACCESS],
+      egress: [ALLOW_ALL_ACCESS],
       tags: {
         Name: "EICE Security Group (for connect to RDS)",
       },

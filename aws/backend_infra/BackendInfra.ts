@@ -7,13 +7,15 @@ import LambdaInfo from "./lambda/LambdaInfo";
 import EventBridgeInfo from "./event_bridge/EventBridgeInfo";
 import SsmInfo from "./ssm/SsmInfo";
 import CommonInfra from "../common_infra/CommonInfra";
+import BackendVpcInfo from "./vpc/BackendVpcInfo";
 
 export default class BackendInfra {
   constructor(commonInfra: CommonInfra) {
     const ecrInfo = new EcrInfo();
     const sqsInfo = new SqsInfo();
     const rdsInfo = new RdsInfo(commonInfra.vpcInfo);
-    new Ec2Info(commonInfra.vpcInfo, commonInfra.iamInfo);
+    const backendVpcInfo = new BackendVpcInfo(commonInfra.vpcInfo);
+    new Ec2Info(commonInfra.vpcInfo, backendVpcInfo, commonInfra.iamInfo);
     const cloudfrontInfo = new CloudFrontInfo();
     const lambdaInfo = new LambdaInfo(
       commonInfra.iamInfo,

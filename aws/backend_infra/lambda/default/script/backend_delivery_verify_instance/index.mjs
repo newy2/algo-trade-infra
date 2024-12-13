@@ -23,7 +23,7 @@ export const handler = async (event) => {
     await sleep(60 * 1000);
 
     await slack.sendMessage("health check 시작");
-    const ec2 = new Ec2(ec2InstanceId);
+    const ec2 = new Ec2(ec2InstanceId, await parameterStore.getBackendEc2HttpPort());
     const isHealthy = await ec2.checkHealthyApi();
     await slack.sendMessage([
       `health check 결과 (isHealth: ${isHealthy})`,

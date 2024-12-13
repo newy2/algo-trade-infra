@@ -33,7 +33,7 @@ export const handler = async (event) => {
       const ec2InstanceIds = await autoScaling.getEc2InstanceIds();
       const oldestEc2InstanceId = await (new Ec2List()).getOldestInstanceId(ec2InstanceIds);
 
-      const ec2 = new Ec2(oldestEc2InstanceId);
+      const ec2 = new Ec2(oldestEc2InstanceId, await parameterStore.getBackendEc2HttpPort());
       const oldestEc2DnsName = await ec2.getPublicDnsName();
 
       // 관리자가 직접 롤백 요청을 한 경우 (EC2 health check 는 통과했지만, 비즈니스 로직 에러가 발생한 경우)

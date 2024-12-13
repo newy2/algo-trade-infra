@@ -19,6 +19,8 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     "/code/delivery/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
     "/code/delivery/backend/cloudfront/distribution/url";
+  public static readonly CODE_DELIVERY_BACKEND_EC2_HTTP_PORT_KEY =
+    "/code/delivery/backend/ec2/http/port";
   public static readonly CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY =
     "/code/delivery/backend/sqs/request_scale_down/arn";
   public static readonly CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY =
@@ -104,6 +106,13 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
       type: aws.ssm.ParameterType.String,
       value:
         cloudFrontInfo.distributionInfo.getBackendDistributionFullDomainName(),
+    });
+
+    new aws.ssm.Parameter("code-delivery-backend-ec2-http-port", {
+      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_EC2_HTTP_PORT_KEY,
+      description: "EC2 HTTP Port",
+      type: aws.ssm.ParameterType.String,
+      value: `${8080}`,
     });
 
     new aws.ssm.Parameter("code-delivery-backend-sqs-request-scale-down-arn", {

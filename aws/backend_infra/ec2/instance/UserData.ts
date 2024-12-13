@@ -19,7 +19,7 @@ sudo swapon /swapfile
 echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab`;
 
   private readonly runBackendServerContainer = `# 백엔드 서버 실행
-PORT=80
+HTTP_PORT=$(aws ssm get-parameter --name "${ParameterStoreInfo.CODE_DELIVERY_BACKEND_EC2_HTTP_PORT_KEY}" --query "Parameter.Value" --output text)
 ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY}" --query "Parameter.Value" --output text)
 DB_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_ENDPOINT_KEY}" --query "Parameter.Value" --output text)
 DB_USERNAME=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_USERNAME_KEY}" --query "Parameter.Value" --output text)
@@ -29,7 +29,7 @@ aws ecr get-login-password --region ${this.getCurrentRegion()} | docker login --
 docker pull "$ECR_URL":latest
 if docker images | grep latest > /dev/null; then
   docker run -d \
--p $PORT:$PORT \
+-p $HTTP_PORT:$HTTP_PORT \
 -e X_PORT=$PORT \
 -e X_DB_URL=$DB_URL \
 -e X_DB_URL=$DB_URL \

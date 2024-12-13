@@ -4,6 +4,7 @@ import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import UserData from "./UserData";
 import IamInfo from "../../../common_infra/iam/IamInfo";
+import BackendVpcInfo from "../../vpc/BackendVpcInfo";
 
 export default class LaunchTemplateInfo extends BaseAwsInfo {
   private static FREE_TIER_OPTION = {
@@ -15,11 +16,16 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
 
   private readonly backendServerLaunchTemplate: LaunchTemplate;
 
-  constructor(vpcInfo: VpcInfo, iamInfo: IamInfo) {
+  constructor(
+    vpcInfo: VpcInfo,
+    backendVpcInfo: BackendVpcInfo,
+    iamInfo: IamInfo,
+  ) {
     super();
 
     this.backendServerLaunchTemplate = this.createBackendServerLaunchTemplate(
       vpcInfo,
+      backendVpcInfo,
       iamInfo,
     );
   }
@@ -30,6 +36,7 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
 
   private createBackendServerLaunchTemplate(
     vpcInfo: VpcInfo,
+    backendVpcInfo: BackendVpcInfo,
     iamInfo: IamInfo,
   ) {
     const name = "backend-server-launch-template";
@@ -39,6 +46,7 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
       name,
       // disableApiStop: false,
       // disableApiTermination: false,
+      updateDefaultVersion: true,
       iamInstanceProfile: {
         arn: iamInfo.roleInfo.getEc2InstanceProfileArn(),
       },
@@ -52,7 +60,9 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
         {
           associatePublicIpAddress: "true",
           deleteOnTermination: "true",
-          securityGroups: vpcInfo.securityGroupInfo.getEc2SecurityGroupIds(),
+          securityGroups: vpcInfo.securityGroupInfo
+            .getEc2SecurityGroupIds()
+            .concat(backendVpcInfo.securityGroupInfo.getHttpSecurityGroupId()),
         },
       ],
       tagSpecifications: [

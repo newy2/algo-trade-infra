@@ -10,6 +10,7 @@ export default class ParameterStore {
   static _SLACK_URL_KEY = "/code/delivery/slack/url";
   static _BACKEND_AUTO_SCALING_GROUP_NAME_KEY = "/code/delivery/backend/auto_scaling_group/name";
   static _BACKEND_DISTRIBUTION_ID_KEY = "/code/delivery/backend/cloudfront/distribution/id";
+  static _BACKEND_EC2_HTTP_PORT_KEY = "/code/delivery/backend/ec2/http/port";
   static _BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY = "/code/delivery/backend/sqs/request_scale_down/url";
   static _BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY = "/code/delivery/backend/sqs/request_scale_down/arn";
   static _BACKEND_SCALE_DOWN_LAMBDA_NAME_KEY = "/code/delivery/backend/lambda/scale_down/name";
@@ -33,6 +34,10 @@ export default class ParameterStore {
 
   async getBackendDistributionId() {
     return await this._getParameter(ParameterStore._BACKEND_DISTRIBUTION_ID_KEY);
+  }
+
+  async getBackendEc2HttpPort() {
+    return await this._getParameter(ParameterStore._BACKEND_EC2_HTTP_PORT_KEY);
   }
 
   async getBackendRequestScaleDownSqsArn() {
