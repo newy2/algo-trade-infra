@@ -1,4 +1,3 @@
-import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import EcrInfo from "../../ecr/EcrInfo";
 import { RdsInfo } from "../../rds/RdsInfo";
@@ -7,7 +6,6 @@ import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
 
 export default class ParameterStoreInfo extends BaseAwsInfo {
-  public static readonly ECR_PRIVATE_REPOSITORY_URL_KEY = "/ecr/repository/url";
   public static readonly RDS_ENDPOINT_KEY = "/rds/endpoint";
   public static readonly RDS_ADDRESS_KEY = "/rds/address";
   public static readonly RDS_USERNAME_KEY = "/rds/username";
@@ -15,6 +13,8 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
 
   public static readonly CODE_DELIVERY_SLACK_URL_KEY =
     "/code/delivery/slack/url";
+  public static readonly CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY =
+    "/code/delivery/backend/ecr/repository/url";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY =
     "/code/delivery/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
@@ -38,20 +38,8 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
   ) {
     super();
 
-    this.setEcrRepositoryUrl(
-      ecrInfo.privateRepositoryInfo.getPrivateRepositoryUrl(),
-    );
     this.setRdsInfo(rdsInfo);
-    this.setCodeDeliveryInfo(cloudFrontInfo, sqsInfo);
-  }
-
-  public setEcrRepositoryUrl(repositoryUrl: pulumi.Output<string>) {
-    new aws.ssm.Parameter("private-ecr-repository-url", {
-      name: ParameterStoreInfo.ECR_PRIVATE_REPOSITORY_URL_KEY,
-      description: "ECR private repository URL",
-      type: aws.ssm.ParameterType.String,
-      value: repositoryUrl,
-    });
+    this.setCodeDeliveryInfo(cloudFrontInfo, sqsInfo, ecrInfo);
   }
 
   public setRdsInfo(rdsInfo: RdsInfo) {
@@ -87,12 +75,20 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
   private setCodeDeliveryInfo(
     cloudFrontInfo: CloudFrontInfo,
     sqsInfo: SqsInfo,
+    ecrInfo: EcrInfo,
   ) {
     new aws.ssm.Parameter("code-delivery-slack-url", {
       name: ParameterStoreInfo.CODE_DELIVERY_SLACK_URL_KEY,
       description: "슬렉 알림 URL",
       type: aws.ssm.ParameterType.String,
       value: this.getSlackUrl(),
+    });
+
+    new aws.ssm.Parameter("code-delivery-backend-ecr-repository-url", {
+      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY,
+      description: "Backend ECR repository URL",
+      type: aws.ssm.ParameterType.String,
+      value: ecrInfo.privateRepositoryInfo.getPrivateRepositoryUrl(),
     });
 
     new aws.ssm.Parameter("code-delivery-backend-cloudfront-distribution-id", {

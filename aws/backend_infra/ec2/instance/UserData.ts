@@ -20,7 +20,7 @@ echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab`;
 
   private readonly runBackendServerContainer = `# 백엔드 서버 실행
 PORT=80
-ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.ECR_PRIVATE_REPOSITORY_URL_KEY}" --query "Parameter.Value" --output text)
+ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY}" --query "Parameter.Value" --output text)
 DB_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_ENDPOINT_KEY}" --query "Parameter.Value" --output text)
 DB_USERNAME=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_USERNAME_KEY}" --query "Parameter.Value" --output text)
 DB_PASSWORD=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_PASSWORD_KEY}" --with-decryption --query "Parameter.Value" --output text)
