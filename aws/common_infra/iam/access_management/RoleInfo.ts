@@ -1,23 +1,22 @@
 import { InstanceProfile, Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
-import PolicyInfo from "./PolicyInfo";
 import BaseRoleInfo from "../../../../util/BaseRoleInfo";
-import CommonPolicyInfo from "../../../common_infra/iam/access_management/CommonPolicyInfo";
+import PolicyInfo from "./PolicyInfo";
 
 export default class RoleInfo extends BaseRoleInfo {
   private readonly ec2InstanceProfile: InstanceProfile;
   private readonly ecrCleanupLambdaRole?: Role;
-  public readonly backendDelivery: BackendDeliveryRoleInfo;
+  private readonly frontendDeliveryLambdaRole: Role;
+  public readonly backendDeliveryRoleInfo: BackendDeliveryRoleInfo;
 
-  constructor(policyInfo: PolicyInfo, commonPolicyInfo: CommonPolicyInfo) {
+  constructor(policyInfo: PolicyInfo) {
     super();
 
     this.ec2InstanceProfile = this.createEc2InstanceProfile();
     this.ecrCleanupLambdaRole = this.createEcrCleanupLambdaRole();
-    this.backendDelivery = new BackendDeliveryRoleInfo(
-      policyInfo,
-      commonPolicyInfo,
-    );
+    this.frontendDeliveryLambdaRole =
+      this.createFrontendDeliveryLambdaRole(policyInfo);
+    this.backendDeliveryRoleInfo = new BackendDeliveryRoleInfo(policyInfo);
   }
 
   public getEc2InstanceProfileArn() {
@@ -26,6 +25,10 @@ export default class RoleInfo extends BaseRoleInfo {
 
   public getEcrCleanupLambdaRoleArn() {
     return this.ecrCleanupLambdaRole?.arn;
+  }
+
+  public getFrontendDeliveryLambdaRole() {
+    return this.frontendDeliveryLambdaRole.arn;
   }
 
   private createEc2InstanceProfile() {
@@ -75,6 +78,35 @@ export default class RoleInfo extends BaseRoleInfo {
 
     return result;
   }
+
+  private createFrontendDeliveryLambdaRole(policyInfo: PolicyInfo) {
+    const prefix = "frontend-delivery-lambda";
+    const roleName = `${prefix}-role`;
+
+    const result = new aws.iam.Role(roleName, {
+      name: roleName,
+      assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
+        Service: BaseRoleInfo.AssumeRoleKey.LAMBDA,
+      }),
+    });
+
+    [
+      aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
+      aws.iam.ManagedPolicy.AmazonS3FullAccess,
+      {
+        key: "CloudFrontUpdatePolicy",
+        value: policyInfo.getCloudFrontUpdatePolicyArn(),
+      },
+      {
+        key: "CodeDeliveryParameterStoreAccessPolicy",
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
+      },
+    ].forEach((each) => {
+      this.newRolePolicyAttachment(prefix, result.name, each);
+    });
+
+    return result;
+  }
 }
 
 class BackendDeliveryRoleInfo extends BaseRoleInfo {
@@ -83,26 +115,18 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
   private readonly scaleDownLambdaRole: Role;
   private readonly requestScaleDownQueueMappingLambdaRole: Role;
 
-  constructor(policyInfo: PolicyInfo, commonPolicyInfo: CommonPolicyInfo) {
+  constructor(
+    // policyInfo: BackendPolicyInfo,
+    commonPolicyInfo: PolicyInfo,
+  ) {
     super();
 
-    this.scaleUpLambdaRole = this.createScaleUpLambdaRole(
-      policyInfo,
-      commonPolicyInfo,
-    );
-    this.verifyInstanceLambdaRole = this.createVerifyInstanceLambdaRole(
-      policyInfo,
-      commonPolicyInfo,
-    );
-    this.scaleDownLambdaRole = this.createScaleDownLambdaRole(
-      policyInfo,
-      commonPolicyInfo,
-    );
+    this.scaleUpLambdaRole = this.createScaleUpLambdaRole(commonPolicyInfo);
+    this.verifyInstanceLambdaRole =
+      this.createVerifyInstanceLambdaRole(commonPolicyInfo);
+    this.scaleDownLambdaRole = this.createScaleDownLambdaRole(commonPolicyInfo);
     this.requestScaleDownQueueMappingLambdaRole =
-      this.createRequestScaleDownQueueMappingLambdaRole(
-        policyInfo,
-        commonPolicyInfo,
-      );
+      this.createRequestScaleDownQueueMappingLambdaRole(commonPolicyInfo);
   }
 
   public getScaleUpLambdaRoleArn() {
@@ -121,10 +145,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     return this.requestScaleDownQueueMappingLambdaRole.arn;
   }
 
-  private createScaleUpLambdaRole(
-    policyInfo: PolicyInfo,
-    commonPolicyInfo: CommonPolicyInfo,
-  ) {
+  private createScaleUpLambdaRole(policyInfo: PolicyInfo) {
     const prefix = "backend-delivery-scale-up-lambda";
     const roleName = `${prefix}-role`;
 
@@ -139,11 +160,12 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       {
         key: "BackedAutoScalingGroupUpdatePolicy",
-        value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getAutoScalingGroupUpdatePolicyArn(),
       },
       {
         key: "CodeDeliveryParameterStoreReadPolicy",
-        value: commonPolicyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -152,10 +174,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createVerifyInstanceLambdaRole(
-    policyInfo: PolicyInfo,
-    commonPolicyInfo: CommonPolicyInfo,
-  ) {
+  private createVerifyInstanceLambdaRole(policyInfo: PolicyInfo) {
     const prefix = "backend-delivery-verify-instance-lambda";
     const roleName = `${prefix}-role`;
 
@@ -171,19 +190,20 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
       {
         key: "BackendDeliveryRequestScaleDownQueueSendMessagePolicy",
         value:
-          policyInfo.getBackendDeliveryRequestScaleDownQueueSendMessagePolicyArn(),
+          policyInfo.backendCodeDeliveryPolicyInfo.getRequestScaleDownQueueSendMessagePolicyArn(),
       },
       {
         key: "BackedAutoScalingGroupReadPolicy",
-        value: policyInfo.getBackedAutoScalingGroupReadPolicyArn(),
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getAutoScalingGroupReadPolicyArn(),
       },
       {
         key: "CloudFrontUpdatePolicy",
-        value: commonPolicyInfo.getCloudFrontUpdatePolicyArn(),
+        value: policyInfo.getCloudFrontUpdatePolicyArn(),
       },
       {
         key: "CodeDeliveryParameterStoreReadPolicy",
-        value: commonPolicyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -192,10 +212,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createScaleDownLambdaRole(
-    policyInfo: PolicyInfo,
-    commonPolicyInfo: CommonPolicyInfo,
-  ) {
+  private createScaleDownLambdaRole(policyInfo: PolicyInfo) {
     const prefix = "backend-delivery-scale-down-lambda";
     const roleName = `${prefix}-role`;
 
@@ -212,19 +229,20 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
       {
         key: "BackendDeliveryRequestScaleDownQueuePurgeQueuePolicy",
         value:
-          policyInfo.getBackendDeliveryRequestScaleDownQueuePurgeQueuePolicyArn(),
+          policyInfo.backendCodeDeliveryPolicyInfo.getRequestScaleDownQueuePurgeQueuePolicyArn(),
       },
       {
         key: "BackedAutoScalingGroupUpdatePolicy",
-        value: policyInfo.getBackedAutoScalingGroupUpdatePolicyArn(),
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getAutoScalingGroupUpdatePolicyArn(),
       },
       {
         key: "CloudFrontUpdatePolicy",
-        value: commonPolicyInfo.getCloudFrontUpdatePolicyArn(),
+        value: policyInfo.getCloudFrontUpdatePolicyArn(),
       }, // for rollback
       {
         key: "CodeDeliveryParameterStoreReadPolicy",
-        value: commonPolicyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);
@@ -233,10 +251,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     return result;
   }
 
-  private createRequestScaleDownQueueMappingLambdaRole(
-    policyInfo: PolicyInfo,
-    commonPolicyInfo: CommonPolicyInfo,
-  ) {
+  private createRequestScaleDownQueueMappingLambdaRole(policyInfo: PolicyInfo) {
     const prefix = "backend-delivery-event-source-mapping-lambda";
     const roleName = `${prefix}-role`;
 
@@ -251,19 +266,22 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
       aws.iam.ManagedPolicy.AWSLambdaBasicExecutionRole,
       {
         key: "ChangeLambdaEventSourceMappingPolicy",
-        value: policyInfo.getChangeLambdaEventSourceMappingPolicyArn(),
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getChangeLambdaEventSourceMappingPolicyArn(),
       },
       {
         key: "BackedAutoScalingGroupReadPolicy",
-        value: policyInfo.getBackedAutoScalingGroupReadPolicyArn(),
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getAutoScalingGroupReadPolicyArn(),
       },
       {
         key: "CodeDeliveryParameterStoreUpdatePolicy",
-        value: policyInfo.getCodeDeliveryParameterStoreUpdatePolicyArn(),
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getParameterStoreUpdatePolicyArn(),
       },
       {
         key: "CodeDeliveryParameterStoreReadPolicy",
-        value: commonPolicyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
+        value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },
     ].forEach((each) => {
       this.newRolePolicyAttachment(prefix, result.name, each);

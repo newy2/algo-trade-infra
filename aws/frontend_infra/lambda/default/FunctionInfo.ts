@@ -3,7 +3,7 @@ import * as pulumi from "@pulumi/pulumi";
 import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInfo";
 import * as path from "path";
-import IamInfo from "../../iam/IamInfo";
+import IamInfo from "../../../common_infra/iam/IamInfo";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly frontendDeliveryFunction: aws.lambda.Function;
@@ -29,7 +29,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       name: "frontend-delivery",
       description: "프론트엔드 배포 & 롤백",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.frontendRoleInfo.getFrontendDeliveryLambdaRole(),
+      role: iamInfo.roleInfo.getFrontendDeliveryLambdaRole(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "frontend_delivery"),

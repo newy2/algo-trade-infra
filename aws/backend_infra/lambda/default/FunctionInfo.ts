@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import IamInfo from "../../iam/IamInfo";
+import IamInfo from "../../../common_infra/iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInfo";
 import * as path from "path";
@@ -82,7 +82,7 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       name,
       description: "ASG 인스턴스 사이즈 업 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getScaleUpLambdaRoleArn(),
+      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getScaleUpLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_scale_up"),
@@ -99,7 +99,7 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       name,
       description: "CloudFront 의 Origin 변경",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getVerifyInstanceLambdaRoleArn(),
+      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getVerifyInstanceLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_verify_instance"),
@@ -116,7 +116,7 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       name,
       description: "ASG 인스턴스 사이즈 다운 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getScaleDownLambdaRoleArn(),
+      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getScaleDownLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_scale_down"),
@@ -137,7 +137,7 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       name,
       description: "백엔드 배포 SQS EventSource 매핑 함수",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDelivery.getRequestScaleDownQueueMappingLambdaRoleArn(),
+      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getRequestScaleDownQueueMappingLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(
