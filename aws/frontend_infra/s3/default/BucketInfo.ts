@@ -4,13 +4,17 @@ import * as pulumi from "@pulumi/pulumi";
 import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import LambdaInfo from "../../lambda/LambdaInfo";
+import { AppEnv } from "../../../../util/enums";
+import { genName } from "../../../../util/utils";
 
 export default class BucketInfo extends BaseAwsInfo {
+  private readonly appEnv: AppEnv;
   private readonly frontendBucket: BucketV2;
 
-  constructor() {
+  constructor(appEnv: AppEnv) {
     super();
 
+    this.appEnv = appEnv;
     this.frontendBucket = this.createFrontendBucket();
   }
 
@@ -19,7 +23,9 @@ export default class BucketInfo extends BaseAwsInfo {
   }
 
   public setFrontendBucketPolicy(cloudFrontInfo: CloudFrontInfo) {
-    new aws.s3.BucketPolicy("frontend-bucket-policy", {
+    const name = genName(this.appEnv, "frontend-bucket-policy");
+
+    new aws.s3.BucketPolicy(name, {
       bucket: this.frontendBucket.id,
       policy: {
         Version: "2008-10-17",
@@ -46,8 +52,10 @@ export default class BucketInfo extends BaseAwsInfo {
   }
 
   public setFrontendBucketNotification(lambdaInfo: LambdaInfo) {
+    const prefix = genName(this.appEnv, "frontend-bucket");
+
     const allowBucket = new aws.lambda.Permission(
-      "frontend-bucket-lambda-permission",
+      genName(prefix, "lambda-permission"),
       {
         statementId: "AllowExecutionFromS3Bucket",
         action: "lambda:InvokeFunction",
@@ -58,7 +66,7 @@ export default class BucketInfo extends BaseAwsInfo {
     );
 
     new aws.s3.BucketNotification(
-      "frontend-bucket-notification",
+      genName(prefix, "notification"),
       {
         bucket: this.frontendBucket.id,
         lambdaFunctions: [
@@ -77,7 +85,7 @@ export default class BucketInfo extends BaseAwsInfo {
   }
 
   private createFrontendBucket() {
-    const bucketName = this.getFrontendBucketName();
+    const bucketName = genName(this.appEnv, this.getFrontendBucketName());
 
     const result = new aws.s3.BucketV2(bucketName, {
       bucket: bucketName,
@@ -85,7 +93,7 @@ export default class BucketInfo extends BaseAwsInfo {
     });
 
     new aws.s3.BucketServerSideEncryptionConfigurationV2(
-      "frontend-bucket-encryption",
+      genName(bucketName, "encryption"),
       {
         bucket: result.id,
         rules: [

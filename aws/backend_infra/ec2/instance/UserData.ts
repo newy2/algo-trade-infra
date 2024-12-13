@@ -24,7 +24,7 @@ ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.ECR_PRIVATE_REPOSIT
 DB_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_ENDPOINT_KEY}" --query "Parameter.Value" --output text)
 DB_USERNAME=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_USERNAME_KEY}" --query "Parameter.Value" --output text)
 DB_PASSWORD=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_PASSWORD_KEY}" --with-decryption --query "Parameter.Value" --output text)
-FRONTEND_URL=$(aws ssm get-parameter --name "${FrontendParameterStoreInfo.CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY}" --with-decryption --query "Parameter.Value" --output text)
+FRONTEND_URL=$(aws ssm get-parameter --name "${FrontendParameterStoreInfo.getCodeDeliveryFrontendDistributionUrlKey("prod")}" --with-decryption --query "Parameter.Value" --output text)
 aws ecr get-login-password --region ${this.getCurrentRegion()} | docker login --username AWS --password-stdin "$ECR_URL"
 docker pull "$ECR_URL":latest
 if docker images | grep latest > /dev/null; then

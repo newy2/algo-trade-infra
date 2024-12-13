@@ -4,17 +4,19 @@ import LambdaInfo from "./lambda/LambdaInfo";
 import SnsInfo from "./sns/SnsInfo";
 import SsmInfo from "./ssm/SsmInfo";
 import CommonInfra from "../common_infra/CommonInfra";
+import { AppEnv } from "../../util/enums";
 
 export default class FrontendInfra {
-  constructor(commonInfra: CommonInfra) {
-    const s3Info = new S3Info();
-    const cloudFrontInfo = new CloudFrontInfo(s3Info);
+  constructor(appEnv: AppEnv, commonInfra: CommonInfra) {
+    const s3Info = new S3Info(appEnv);
+    const cloudFrontInfo = new CloudFrontInfo(appEnv, s3Info);
     const lambdaInfo = new LambdaInfo(
+      appEnv,
       commonInfra.iamInfo,
       s3Info,
       commonInfra.lambdaInfo,
     );
-    new SnsInfo(lambdaInfo);
-    new SsmInfo(cloudFrontInfo);
+    new SnsInfo(appEnv, lambdaInfo);
+    new SsmInfo(appEnv, cloudFrontInfo);
   }
 }

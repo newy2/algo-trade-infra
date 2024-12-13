@@ -7,18 +7,18 @@ import {
 import { validate } from "./util/utils.mjs";
 
 export default class ParameterStore {
-  static _PREFIX = "/code/delivery";
-  static _SLACK_URL_KEY = `${ParameterStore._PREFIX}/slack/url`;
-  static _BACKEND_AUTO_SCALING_GROUP_NAME_KEY = `${ParameterStore._PREFIX}/backend/auto_scaling_group/name`;
-  static _BACKEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/backend/cloudfront/distribution/id`;
-  static _BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY = `${ParameterStore._PREFIX}/backend/sqs/request_scale_down/url`;
-  static _BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY = `${ParameterStore._PREFIX}/backend/sqs/request_scale_down/arn`;
-  static _BACKEND_SCALE_DOWN_LAMBDA_NAME_KEY = `${ParameterStore._PREFIX}/backend/lambda/scale_down/name`;
-  static _BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY = `${ParameterStore._PREFIX}/backend/lambda/scale_down/event_source/uuid`;
-  static _FRONTEND_DISTRIBUTION_ID_KEY = `${ParameterStore._PREFIX}/frontend/cloudfront/distribution/id`;
-  static _FRONTEND_BUCKET_NAME_KEY = `${ParameterStore._PREFIX}/frontend/s3/bucket/name`;
+  static _SLACK_URL_KEY = "/code/delivery/slack/url";
+  static _BACKEND_AUTO_SCALING_GROUP_NAME_KEY = "/code/delivery/backend/auto_scaling_group/name";
+  static _BACKEND_DISTRIBUTION_ID_KEY = "/code/delivery/backend/cloudfront/distribution/id";
+  static _BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY = "/code/delivery/backend/sqs/request_scale_down/url";
+  static _BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY = "/code/delivery/backend/sqs/request_scale_down/arn";
+  static _BACKEND_SCALE_DOWN_LAMBDA_NAME_KEY = "/code/delivery/backend/lambda/scale_down/name";
+  static _BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY = "/code/delivery/backend/lambda/scale_down/event_source/uuid";
+  static _FRONTEND_DISTRIBUTION_ID_KEY = "/code/delivery/{appEnv}/frontend/cloudfront/distribution/id";
+  static _FRONTEND_BUCKET_NAME_KEY = "/code/delivery/{appEnv}/frontend/s3/bucket/name";
 
-  constructor() {
+  constructor(appEnv) {
+    this.appEnv = appEnv;
     this.ssmClient = new SSMClient();
     this.deliveryParameters = undefined;
   }
@@ -90,15 +90,17 @@ export default class ParameterStore {
     ]);
   }
 
-  async _getParameter(key) {
+  async _getParameter(originKey) {
     if (!this.deliveryParameters) {
       this.deliveryParameters = await this._fetchParameter();
     }
 
-    const result = this.deliveryParameters.find(each => each.Name === key);
+    const replaceKey = this._getReplaceKey(originKey, this.appEnv);
+    const result = this.deliveryParameters.find(each => each.Name === replaceKey);
     if (!result) {
       console.error("[ParameterStore] this.deliveryParameters: ", JSON.stringify(this.deliveryParameters, null, 2));
-      console.error("[ParameterStore] key: ", key);
+      console.error("[ParameterStore] originKey: ", originKey);
+      console.error("[ParameterStore] replaceKey: ", replaceKey);
       throw Error(this.deliveryParameters);
     }
 
@@ -111,7 +113,7 @@ export default class ParameterStore {
 
     do {
       const response = await this.ssmClient.send(new GetParametersByPathCommand({
-        Path: ParameterStore._PREFIX,
+        Path: "/code/delivery",
         Recursive: true,
         NextToken: nextToken
       }));
@@ -121,5 +123,9 @@ export default class ParameterStore {
     } while (nextToken);
 
     return results;
+  }
+
+  _getReplaceKey(format, replaceString) {
+    return format.replace(new RegExp("{appEnv}", "g"), replaceString);
   }
 }

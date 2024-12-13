@@ -4,4 +4,6 @@ import FrontendInfra from "./aws/frontend_infra/FrontendInfra";
 
 const commonInfra = new CommonInfra();
 new BackendInfra(commonInfra);
-new FrontendInfra(commonInfra);
+
+new FrontendInfra("test", commonInfra);
+new FrontendInfra("prod", commonInfra);

@@ -4,7 +4,7 @@ import FrontendDeployModel from "./models/FrontendDeployModel.mjs";
 import FrontendRollbackModel from "./models/FrontendRollbackModel.mjs";
 
 export const handler = async (event) => {
-  const parameterStore = new ParameterStore();
+  const parameterStore = new ParameterStore(process.env.APP_ENV);
   console.time("create Slack");
   const slack = new Slack(await parameterStore.getSlackUrl());
   console.timeEnd("create Slack");

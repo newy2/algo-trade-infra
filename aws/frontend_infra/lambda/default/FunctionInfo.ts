@@ -4,13 +4,17 @@ import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInfo";
 import * as path from "path";
 import IamInfo from "../../../common_infra/iam/IamInfo";
+import { AppEnv } from "../../../../util/enums";
+import { genName } from "../../../../util/utils";
 
 export default class FunctionInfo extends BaseAwsInfo {
+  private readonly appEnv: AppEnv;
   private readonly frontendDeliveryFunction: aws.lambda.Function;
 
-  constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
+  constructor(appEnv: AppEnv, iamInfo: IamInfo, layerInfo: LayerInfo) {
     super();
 
+    this.appEnv = appEnv;
     this.frontendDeliveryFunction = this.createFrontendDeliveryFunction(
       iamInfo,
       layerInfo,
@@ -25,9 +29,11 @@ export default class FunctionInfo extends BaseAwsInfo {
     iamInfo: IamInfo,
     layerInfo: LayerInfo,
   ) {
-    return new aws.lambda.Function("frontend-delivery-lambda", {
-      name: "frontend-delivery",
-      description: "프론트엔드 배포 & 롤백",
+    const name = genName(this.appEnv, "frontend-delivery");
+
+    return new aws.lambda.Function(genName(name, "lambda"), {
+      name,
+      description: `[${this.appEnv}] 프론트엔드 배포 & 롤백`,
       runtime: aws.lambda.Runtime.NodeJS20dX,
       role: iamInfo.roleInfo.getFrontendDeliveryLambdaRole(),
       handler: "index.handler",
@@ -38,7 +44,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
       environment: {
         variables: {
-          BUCKET_NAME: this.getFrontendBucketName(),
+          APP_ENV: this.appEnv,
         },
       },
     });

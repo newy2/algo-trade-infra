@@ -2,11 +2,15 @@ import * as aws from "@pulumi/aws";
 import { TopicSubscription } from "@pulumi/aws/sns";
 import TopicInfo from "./TopicInfo";
 import LambdaInfo from "../../lambda/LambdaInfo";
+import { AppEnv } from "../../../../util/enums";
+import { genName } from "../../../../util/utils";
 
 export default class SubscriptionInfo {
+  private readonly appEnv: AppEnv;
   private readonly frontendRollbackTopicSubscription: TopicSubscription;
 
-  constructor(topicInfo: TopicInfo, lambdaInfo: LambdaInfo) {
+  constructor(appEnv: AppEnv, topicInfo: TopicInfo, lambdaInfo: LambdaInfo) {
+    this.appEnv = appEnv;
     this.frontendRollbackTopicSubscription =
       this.createFrontendRollbackTopicSubscription(topicInfo, lambdaInfo);
   }
@@ -15,7 +19,9 @@ export default class SubscriptionInfo {
     topicInfo: TopicInfo,
     lambdaInfo: LambdaInfo,
   ) {
-    new aws.lambda.Permission("frontend-rollback-topic-lambda-permission", {
+    const prefix = genName(this.appEnv, "frontend-rollback-topic");
+
+    new aws.lambda.Permission(genName(prefix, "lambda-permission"), {
       statementId: "AllowExecutionFromSNS",
       action: "lambda:InvokeFunction",
       principal: "sns.amazonaws.com",
@@ -23,13 +29,10 @@ export default class SubscriptionInfo {
       function: lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(),
     });
 
-    return new aws.sns.TopicSubscription(
-      "frontend-rollback-topic-subscription",
-      {
-        protocol: "lambda",
-        topic: topicInfo.getCodeDeliveryStateTopicArn(),
-        endpoint: lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(),
-      },
-    );
+    return new aws.sns.TopicSubscription(genName(prefix, "subscription"), {
+      protocol: "lambda",
+      topic: topicInfo.getCodeDeliveryStateTopicArn(),
+      endpoint: lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(),
+    });
   }
 }

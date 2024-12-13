@@ -4,16 +4,22 @@ import S3Info from "../../s3/S3Info";
 import FunctionInfo from "./FunctionInfo";
 import OriginAccessInfo from "../security/OriginAccessInfo";
 import * as pulumi from "@pulumi/pulumi";
+import { AppEnv } from "../../../../util/enums";
+import { genName } from "../../../../util/utils";
 
 export default class DistributionInfo {
   private static readonly ROOT_OBJECT = "index.html";
-  private distribution: Distribution;
+
+  private readonly appEnv: AppEnv;
+  private readonly distribution: Distribution;
 
   constructor(
+    appEnv: AppEnv,
     s3Info: S3Info,
     functionInfo: FunctionInfo,
     originAccessInfo: OriginAccessInfo,
   ) {
+    this.appEnv = appEnv;
     this.distribution = this.createFrontendDistribution(
       s3Info,
       functionInfo,
@@ -38,8 +44,10 @@ export default class DistributionInfo {
     functionInfo: FunctionInfo,
     originAccessInfo: OriginAccessInfo,
   ) {
-    return new aws.cloudfront.Distribution("frontend-algo-trade-distribution", {
-      comment: "Static site distribution",
+    const name = genName(this.appEnv, "frontend-algo-trade-distribution");
+
+    return new aws.cloudfront.Distribution(name, {
+      comment: `[${this.appEnv}] Static site distribution`,
       customErrorResponses: this.getCustomErrorResponses(),
       defaultCacheBehavior: this.getDefaultCacheBehavior(s3Info, functionInfo),
       defaultRootObject: DistributionInfo.ROOT_OBJECT,
