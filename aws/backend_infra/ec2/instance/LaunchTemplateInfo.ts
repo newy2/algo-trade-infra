@@ -1,10 +1,9 @@
 import * as aws from "@pulumi/aws";
 import { LaunchTemplate } from "@pulumi/aws/ec2";
-import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import UserData from "./UserData";
-import IamInfo from "../../../common_infra/iam/IamInfo";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
+import CommonInfra from "../../../common_infra/CommonInfra";
 
 export default class LaunchTemplateInfo extends BaseAwsInfo {
   private static FREE_TIER_OPTION = {
@@ -17,16 +16,14 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
   private readonly backendServerLaunchTemplate: LaunchTemplate;
 
   constructor(
-    vpcInfo: VpcInfo,
     backendAppInfraList: BackendAppInfra[],
-    iamInfo: IamInfo,
+    commonInfra: CommonInfra,
   ) {
     super();
 
     this.backendServerLaunchTemplate = this.createBackendServerLaunchTemplate(
-      vpcInfo,
       backendAppInfraList,
-      iamInfo,
+      commonInfra,
     );
   }
 
@@ -35,9 +32,8 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
   }
 
   private createBackendServerLaunchTemplate(
-    vpcInfo: VpcInfo,
     backendAppInfraList: BackendAppInfra[],
-    iamInfo: IamInfo,
+    commonInfra: CommonInfra,
   ) {
     const name = "backend-server-launch-template";
 
@@ -48,7 +44,7 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
       // disableApiTermination: false,
       updateDefaultVersion: true,
       iamInstanceProfile: {
-        arn: iamInfo.roleInfo.getEc2InstanceProfileArn(),
+        arn: commonInfra.iamInfo.roleInfo.getEc2InstanceProfileArn(),
       },
       imageId: this.getAmazonAmiId(),
       metadataOptions: {
@@ -60,7 +56,7 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
         {
           associatePublicIpAddress: "true",
           deleteOnTermination: "true",
-          securityGroups: vpcInfo.securityGroupInfo
+          securityGroups: commonInfra.vpcInfo.securityGroupInfo
             .getEc2SecurityGroupIds()
             .concat(
               backendAppInfraList.map((each) =>

@@ -1,8 +1,8 @@
 import * as aws from "@pulumi/aws";
 import { Instance } from "@pulumi/aws/rds";
-import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import SubnetGroupInfo from "./SubnetGroupInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
+import CommonInfra from "../../../common_infra/CommonInfra";
 
 export default class InstanceInfo extends BaseAwsInfo {
   private static FREE_TIER_OPTION = {
@@ -20,10 +20,10 @@ export default class InstanceInfo extends BaseAwsInfo {
 
   private readonly instance: Instance;
 
-  constructor(vpcInfo: VpcInfo, subnetGroupInfo: SubnetGroupInfo) {
+  constructor(commonInfra: CommonInfra, subnetGroupInfo: SubnetGroupInfo) {
     super();
 
-    this.instance = this.createRdsInstance(vpcInfo, subnetGroupInfo);
+    this.instance = this.createRdsInstance(commonInfra, subnetGroupInfo);
   }
 
   public getEndpoint() {
@@ -43,7 +43,7 @@ export default class InstanceInfo extends BaseAwsInfo {
   }
 
   private createRdsInstance(
-    vpcInfo: VpcInfo,
+    commonInfra: CommonInfra,
     subnetGroupInfo: SubnetGroupInfo,
   ) {
     return new aws.rds.Instance("default-rds", {
@@ -56,7 +56,8 @@ export default class InstanceInfo extends BaseAwsInfo {
       password: this.getRdsPassword(),
       availabilityZone: this.getFirstAvailabilityZoneName(),
       dbSubnetGroupName: subnetGroupInfo.getSubnetGroupName(),
-      vpcSecurityGroupIds: vpcInfo.securityGroupInfo.getRdsSecurityGroupIds(),
+      vpcSecurityGroupIds:
+        commonInfra.vpcInfo.securityGroupInfo.getRdsSecurityGroupIds(),
     });
   }
 }

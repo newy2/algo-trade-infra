@@ -1,20 +1,14 @@
 import FunctionInfo from "./default/FunctionInfo";
-import CommonLambdaInfo from "../../common_infra/lambda/CommonLambdaInfo";
-import IamInfo from "../../common_infra/iam/IamInfo";
 import BackendAppInfra from "../../backend_app_infra/BackendAppInfra";
+import CommonInfra from "../../common_infra/CommonInfra";
 
 export default class LambdaInfo {
   public readonly functionInfo: FunctionInfo;
 
   constructor(
-    iamInfo: IamInfo,
-    commonLambdaInfo: CommonLambdaInfo,
     backendAppInfraList: BackendAppInfra[],
+    commonInfra: CommonInfra,
   ) {
-    this.functionInfo = new FunctionInfo(
-      iamInfo,
-      commonLambdaInfo.layerInfo,
-      backendAppInfraList,
-    );
+    this.functionInfo = new FunctionInfo(backendAppInfraList, commonInfra);
   }
 }

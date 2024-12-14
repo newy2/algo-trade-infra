@@ -9,17 +9,13 @@ import BackendAppInfra from "../backend_app_infra/BackendAppInfra";
 
 export default class BackendInfra {
   constructor(
-    commonInfra: CommonInfra,
     backendAppInfraList: BackendAppInfra[],
+    commonInfra: CommonInfra,
   ) {
     const sqsInfo = new SqsInfo();
-    const rdsInfo = new RdsInfo(commonInfra.vpcInfo);
-    new Ec2Info(commonInfra.vpcInfo, backendAppInfraList, commonInfra.iamInfo);
-    const lambdaInfo = new LambdaInfo(
-      commonInfra.iamInfo,
-      commonInfra.lambdaInfo,
-      backendAppInfraList,
-    );
+    const rdsInfo = new RdsInfo(commonInfra);
+    new Ec2Info(backendAppInfraList, commonInfra);
+    const lambdaInfo = new LambdaInfo(backendAppInfraList, commonInfra);
     new EventBridgeInfo(backendAppInfraList, lambdaInfo);
     new SsmInfo(rdsInfo, sqsInfo);
   }

@@ -1,17 +1,20 @@
 import * as aws from "@pulumi/aws";
-import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import LaunchTemplateInfo from "../instance/LaunchTemplateInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
+import CommonInfra from "../../../common_infra/CommonInfra";
 
 export default class AutoScalingInfo extends BaseAwsInfo {
-  constructor(vpcInfo: VpcInfo, launchTemplateInfo: LaunchTemplateInfo) {
+  constructor(
+    commonInfra: CommonInfra,
+    launchTemplateInfo: LaunchTemplateInfo,
+  ) {
     super();
 
-    this.createBackendServerAutoScalingGroup(vpcInfo, launchTemplateInfo);
+    this.createBackendServerAutoScalingGroup(commonInfra, launchTemplateInfo);
   }
 
   private createBackendServerAutoScalingGroup(
-    vpcInfo: VpcInfo,
+    commonInfra: CommonInfra,
     launchTemplateInfo: LaunchTemplateInfo,
   ) {
     const name = this.getBackendServerAutoScalingGroupName();
@@ -20,7 +23,9 @@ export default class AutoScalingInfo extends BaseAwsInfo {
       desiredCapacity: 1,
       maxSize: 1,
       minSize: 1,
-      vpcZoneIdentifiers: [vpcInfo.subnetInfo.getFirstPublicSubnetId()],
+      vpcZoneIdentifiers: [
+        commonInfra.vpcInfo.subnetInfo.getFirstPublicSubnetId(),
+      ],
       healthCheckType: "EC2",
       launchTemplate: {
         id: launchTemplateInfo.getBackendSeverLaunchTemplateId(),

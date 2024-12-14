@@ -1,12 +1,12 @@
-import VpcInfo from "../../common_infra/vpc/VpcInfo";
 import SubnetGroupInfo from "./default/SubnetGroupInfo";
 import InstanceInfo from "./default/InstanceInfo";
+import CommonInfra from "../../common_infra/CommonInfra";
 
 export class RdsInfo {
   public readonly instanceInfo: InstanceInfo;
 
-  constructor(vpcInfo: VpcInfo) {
-    const subnetGroupInfo = new SubnetGroupInfo(vpcInfo);
-    this.instanceInfo = new InstanceInfo(vpcInfo, subnetGroupInfo);
+  constructor(commonInfra: CommonInfra) {
+    const subnetGroupInfo = new SubnetGroupInfo(commonInfra);
+    this.instanceInfo = new InstanceInfo(commonInfra, subnetGroupInfo);
   }
 }

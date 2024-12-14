@@ -1,27 +1,25 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import IamInfo from "../../../common_infra/iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
-import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInfo";
 import * as path from "path";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
+import CommonInfra from "../../../common_infra/CommonInfra";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   public readonly backendDelivery: BackendDeliveryFunctionInfo;
 
   constructor(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
     backendAppInfraList: BackendAppInfra[],
+    commonInfra: CommonInfra,
   ) {
     super();
 
-    this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
+    this.cleanupEcrImageFunction =
+      this.createCleanupEcrImageFunction(commonInfra);
     this.backendDelivery = new BackendDeliveryFunctionInfo(
-      iamInfo,
-      layerInfo,
       backendAppInfraList,
+      commonInfra,
     );
   }
 
@@ -29,7 +27,7 @@ export default class FunctionInfo extends BaseAwsInfo {
     return this.cleanupEcrImageFunction?.arn;
   }
 
-  private createCleanupEcrImageFunction(iamInfo: IamInfo) {
+  private createCleanupEcrImageFunction(commonInfra: CommonInfra) {
     if (!this.isFastCleanupEcrImage()) {
       return undefined;
     }
@@ -39,7 +37,7 @@ export default class FunctionInfo extends BaseAwsInfo {
       description:
         "과거 ECR 이미지 자동 삭제 기능 (Push 이벤트에 실시간으로 반응)",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.getEcrCleanupLambdaRoleArn()!,
+      role: commonInfra.iamInfo.roleInfo.getEcrCleanupLambdaRoleArn()!,
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "cleanup_ecr_image"),
@@ -57,24 +55,21 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
   private readonly scaleDownFunction: aws.lambda.Function;
 
   constructor(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
     backendAppInfraList: BackendAppInfra[],
+    commonInfra: CommonInfra,
   ) {
     super();
 
     this.requestScaleDownQueueMappingFunction =
-      this.createRequestScaleDownQueueMappingFunction(iamInfo, layerInfo);
-    this.scaleUpFunction = this.createScaleUpFunction(iamInfo, layerInfo);
+      this.createRequestScaleDownQueueMappingFunction(commonInfra);
+    this.scaleUpFunction = this.createScaleUpFunction(commonInfra);
     this.verifyInstanceFunction = this.createVerifyInstanceFunction(
-      iamInfo,
-      layerInfo,
       backendAppInfraList,
+      commonInfra,
     );
     this.scaleDownFunction = this.createScaleDownFunction(
-      iamInfo,
-      layerInfo,
       backendAppInfraList,
+      commonInfra,
     );
   }
 
@@ -90,27 +85,26 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
     return this.verifyInstanceFunction.arn;
   }
 
-  private createScaleUpFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
+  private createScaleUpFunction(commonInfra: CommonInfra) {
     const name = "backend-delivery-scale-up-lambda";
 
     return new aws.lambda.Function(name, {
       name,
       description: "ASG 인스턴스 사이즈 업 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getScaleUpLambdaRoleArn(),
+      role: commonInfra.iamInfo.roleInfo.backendDeliveryRoleInfo.getScaleUpLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_scale_up"),
       ),
       timeout: 10,
-      layers: [layerInfo.getAwsSdkHelperLayerArn()],
+      layers: [commonInfra.lambdaInfo.layerInfo.getAwsSdkHelperLayerArn()],
     });
   }
 
   private createVerifyInstanceFunction(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
     backendAppInfraList: BackendAppInfra[],
+    commonInfra: CommonInfra,
   ) {
     const name = "backend-delivery-verify-instance-lambda";
 
@@ -118,13 +112,13 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       name,
       description: "CloudFront 의 Origin 변경",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getVerifyInstanceLambdaRoleArn(),
+      role: commonInfra.iamInfo.roleInfo.backendDeliveryRoleInfo.getVerifyInstanceLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_verify_instance"),
       ),
       timeout: 10 * 60,
-      layers: [layerInfo.getAwsSdkHelperLayerArn()],
+      layers: [commonInfra.lambdaInfo.layerInfo.getAwsSdkHelperLayerArn()],
       environment: {
         variables: {
           APP_ENV_LIST: backendAppInfraList
@@ -136,9 +130,8 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
   }
 
   private createScaleDownFunction(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
     backendAppInfraList: BackendAppInfra[],
+    commonInfra: CommonInfra,
   ) {
     const name = this.getBackendDeliveryScaleDownLambdaName();
 
@@ -146,13 +139,13 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       name,
       description: "ASG 인스턴스 사이즈 다운 요청",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getScaleDownLambdaRoleArn(),
+      role: commonInfra.iamInfo.roleInfo.backendDeliveryRoleInfo.getScaleDownLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(__dirname, "script", "backend_delivery_scale_down"),
       ),
       timeout: 10 * 60,
-      layers: [layerInfo.getAwsSdkHelperLayerArn()],
+      layers: [commonInfra.lambdaInfo.layerInfo.getAwsSdkHelperLayerArn()],
       environment: {
         variables: {
           APP_ENV_LIST: backendAppInfraList
@@ -163,10 +156,7 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createRequestScaleDownQueueMappingFunction(
-    iamInfo: IamInfo,
-    layerInfo: LayerInfo,
-  ) {
+  private createRequestScaleDownQueueMappingFunction(commonInfra: CommonInfra) {
     const name =
       this.getBackendDeliveryRequestScaleDownQueueMappingLambdaName();
 
@@ -174,7 +164,7 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       name,
       description: "백엔드 배포 SQS EventSource 매핑 함수",
       runtime: aws.lambda.Runtime.NodeJS20dX,
-      role: iamInfo.roleInfo.backendDeliveryRoleInfo.getRequestScaleDownQueueMappingLambdaRoleArn(),
+      role: commonInfra.iamInfo.roleInfo.backendDeliveryRoleInfo.getRequestScaleDownQueueMappingLambdaRoleArn(),
       handler: "index.handler",
       code: new pulumi.asset.FileArchive(
         path.join(
@@ -184,7 +174,7 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
         ),
       ),
       timeout: 60,
-      layers: [layerInfo.getAwsSdkHelperLayerArn()],
+      layers: [commonInfra.lambdaInfo.layerInfo.getAwsSdkHelperLayerArn()],
     });
 
     return result;

@@ -4,17 +4,20 @@ import CommonInfra from "./aws/common_infra/CommonInfra";
 import FrontendInfra from "./aws/frontend_infra/FrontendInfra";
 
 const commonInfra = new CommonInfra();
-new BackendInfra(commonInfra, [
-  new BackendAppInfra({
-    commonInfra,
-    appEnv: "test",
-    httpPort: 9090,
-  }),
-  new BackendAppInfra({
-    commonInfra,
-    appEnv: "prod",
-    httpPort: 8181,
-  }),
-]);
+new BackendInfra(
+  [
+    new BackendAppInfra({
+      commonInfra,
+      appEnv: "test",
+      httpPort: 9090,
+    }),
+    new BackendAppInfra({
+      commonInfra,
+      appEnv: "prod",
+      httpPort: 8181,
+    }),
+  ],
+  commonInfra,
+);
 new FrontendInfra("test", commonInfra);
 new FrontendInfra("prod", commonInfra);
