@@ -1,18 +1,18 @@
 import LaunchTemplateInfo from "./instance/LaunchTemplateInfo";
 import AutoScalingInfo from "./auto_scaling/AutoScalingInfo";
 import IamInfo from "../../common_infra/iam/IamInfo";
-import BackendVpcInfo from "../vpc/BackendVpcInfo";
 import VpcInfo from "../../common_infra/vpc/VpcInfo";
+import BackendAppInfra from "../../backend_app_infra/BackendAppInfra";
 
 export default class Ec2Info {
   constructor(
     vpcInfo: VpcInfo,
-    backendVpcInfo: BackendVpcInfo,
+    backendAppInfraList: BackendAppInfra[],
     iamInfo: IamInfo,
   ) {
     const launchTemplateInfo = new LaunchTemplateInfo(
       vpcInfo,
-      backendVpcInfo,
+      backendAppInfraList,
       iamInfo,
     );
     new AutoScalingInfo(vpcInfo, launchTemplateInfo);

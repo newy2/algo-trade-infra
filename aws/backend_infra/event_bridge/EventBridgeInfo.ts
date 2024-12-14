@@ -1,9 +1,9 @@
 import RuleInfo from "./bus/RuleInfo";
-import EcrInfo from "../ecr/EcrInfo";
 import LambdaInfo from "../lambda/LambdaInfo";
+import BackendAppInfra from "../../backend_app_infra/BackendAppInfra";
 
 export default class EventBridgeInfo {
-  constructor(ecrInfo: EcrInfo, lambdaInfo: LambdaInfo) {
-    new RuleInfo(ecrInfo, lambdaInfo);
+  constructor(backendAppInfraList: BackendAppInfra[], lambdaInfo: LambdaInfo) {
+    new RuleInfo(backendAppInfraList, lambdaInfo);
   }
 }

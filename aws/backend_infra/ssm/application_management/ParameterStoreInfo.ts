@@ -1,7 +1,5 @@
 import * as aws from "@pulumi/aws";
-import EcrInfo from "../../ecr/EcrInfo";
 import { RdsInfo } from "../../rds/RdsInfo";
-import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import SqsInfo from "../../sqs/SqsInfo";
 
@@ -13,14 +11,6 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
 
   public static readonly CODE_DELIVERY_SLACK_URL_KEY =
     "/code/delivery/slack/url";
-  public static readonly CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY =
-    "/code/delivery/backend/ecr/repository/url";
-  public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY =
-    "/code/delivery/backend/cloudfront/distribution/id";
-  public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
-    "/code/delivery/backend/cloudfront/distribution/url";
-  public static readonly CODE_DELIVERY_BACKEND_EC2_HTTP_PORT_KEY =
-    "/code/delivery/backend/ec2/http/port";
   public static readonly CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_ARN_KEY =
     "/code/delivery/backend/sqs/request_scale_down/arn";
   public static readonly CODE_DELIVERY_BACKEND_SQS_REQUEST_SCALE_DOWN_URL_KEY =
@@ -32,16 +22,11 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
   public static readonly CODE_DELIVERY_BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_NAME_KEY =
     "/code/delivery/backend/lambda/scale_down/event_source/uuid";
 
-  constructor(
-    ecrInfo: EcrInfo,
-    rdsInfo: RdsInfo,
-    cloudFrontInfo: CloudFrontInfo,
-    sqsInfo: SqsInfo,
-  ) {
+  constructor(rdsInfo: RdsInfo, sqsInfo: SqsInfo) {
     super();
 
     this.setRdsInfo(rdsInfo);
-    this.setCodeDeliveryInfo(cloudFrontInfo, sqsInfo, ecrInfo);
+    this.setCodeDeliveryInfo(sqsInfo);
   }
 
   public setRdsInfo(rdsInfo: RdsInfo) {
@@ -74,45 +59,12 @@ export default class ParameterStoreInfo extends BaseAwsInfo {
     });
   }
 
-  private setCodeDeliveryInfo(
-    cloudFrontInfo: CloudFrontInfo,
-    sqsInfo: SqsInfo,
-    ecrInfo: EcrInfo,
-  ) {
+  private setCodeDeliveryInfo(sqsInfo: SqsInfo) {
     new aws.ssm.Parameter("code-delivery-slack-url", {
       name: ParameterStoreInfo.CODE_DELIVERY_SLACK_URL_KEY,
       description: "슬렉 알림 URL",
       type: aws.ssm.ParameterType.String,
       value: this.getSlackUrl(),
-    });
-
-    new aws.ssm.Parameter("code-delivery-backend-ecr-repository-url", {
-      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY,
-      description: "Backend ECR repository URL",
-      type: aws.ssm.ParameterType.String,
-      value: ecrInfo.privateRepositoryInfo.getPrivateRepositoryUrl(),
-    });
-
-    new aws.ssm.Parameter("code-delivery-backend-cloudfront-distribution-id", {
-      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY,
-      description: "Backend Distribution ID",
-      type: aws.ssm.ParameterType.String,
-      value: cloudFrontInfo.distributionInfo.getBackendDistributionId(),
-    });
-
-    new aws.ssm.Parameter("code-delivery-backend-cloudfront-distribution-url", {
-      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY,
-      description: "Backend Distribution URL",
-      type: aws.ssm.ParameterType.String,
-      value:
-        cloudFrontInfo.distributionInfo.getBackendDistributionFullDomainName(),
-    });
-
-    new aws.ssm.Parameter("code-delivery-backend-ec2-http-port", {
-      name: ParameterStoreInfo.CODE_DELIVERY_BACKEND_EC2_HTTP_PORT_KEY,
-      description: "EC2 HTTP Port",
-      type: aws.ssm.ParameterType.String,
-      value: `${8080}`,
     });
 
     new aws.ssm.Parameter("code-delivery-backend-sqs-request-scale-down-arn", {

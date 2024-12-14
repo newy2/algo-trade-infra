@@ -1,13 +1,17 @@
 import * as aws from "@pulumi/aws";
 import { Repository } from "@pulumi/aws/ecr";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import { AppEnv } from "../../../../util/enums";
+import { genName } from "../../../../util/utils";
 
 export default class RepositoryInfo extends BaseAwsInfo {
+  private readonly appEnv: AppEnv;
   private readonly privateRepository: Repository;
 
-  constructor() {
+  constructor(appEnv: AppEnv) {
     super();
 
+    this.appEnv = appEnv;
     this.privateRepository = this.createPrivateRepository();
   }
 
@@ -26,8 +30,10 @@ export default class RepositoryInfo extends BaseAwsInfo {
   }
 
   private createRepository() {
-    return new aws.ecr.Repository("backend-server-repository", {
-      name: this.getEcrPrivateRepositoryName(),
+    const name = genName(this.appEnv, "backend-server-repository");
+
+    return new aws.ecr.Repository(name, {
+      name,
       imageTagMutability: "MUTABLE",
       forceDelete: true,
     });
@@ -38,7 +44,8 @@ export default class RepositoryInfo extends BaseAwsInfo {
       return;
     }
 
-    new aws.ecr.LifecyclePolicy("cleanup-ecr-image-policy", {
+    const name = genName(this.appEnv, "cleanup-ecr-image-policy");
+    new aws.ecr.LifecyclePolicy(name, {
       repository: repository.name,
       policy: JSON.stringify({
         rules: [

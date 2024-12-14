@@ -9,12 +9,13 @@ import {
 } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
-  const ec2InstanceId = event.detail.EC2InstanceId;
+  const newestEc2InstanceId = event.detail.EC2InstanceId;
 
   const parameterStore = new ParameterStore();
-  console.time("create Slack");
+  console.time("Init ParameterStore");
   const slack = new Slack(await parameterStore.getSlackUrl());
-  console.timeEnd("create Slack");
+  const sqs = new Sqs(await parameterStore.getBackendRequestScaleDownSqsUrl());
+  console.timeEnd("Init ParameterStore");
 
   try {
     await isValidScaleUp(event, parameterStore);
@@ -22,33 +23,46 @@ export const handler = async (event) => {
     await slack.sendMessage("ASG 인스턴스 Scale Up 완료 이벤트 수신");
     await sleep(60 * 1000);
 
-    await slack.sendMessage("health check 시작");
-    const ec2 = new Ec2(ec2InstanceId, await parameterStore.getBackendEc2HttpPort());
-    const isHealthy = await ec2.checkHealthyApi();
-    await slack.sendMessage([
-      `health check 결과 (isHealth: ${isHealthy})`,
-      await ec2.getHealthCheckUrl()
-    ].join("\n"));
+    const appEnvList = process.env.APP_ENV_LIST.split(",");
+    if (appEnvList.length === 0) {
+      throw new Error(`APP_ENV_LIST 가 비었습니다.`);
+    }
 
-    const sqs = new Sqs(await parameterStore.getBackendRequestScaleDownSqsUrl());
-    if (!isHealthy) {
+    const updateFailReason = await Promise.allSettled(appEnvList.map(async (eachEnv) => {
+      await slack.sendMessage(`[${eachEnv}] health check 시작`);
+
+      const eachEnvParameterStore = new ParameterStore(eachEnv);
+      const eachEc2 = new Ec2(newestEc2InstanceId);
+      const eachEc2HttpPort = await eachEnvParameterStore.getBackendEc2HttpPort();
+      await slack.sendMessage(`[${eachEnv}] ${await eachEc2.getHealthCheckUrl(eachEc2HttpPort)}`);
+
+      // TODO ECR 유무에 따라 ec2 인증 진행하기
+      const isHealthy = await eachEc2.checkHealthyApi(eachEc2HttpPort);
+      if (!isHealthy) {
+        throw new Error(`[${eachEnv}] health check 실패`);
+      }
+      await slack.sendMessage(`[${eachEnv}] health check 성공`);
+
+      await slack.sendMessage(`[${eachEnv}] CF 업데이트 요청`);
+      const eachCloudFront = new CloudFront(await eachEnvParameterStore.getBackendDistributionId());
+      const isDeployed = await eachCloudFront.updateBackendOriginDomainName(await eachEc2.getPublicDnsName());
+      if (!isDeployed) {
+        throw new Error(`[${eachEnv}] CF 업데이트 실패`);
+      }
+      await slack.sendMessage(`[${eachEnv}] CF 업데이트 성공`);
+    })).then((results) => {
+      return results.find(each => each.status === "rejected")?.reason;
+    });
+
+    if (updateFailReason) {
       await slack.sendMessage("rollback 요청");
       await sqs.sendFailMessage();
       await slack.sendMessage("rollback 요청 완료");
-      return;
+      throw new Error(updateFailReason);
+    } else {
+      await sqs.sendDelaySuccessMessage();
+      await slack.sendMessage("SQS success 메세지 전송 완료");
     }
-
-    const cloudFront = new CloudFront(await parameterStore.getBackendDistributionId());
-
-    await slack.sendMessage("CF 업데이트 요청");
-    const isDeployed = await cloudFront.updateBackendOriginDomainName(await ec2.getPublicDnsName());
-    if (!isDeployed) {
-      throw new Error("CF 업데이트 실패");
-    }
-    await slack.sendMessage("CF 업데이트 성공");
-
-    await sqs.sendDelaySuccessMessage();
-    await slack.sendMessage("SQS success 메세지 전송 완료");
   } catch (error) {
     console.error(error);
     await slack.sendMessage(`[backend_delivery_verify_instance] 에러발생\n${error}`);

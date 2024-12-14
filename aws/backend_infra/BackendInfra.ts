@@ -1,27 +1,26 @@
-import EcrInfo from "./ecr/EcrInfo";
 import SqsInfo from "./sqs/SqsInfo";
 import { RdsInfo } from "./rds/RdsInfo";
 import Ec2Info from "./ec2/Ec2Info";
-import CloudFrontInfo from "./cloudfront/CloudFrontInfo";
 import LambdaInfo from "./lambda/LambdaInfo";
 import EventBridgeInfo from "./event_bridge/EventBridgeInfo";
 import SsmInfo from "./ssm/SsmInfo";
 import CommonInfra from "../common_infra/CommonInfra";
-import BackendVpcInfo from "./vpc/BackendVpcInfo";
+import BackendAppInfra from "../backend_app_infra/BackendAppInfra";
 
 export default class BackendInfra {
-  constructor(commonInfra: CommonInfra) {
-    const ecrInfo = new EcrInfo();
+  constructor(
+    commonInfra: CommonInfra,
+    backendAppInfraList: BackendAppInfra[],
+  ) {
     const sqsInfo = new SqsInfo();
     const rdsInfo = new RdsInfo(commonInfra.vpcInfo);
-    const backendVpcInfo = new BackendVpcInfo(commonInfra.vpcInfo);
-    new Ec2Info(commonInfra.vpcInfo, backendVpcInfo, commonInfra.iamInfo);
-    const cloudfrontInfo = new CloudFrontInfo();
+    new Ec2Info(commonInfra.vpcInfo, backendAppInfraList, commonInfra.iamInfo);
     const lambdaInfo = new LambdaInfo(
       commonInfra.iamInfo,
       commonInfra.lambdaInfo,
+      backendAppInfraList,
     );
-    new EventBridgeInfo(ecrInfo, lambdaInfo);
-    new SsmInfo(ecrInfo, rdsInfo, cloudfrontInfo, sqsInfo);
+    new EventBridgeInfo(backendAppInfraList, lambdaInfo);
+    new SsmInfo(rdsInfo, sqsInfo);
   }
 }

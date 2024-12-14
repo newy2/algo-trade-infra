@@ -33,19 +33,27 @@ export const handler = async (event) => {
       const ec2InstanceIds = await autoScaling.getEc2InstanceIds();
       const oldestEc2InstanceId = await (new Ec2List()).getOldestInstanceId(ec2InstanceIds);
 
-      const ec2 = new Ec2(oldestEc2InstanceId, await parameterStore.getBackendEc2HttpPort());
+      const ec2 = new Ec2(oldestEc2InstanceId);
       const oldestEc2DnsName = await ec2.getPublicDnsName();
 
-      // 관리자가 직접 롤백 요청을 한 경우 (EC2 health check 는 통과했지만, 비즈니스 로직 에러가 발생한 경우)
-      const cloudFront = new CloudFront(await parameterStore.getBackendDistributionId());
-      if (!await cloudFront.isCurrentOriginDomainName(oldestEc2DnsName)) {
-        await slack.sendMessage("CF 업데이트 요청");
-        const isDeployed = await cloudFront.updateBackendOriginDomainName(oldestEc2DnsName);
-        if (!isDeployed) {
-          throw new Error("CF 업데이트 실패");
-        }
-        await slack.sendMessage("CF 업데이트 성공");
+      const appEnvList = process.env.APP_ENV_LIST.split(",");
+      if (appEnvList.length === 0) {
+        throw new Error(`APP_ENV_LIST 가 비었습니다.`);
       }
+
+      // 관리자가 직접 롤백 요청을 한 경우 (EC2 health check 는 통과했지만, 비즈니스 로직 에러가 발생한 경우)
+      await Promise.all(appEnvList.map(async (eachEnv) => {
+        const eachEnvParameterStore = new ParameterStore(eachEnv);
+        const eachCloudFront = new CloudFront(await eachEnvParameterStore.getBackendDistributionId());
+        if (!await eachCloudFront.isCurrentOriginDomainName(oldestEc2DnsName)) {
+          await slack.sendMessage(`[${eachEnv}] CF 업데이트 요청`);
+          const isDeployed = await eachCloudFront.updateBackendOriginDomainName(oldestEc2DnsName);
+          if (!isDeployed) {
+            throw new Error(`[${eachEnv}] CF 업데이트 실패`);
+          }
+          await slack.sendMessage(`[${eachEnv}] CF 업데이트 성공`);
+        }
+      }));
     }
 
     await slack.sendMessage("ASG Scale Down 요청");

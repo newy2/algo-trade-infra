@@ -31,14 +31,6 @@ export default class BaseAwsInfo {
     return aws.getCallerIdentity().then((it) => it.accountId);
   }
 
-  protected getEc2ServerName() {
-    return "algo-trade-server";
-  }
-
-  protected getEcrPrivateRepositoryName() {
-    return "backend-server-repository";
-  }
-
   protected getFrontendBucketName() {
     return "algo-trade-frontend-bucket";
   }

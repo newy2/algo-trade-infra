@@ -4,16 +4,25 @@ import IamInfo from "../../../common_infra/iam/IamInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import LayerInfo from "../../../common_infra/lambda/additional_resource/LayerInfo";
 import * as path from "path";
+import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 
 export default class FunctionInfo extends BaseAwsInfo {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   public readonly backendDelivery: BackendDeliveryFunctionInfo;
 
-  constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
+  constructor(
+    iamInfo: IamInfo,
+    layerInfo: LayerInfo,
+    backendAppInfraList: BackendAppInfra[],
+  ) {
     super();
 
     this.cleanupEcrImageFunction = this.createCleanupEcrImageFunction(iamInfo);
-    this.backendDelivery = new BackendDeliveryFunctionInfo(iamInfo, layerInfo);
+    this.backendDelivery = new BackendDeliveryFunctionInfo(
+      iamInfo,
+      layerInfo,
+      backendAppInfraList,
+    );
   }
 
   public getCleanupEcrImageFunctionArn() {
@@ -36,9 +45,6 @@ export default class FunctionInfo extends BaseAwsInfo {
         path.join(__dirname, "script", "cleanup_ecr_image"),
       ),
       timeout: 10,
-      environment: {
-        variables: { REPOSITORY_NAME: this.getEcrPrivateRepositoryName() },
-      },
     });
   }
 }
@@ -50,7 +56,11 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
   private readonly verifyInstanceFunction: aws.lambda.Function;
   private readonly scaleDownFunction: aws.lambda.Function;
 
-  constructor(iamInfo: IamInfo, layerInfo: LayerInfo) {
+  constructor(
+    iamInfo: IamInfo,
+    layerInfo: LayerInfo,
+    backendAppInfraList: BackendAppInfra[],
+  ) {
     super();
 
     this.requestScaleDownQueueMappingFunction =
@@ -59,8 +69,13 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
     this.verifyInstanceFunction = this.createVerifyInstanceFunction(
       iamInfo,
       layerInfo,
+      backendAppInfraList,
     );
-    this.scaleDownFunction = this.createScaleDownFunction(iamInfo, layerInfo);
+    this.scaleDownFunction = this.createScaleDownFunction(
+      iamInfo,
+      layerInfo,
+      backendAppInfraList,
+    );
   }
 
   public getRequestScaleDownQueueMappingFunctionArn() {
@@ -92,7 +107,11 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
     });
   }
 
-  private createVerifyInstanceFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
+  private createVerifyInstanceFunction(
+    iamInfo: IamInfo,
+    layerInfo: LayerInfo,
+    backendAppInfraList: BackendAppInfra[],
+  ) {
     const name = "backend-delivery-verify-instance-lambda";
 
     return new aws.lambda.Function(name, {
@@ -106,10 +125,21 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       ),
       timeout: 10 * 60,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
+      environment: {
+        variables: {
+          APP_ENV_LIST: backendAppInfraList
+            .map((each) => each.appEnv)
+            .join(","),
+        },
+      },
     });
   }
 
-  private createScaleDownFunction(iamInfo: IamInfo, layerInfo: LayerInfo) {
+  private createScaleDownFunction(
+    iamInfo: IamInfo,
+    layerInfo: LayerInfo,
+    backendAppInfraList: BackendAppInfra[],
+  ) {
     const name = this.getBackendDeliveryScaleDownLambdaName();
 
     return new aws.lambda.Function(name, {
@@ -123,6 +153,13 @@ class BackendDeliveryFunctionInfo extends BaseAwsInfo {
       ),
       timeout: 10 * 60,
       layers: [layerInfo.getAwsSdkHelperLayerArn()],
+      environment: {
+        variables: {
+          APP_ENV_LIST: backendAppInfraList
+            .map((each) => each.appEnv)
+            .join(","),
+        },
+      },
     });
   }
 

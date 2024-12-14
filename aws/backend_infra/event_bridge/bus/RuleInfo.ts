@@ -1,21 +1,21 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import EcrInfo from "../../ecr/EcrInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import { EventRule } from "@pulumi/aws/cloudwatch";
 import LambdaInfo from "../../lambda/LambdaInfo";
+import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 
 export default class RuleInfo extends BaseAwsInfo {
-  constructor(ecrInfo: EcrInfo, lambdaInfo: LambdaInfo) {
+  constructor(backendAppInfraList: BackendAppInfra[], lambdaInfo: LambdaInfo) {
     super();
 
-    this.createPushEcrRepositoryEventRule(ecrInfo, lambdaInfo);
+    this.createPushEcrRepositoryEventRule(backendAppInfraList, lambdaInfo);
     this.createEc2InstanceScaleUpEventRule(lambdaInfo);
     this.createEc2InstanceScaleDownEventRule(lambdaInfo);
   }
 
   private createPushEcrRepositoryEventRule(
-    ecrInfo: EcrInfo,
+    backendAppInfraList: BackendAppInfra[],
     lambdaInfo: LambdaInfo,
   ) {
     const name = "ecr-image-pushed";
@@ -29,9 +29,9 @@ export default class RuleInfo extends BaseAwsInfo {
         detail: {
           "action-type": ["PUSH"],
           result: ["SUCCESS"],
-          "repository-name": [
-            ecrInfo.privateRepositoryInfo.getPrivateRepositoryName(),
-          ],
+          "repository-name": backendAppInfraList.map((each) =>
+            each.ecrInfo.privateRepositoryInfo.getPrivateRepositoryName(),
+          ),
         },
       }),
     });

@@ -1,12 +1,14 @@
 import * as aws from "@pulumi/aws";
 import { Distribution } from "@pulumi/aws/cloudfront";
 import * as pulumi from "@pulumi/pulumi";
+import { AppEnv } from "../../../../util/enums";
+import { genName } from "../../../../util/utils";
 
 export default class DistributionInfo {
   private readonly backendDistribution: Distribution;
 
-  constructor() {
-    this.backendDistribution = this.createBackendDistribution();
+  constructor(appEnv: AppEnv, httpPort: number) {
+    this.backendDistribution = this.createBackendDistribution(appEnv, httpPort);
   }
 
   public getBackendDistributionId() {
@@ -17,11 +19,12 @@ export default class DistributionInfo {
     return pulumi.interpolate`https://${this.backendDistribution.domainName}`;
   }
 
-  private createBackendDistribution() {
+  private createBackendDistribution(appEnv: AppEnv, httpPort: number) {
     const fakeEc2PublicDns = "compute.amazonaws.com";
+    const name = genName(appEnv, "backend-server-distribution");
 
-    return new aws.cloudfront.Distribution("backend-server-distribution", {
-      comment: "Backend Server distribution",
+    return new aws.cloudfront.Distribution(name, {
+      comment: `[${appEnv}] Backend Server distribution`,
       defaultCacheBehavior: {
         targetOriginId: fakeEc2PublicDns,
         viewerProtocolPolicy: "redirect-to-https",
@@ -44,7 +47,7 @@ export default class DistributionInfo {
       origins: [
         {
           customOriginConfig: {
-            httpPort: 8080,
+            httpPort: httpPort,
             httpsPort: 443,
             originProtocolPolicy: "http-only",
             originSslProtocols: ["SSLv3", "TLSv1", "TLSv1.1", "TLSv1.2"],

@@ -2,14 +2,13 @@ import { DescribeInstancesCommand, EC2Client } from "@aws-sdk/client-ec2";
 import { retryCall } from "./util/utils.mjs";
 
 export default class Ec2 {
-  constructor(instanceId, httpPort) {
+  constructor(instanceId) {
     this.ec2Client = new EC2Client();
     this.instanceId = instanceId;
-    this.httpPort = httpPort;
   }
 
-  async checkHealthyApi() {
-    const healthCheckUrl = await this.getHealthCheckUrl();
+  async checkHealthyApi(httpPort) {
+    const healthCheckUrl = await this.getHealthCheckUrl(httpPort);
 
     return await retryCall({
       retryCount: 60,
@@ -24,8 +23,8 @@ export default class Ec2 {
     });
   }
 
-  async getHealthCheckUrl() {
-    return `http://${await this.getPublicDnsName()}:${this.httpPort}/ping`;
+  async getHealthCheckUrl(httpPort) {
+    return `http://${await this.getPublicDnsName()}:${httpPort}/ping`;
   }
 
   async getPublicDnsName() {

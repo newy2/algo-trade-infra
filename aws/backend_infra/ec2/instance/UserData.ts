@@ -1,8 +1,6 @@
-import BaseAwsInfo from "../../BaseAwsInfo";
-import FrontendParameterStoreInfo from "../../../frontend_infra/ssm/application_management/ParameterStoreInfo";
-import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreInfo";
+import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 
-export default class UserData extends BaseAwsInfo {
+export default class UserData {
   private readonly updateYum = `#!/bin/bash
 sudo yum update -y`;
 
@@ -18,28 +16,11 @@ sudo mkswap /swapfile
 sudo swapon /swapfile
 echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab`;
 
-  private readonly runBackendServerContainer = `# 백엔드 서버 실행
-HTTP_PORT=$(aws ssm get-parameter --name "${ParameterStoreInfo.CODE_DELIVERY_BACKEND_EC2_HTTP_PORT_KEY}" --query "Parameter.Value" --output text)
-ECR_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY}" --query "Parameter.Value" --output text)
-DB_URL=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_ENDPOINT_KEY}" --query "Parameter.Value" --output text)
-DB_USERNAME=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_USERNAME_KEY}" --query "Parameter.Value" --output text)
-DB_PASSWORD=$(aws ssm get-parameter --name "${ParameterStoreInfo.RDS_PASSWORD_KEY}" --with-decryption --query "Parameter.Value" --output text)
-FRONTEND_URL=$(aws ssm get-parameter --name "${FrontendParameterStoreInfo.getCodeDeliveryFrontendDistributionUrlKey("prod")}" --with-decryption --query "Parameter.Value" --output text)
-aws ecr get-login-password --region ${this.getCurrentRegion()} | docker login --username AWS --password-stdin "$ECR_URL"
-docker pull "$ECR_URL":latest
-if docker images | grep latest > /dev/null; then
-  docker run -d \
--p $HTTP_PORT:$HTTP_PORT \
--e X_PORT=$PORT \
--e X_DB_URL=$DB_URL \
--e X_DB_URL=$DB_URL \
--e X_DB_USERNAME=$DB_USERNAME \
--e X_DB_PASSWORD=$DB_PASSWORD \
--e X_FRONTEND_URL=$FRONTEND_URL \
-"$ECR_URL";
-else
-  echo "Image not found. Container not started.";
-fi`;
+  private backendAppInfraList: BackendAppInfra[];
+
+  constructor(backendAppInfraList: BackendAppInfra[]) {
+    this.backendAppInfraList = backendAppInfraList;
+  }
 
   public toBase64String() {
     return Buffer.from(this.getUserData()).toString("base64");
@@ -50,7 +31,9 @@ fi`;
       this.updateYum,
       this.installDocker,
       this.setVirtualMemory,
-      this.runBackendServerContainer,
+      ...this.backendAppInfraList.map((each) =>
+        each.ec2Info.userData.getUserData(),
+      ),
     ].join("\n\n");
   }
 }

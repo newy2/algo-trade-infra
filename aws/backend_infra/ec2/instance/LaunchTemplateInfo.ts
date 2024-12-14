@@ -4,7 +4,7 @@ import VpcInfo from "../../../common_infra/vpc/VpcInfo";
 import BaseAwsInfo from "../../BaseAwsInfo";
 import UserData from "./UserData";
 import IamInfo from "../../../common_infra/iam/IamInfo";
-import BackendVpcInfo from "../../vpc/BackendVpcInfo";
+import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 
 export default class LaunchTemplateInfo extends BaseAwsInfo {
   private static FREE_TIER_OPTION = {
@@ -18,14 +18,14 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
 
   constructor(
     vpcInfo: VpcInfo,
-    backendVpcInfo: BackendVpcInfo,
+    backendAppInfraList: BackendAppInfra[],
     iamInfo: IamInfo,
   ) {
     super();
 
     this.backendServerLaunchTemplate = this.createBackendServerLaunchTemplate(
       vpcInfo,
-      backendVpcInfo,
+      backendAppInfraList,
       iamInfo,
     );
   }
@@ -36,7 +36,7 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
 
   private createBackendServerLaunchTemplate(
     vpcInfo: VpcInfo,
-    backendVpcInfo: BackendVpcInfo,
+    backendAppInfraList: BackendAppInfra[],
     iamInfo: IamInfo,
   ) {
     const name = "backend-server-launch-template";
@@ -62,18 +62,22 @@ export default class LaunchTemplateInfo extends BaseAwsInfo {
           deleteOnTermination: "true",
           securityGroups: vpcInfo.securityGroupInfo
             .getEc2SecurityGroupIds()
-            .concat(backendVpcInfo.securityGroupInfo.getHttpSecurityGroupId()),
+            .concat(
+              backendAppInfraList.map((each) =>
+                each.vpcInfo.securityGroupInfo.getHttpSecurityGroupId(),
+              ),
+            ),
         },
       ],
       tagSpecifications: [
         {
           resourceType: "instance",
           tags: {
-            Name: this.getEc2ServerName(),
+            Name: "algo-trade-server",
           },
         },
       ],
-      userData: new UserData().toBase64String(),
+      userData: new UserData(backendAppInfraList).toBase64String(),
     });
   }
 

@@ -1,7 +1,8 @@
 import { BatchDeleteImageCommand, DescribeImagesCommand, ECRClient } from "@aws-sdk/client-ecr";
 
 export const handler = async (event) => {
-  const repositoryName = process.env.REPOSITORY_NAME;
+  console.log("event", event);
+  const repositoryName = event.detail["repository-name"];
   const ecrClient = new ECRClient();
 
   try {
