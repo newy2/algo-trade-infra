@@ -50,6 +50,10 @@ export default class BaseAwsInfo {
     return true;
   }
 
+  protected isDevMode() {
+    return true;
+  }
+
   protected getRdsUsername() {
     return this.config.require("rds_username");
   }
@@ -60,6 +64,10 @@ export default class BaseAwsInfo {
 
   protected getSlackUrl() {
     return this.config.requireSecret("slack_url");
+  }
+
+  protected getLocalFrontendUrl() {
+    return this.config.require("local_frontend_url");
   }
 
   protected getBackendServerAutoScalingGroupName() {

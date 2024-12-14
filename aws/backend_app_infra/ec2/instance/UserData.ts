@@ -2,11 +2,14 @@ import FrontendInfraParameterStoreInfo from "../../../frontend_infra/ssm/applica
 import { AppEnv } from "../../../../util/enums";
 import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreInfo";
 import BackendInfraParameterStore from "../../../backend_infra/ssm/application_management/ParameterStoreInfo";
+import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 
-export default class UserData {
+export default class UserData extends BaseAwsInfo {
   private readonly appEnv: AppEnv;
 
   constructor(appEnv: AppEnv) {
+    super();
+
     this.appEnv = appEnv;
   }
 
@@ -36,7 +39,7 @@ if docker images | grep "$${ecrUrl}" > /dev/null; then
 -e X_DB_URL=$${dbUrl} \
 -e X_DB_USERNAME=$${dbUsername} \
 -e X_DB_PASSWORD=$${dbPassword} \
--e X_FRONTEND_URL=$${frontendUrl} \
+-e X_FRONTEND_URLS=$${frontendUrl}${this.isDevMode() ? `,${this.getLocalFrontendUrl()}` : ""} \
 "$${ecrUrl}";
 else
   echo "[${this.appEnv}] Image not found. Container not started.";
