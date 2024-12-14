@@ -10,12 +10,7 @@ export default class FrontendInfra {
   constructor(appEnv: AppEnv, commonInfra: CommonInfra) {
     const s3Info = new S3Info(appEnv);
     const cloudFrontInfo = new CloudFrontInfo(appEnv, s3Info);
-    const lambdaInfo = new LambdaInfo(
-      appEnv,
-      commonInfra.iamInfo,
-      s3Info,
-      commonInfra.lambdaInfo,
-    );
+    const lambdaInfo = new LambdaInfo(appEnv, commonInfra, s3Info);
     new SnsInfo(appEnv, lambdaInfo);
     new SsmInfo(appEnv, cloudFrontInfo);
   }
