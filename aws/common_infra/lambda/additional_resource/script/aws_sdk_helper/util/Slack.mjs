@@ -1,10 +1,10 @@
 export default class Slack {
   constructor(webhookUrl) {
-    this.webhookUrl = webhookUrl;
+    this._webhookUrl = webhookUrl;
   }
 
   async sendMessage(message) {
-    const response = await fetch(this.webhookUrl, {
+    const response = await fetch(this._webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -21,9 +21,9 @@ export default class ParameterStore {
   static _FRONTEND_BUCKET_NAME_KEY = "/code/delivery/{appEnv}/frontend/s3/bucket/name";
 
   constructor(appEnv) {
-    this.appEnv = appEnv;
-    this.ssmClient = new SSMClient();
-    this.deliveryParameters = undefined;
+    this._appEnv = appEnv;
+    this._ssmClient = new SSMClient();
+    this._deliveryParameters = undefined;
   }
 
   async getSlackUrl() {
@@ -71,7 +71,7 @@ export default class ParameterStore {
   }
 
   async setBackendDeliveryScaleDownLambdaEventSourceUuid(uuid) {
-    const response = await this.ssmClient.send(new PutParameterCommand({
+    const response = await this._ssmClient.send(new PutParameterCommand({
       Name: ParameterStore._BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY,
       Value: uuid,
       Type: "String",
@@ -88,7 +88,7 @@ export default class ParameterStore {
   }
 
   async deleteBackendDeliveryScaleDownLambdaEventSourceUuid() {
-    const response = await this.ssmClient.send(new DeleteParameterCommand({
+    const response = await this._ssmClient.send(new DeleteParameterCommand({
       Name: ParameterStore._BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_KEY
     }));
 
@@ -102,17 +102,17 @@ export default class ParameterStore {
   }
 
   async _getParameter(originKey) {
-    if (!this.deliveryParameters) {
-      this.deliveryParameters = await this._fetchParameter();
+    if (!this._deliveryParameters) {
+      this._deliveryParameters = await this._fetchParameter();
     }
 
-    const replaceKey = this._getReplaceKey(originKey, this.appEnv);
-    const result = this.deliveryParameters.find(each => each.Name === replaceKey);
+    const replaceKey = this._getReplaceKey(originKey, this._appEnv);
+    const result = this._deliveryParameters.find(each => each.Name === replaceKey);
     if (!result) {
-      console.error("[ParameterStore] this.deliveryParameters: ", JSON.stringify(this.deliveryParameters, null, 2));
+      console.error("[ParameterStore] this.deliveryParameters: ", JSON.stringify(this._deliveryParameters, null, 2));
       console.error("[ParameterStore] originKey: ", originKey);
       console.error("[ParameterStore] replaceKey: ", replaceKey);
-      throw Error(this.deliveryParameters);
+      throw Error(this._deliveryParameters);
     }
 
     return result.Value;
@@ -123,7 +123,7 @@ export default class ParameterStore {
     let nextToken = undefined;
 
     do {
-      const response = await this.ssmClient.send(new GetParametersByPathCommand({
+      const response = await this._ssmClient.send(new GetParametersByPathCommand({
         Path: "/code/delivery",
         Recursive: true,
         NextToken: nextToken

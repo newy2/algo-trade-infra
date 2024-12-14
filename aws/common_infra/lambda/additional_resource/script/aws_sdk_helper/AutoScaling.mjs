@@ -6,22 +6,22 @@ import {
 import { retryCall, validate } from "./util/utils.mjs";
 
 export default class AutoScaling {
-  static TERMINATION_POLICY = {
+  static _TERMINATION_POLICY = {
     NEWEST_INSTANCE: "NewestInstance",
     OLDEST_INSTANCE: "OldestInstance"
   };
-  static SCALE_UP_EC2_SIZE = 2;
-  static SCALE_DOWN_EC2_SIZE = 1;
+  static _SCALE_UP_EC2_SIZE = 2;
+  static _SCALE_DOWN_EC2_SIZE = 1;
 
   constructor(autoScalingGroupName) {
-    this.autoScalingClient = new AutoScalingClient();
-    this.autoScalingGroupName = autoScalingGroupName;
+    this._autoScalingClient = new AutoScalingClient();
+    this._autoScalingGroupName = autoScalingGroupName;
   }
 
   async scaleUp() {
-    const scaleUpInstanceSize = Math.min((await this.getEc2InstanceSize()) + 1, AutoScaling.SCALE_UP_EC2_SIZE);
-    const response = await this.autoScalingClient.send(new UpdateAutoScalingGroupCommand({
-      AutoScalingGroupName: this.autoScalingGroupName,
+    const scaleUpInstanceSize = Math.min((await this.getEc2InstanceSize()) + 1, AutoScaling._SCALE_UP_EC2_SIZE);
+    const response = await this._autoScalingClient.send(new UpdateAutoScalingGroupCommand({
+      AutoScalingGroupName: this._autoScalingGroupName,
       MinSize: scaleUpInstanceSize,
       MaxSize: scaleUpInstanceSize,
       DesiredCapacity: scaleUpInstanceSize
@@ -38,14 +38,14 @@ export default class AutoScaling {
 
   async scaleDown(isSuccess) {
     const terminatePolicy = isSuccess
-      ? AutoScaling.TERMINATION_POLICY.OLDEST_INSTANCE
-      : AutoScaling.TERMINATION_POLICY.NEWEST_INSTANCE;
+      ? AutoScaling._TERMINATION_POLICY.OLDEST_INSTANCE
+      : AutoScaling._TERMINATION_POLICY.NEWEST_INSTANCE;
 
-    const response = await this.autoScalingClient.send(new UpdateAutoScalingGroupCommand({
-      AutoScalingGroupName: this.autoScalingGroupName,
-      MinSize: AutoScaling.SCALE_DOWN_EC2_SIZE,
-      MaxSize: AutoScaling.SCALE_DOWN_EC2_SIZE,
-      DesiredCapacity: AutoScaling.SCALE_DOWN_EC2_SIZE,
+    const response = await this._autoScalingClient.send(new UpdateAutoScalingGroupCommand({
+      AutoScalingGroupName: this._autoScalingGroupName,
+      MinSize: AutoScaling._SCALE_DOWN_EC2_SIZE,
+      MaxSize: AutoScaling._SCALE_DOWN_EC2_SIZE,
+      DesiredCapacity: AutoScaling._SCALE_DOWN_EC2_SIZE,
       TerminationPolicies: [
         terminatePolicy
       ]
@@ -74,7 +74,7 @@ export default class AutoScaling {
 
 
   async canScaleDown() {
-    return AutoScaling.SCALE_UP_EC2_SIZE === await this.getEc2InstanceSize();
+    return AutoScaling._SCALE_UP_EC2_SIZE === await this.getEc2InstanceSize();
   }
 
   async checkInstanceTerminated() {
@@ -82,15 +82,15 @@ export default class AutoScaling {
       retryCount: 300,
       delay: 1000,
       func: async () => {
-        const response = await this.autoScalingClient.send(new DescribeAutoScalingInstancesCommand());
+        const response = await this._autoScalingClient.send(new DescribeAutoScalingInstancesCommand());
 
-        return AutoScaling.SCALE_DOWN_EC2_SIZE === response.AutoScalingInstances.length;
+        return AutoScaling._SCALE_DOWN_EC2_SIZE === response.AutoScalingInstances.length;
       }
     });
   }
 
   async _getRunningInstances() {
-    const response = await this.autoScalingClient.send(new DescribeAutoScalingInstancesCommand());
+    const response = await this._autoScalingClient.send(new DescribeAutoScalingInstancesCommand());
 
     return response.AutoScalingInstances
       .filter(each => each.LifecycleState === "InService");

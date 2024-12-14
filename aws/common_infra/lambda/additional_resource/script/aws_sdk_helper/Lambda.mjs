@@ -3,11 +3,11 @@ import { validate } from "./util/utils.mjs";
 
 export default class Lambda {
   constructor() {
-    this.lambdaClient = new LambdaClient();
+    this._lambdaClient = new LambdaClient();
   }
 
   async createEventSourceMapping({ eventSourceArn, functionName }) {
-    const response = await this.lambdaClient.send(new CreateEventSourceMappingCommand({
+    const response = await this._lambdaClient.send(new CreateEventSourceMappingCommand({
       EventSourceArn: eventSourceArn,
       FunctionName: functionName
     }));
@@ -24,7 +24,7 @@ export default class Lambda {
   }
 
   async deleteEventSourceMapping(uuid) {
-    const response = await this.lambdaClient.send(new DeleteEventSourceMappingCommand({
+    const response = await this._lambdaClient.send(new DeleteEventSourceMappingCommand({
       UUID: uuid
     }));
 

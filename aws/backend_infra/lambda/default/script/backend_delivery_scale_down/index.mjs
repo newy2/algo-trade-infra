@@ -9,7 +9,7 @@ import {
 } from "/opt/nodejs/aws_sdk_helper/index.mjs";
 
 export const handler = async (event) => {
-  const isSuccessMessage = event.Records[0].body === Sqs.SUCCESS_MESSAGE;
+  const isRequestRollback = !Sqs.isSuccessMessage(event.Records[0].body);
 
   const parameterStore = new ParameterStore();
   console.time("create Slack");
@@ -17,7 +17,7 @@ export const handler = async (event) => {
   console.timeEnd("create Slack");
 
   try {
-    await slack.sendMessage(`${isSuccessMessage ? "" : "[롤백] "} ASG Scale Down 진행`);
+    await slack.sendMessage(`${isRequestRollback ? "[롤백] " : ""} ASG Scale Down 진행`);
 
     const autoScaling = new AutoScaling(await parameterStore.getBackendAutoScalingGroupName());
     if (!(await autoScaling.canScaleDown())) {
@@ -25,7 +25,7 @@ export const handler = async (event) => {
       return;
     }
 
-    if (!isSuccessMessage) {
+    if (isRequestRollback) {
       const appEnvList = process.env.APP_ENV_LIST.split(",");
       if (appEnvList.length === 0) {
         throw new Error(`APP_ENV_LIST 가 비었습니다.`);
@@ -45,7 +45,7 @@ export const handler = async (event) => {
     await scaleDown({
       autoScaling,
       slack,
-      isSuccessMessage
+      isSuccess: !isRequestRollback
     });
   } catch (error) {
     console.error(error);
@@ -83,13 +83,13 @@ async function rollbackCloudFront({ appEnv, slack, oldestEc2DnsName }) {
   if (!isDeployed) {
     throw new Error(`[${appEnv}] CF 업데이트 실패`);
   }
-  
+
   await slack.sendMessage(`[${appEnv}] CF 업데이트 성공`);
 }
 
-async function scaleDown({ autoScaling, slack, isSuccessMessage }) {
+async function scaleDown({ autoScaling, slack, isSuccess }) {
   await slack.sendMessage("ASG Scale Down 요청");
-  await autoScaling.scaleDown(isSuccessMessage);
+  await autoScaling.scaleDown(isSuccess);
   const isTerminated = await autoScaling.checkInstanceTerminated();
   if (!isTerminated) {
     throw Error("ASG 사이즈 조정 실패");

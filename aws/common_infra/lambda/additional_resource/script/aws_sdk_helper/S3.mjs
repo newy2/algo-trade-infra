@@ -3,12 +3,12 @@ import { validate } from "./util/utils.mjs";
 
 export default class S3 {
   constructor(bucketName) {
-    this.s3Client = new S3Client();
-    this.bucketName = bucketName;
+    this._s3Client = new S3Client();
+    this._bucketName = bucketName;
   }
 
   async getObjectKeys() {
-    return (await this._fetchObjects(this.bucketName)).Contents.map((each) => each.Key);
+    return (await this._fetchObjects(this._bucketName)).Contents.map((each) => each.Key);
   }
 
   async deleteObjects(objectKeys) {
@@ -16,15 +16,15 @@ export default class S3 {
       return;
     }
 
-    const response = await this.s3Client.send(new DeleteObjectsCommand({
-      Bucket: this.bucketName,
+    const response = await this._s3Client.send(new DeleteObjectsCommand({
+      Bucket: this._bucketName,
       Delete: {
         Objects: objectKeys.map((each) => ({
           Key: each
         }))
       }
     }));
-    
+
     validate([
       {
         key: "responseStatusCode",
@@ -40,8 +40,8 @@ export default class S3 {
   }
 
   async _fetchObjects() {
-    return await this.s3Client.send(new ListObjectsV2Command({
-      Bucket: this.bucketName
+    return await this._s3Client.send(new ListObjectsV2Command({
+      Bucket: this._bucketName
     }));
   }
 }

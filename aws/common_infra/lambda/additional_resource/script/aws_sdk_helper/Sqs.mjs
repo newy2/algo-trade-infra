@@ -2,15 +2,19 @@ import { GetQueueAttributesCommand, PurgeQueueCommand, SendMessageCommand, SQSCl
 import { validate } from "./util/utils.mjs";
 
 export default class Sqs {
-  static SUCCESS_MESSAGE = "success";
+  static _SUCCESS_MESSAGE = "success";
 
   constructor(sqsUrl) {
-    this.sqsClient = new SQSClient();
-    this.sqsUrl = sqsUrl;
+    this._sqsClient = new SQSClient();
+    this._sqsUrl = sqsUrl;
+  }
+
+  static isSuccessMessage(message) {
+    return Sqs._SUCCESS_MESSAGE === message;
   }
 
   async sendDelaySuccessMessage() {
-    await this._sendMessage(Sqs.SUCCESS_MESSAGE, 5 * 60);
+    await this._sendMessage(Sqs._SUCCESS_MESSAGE, 5 * 60);
   }
 
   async sendFailMessage() {
@@ -18,8 +22,8 @@ export default class Sqs {
   }
 
   async hasDelayMessage() {
-    const result = await this.sqsClient.send(new GetQueueAttributesCommand({
-      QueueUrl: this.sqsUrl,
+    const result = await this._sqsClient.send(new GetQueueAttributesCommand({
+      QueueUrl: this._sqsUrl,
       AttributeNames: ["ApproximateNumberOfMessagesDelayed"]
     }));
 
@@ -27,8 +31,8 @@ export default class Sqs {
   }
 
   async purgeQueue() {
-    const response = await this.sqsClient.send(new PurgeQueueCommand({
-      QueueUrl: this.sqsUrl
+    const response = await this._sqsClient.send(new PurgeQueueCommand({
+      QueueUrl: this._sqsUrl
     }));
 
     validate([
@@ -41,8 +45,8 @@ export default class Sqs {
   }
 
   async _sendMessage(message, delaySeconds) {
-    const response = await this.sqsClient.send(new SendMessageCommand({
-      QueueUrl: this.sqsUrl,
+    const response = await this._sqsClient.send(new SendMessageCommand({
+      QueueUrl: this._sqsUrl,
       MessageBody: message,
       DelaySeconds: delaySeconds
     }));

@@ -5,7 +5,7 @@ export default class FrontendRollbackModel extends BaseFrontendModel {
 
   constructor(objectKeys) {
     super(objectKeys);
-    this.folders = this._getSortedFolders();
+    this._folders = this._getSortedFolders();
   }
 
   getDistributionOriginPath() {
@@ -13,7 +13,7 @@ export default class FrontendRollbackModel extends BaseFrontendModel {
       throw new Error("롤벡할 수 없습니다.");
     }
 
-    return this._toOriginPath(this._getSecondFolder(this.folders));
+    return this._toOriginPath(this._getSecondFolder(this._folders));
   }
 
   getDeleteS3ObjectKeys() {
@@ -21,10 +21,10 @@ export default class FrontendRollbackModel extends BaseFrontendModel {
       return [];
     }
 
-    return this._filterDeleteObjectKeys([this._getFirstFolder(this.folders)]);
+    return this._filterDeleteObjectKeys([this._getFirstFolder(this._folders)]);
   }
 
   _isInvalidRollback() {
-    return this.folders.length < this._REQUIRE_MIN_FOLDER_COUNT;
+    return this._folders.length < this._REQUIRE_MIN_FOLDER_COUNT;
   }
 }

@@ -3,8 +3,8 @@ import { retryCall } from "./util/utils.mjs";
 
 export default class Ec2 {
   constructor(instanceId) {
-    this.ec2Client = new EC2Client();
-    this.instanceId = instanceId;
+    this._ec2Client = new EC2Client();
+    this._instanceId = instanceId;
   }
 
   async checkHealthyApi(httpPort) {
@@ -33,8 +33,8 @@ export default class Ec2 {
 
   async _getInstance() {
     if (!this.instance) {
-      const response = await this.ec2Client.send(new DescribeInstancesCommand({
-        InstanceIds: [this.instanceId]
+      const response = await this._ec2Client.send(new DescribeInstancesCommand({
+        InstanceIds: [this._instanceId]
       }));
       this.instance = response.Reservations[0].Instances[0];
     }

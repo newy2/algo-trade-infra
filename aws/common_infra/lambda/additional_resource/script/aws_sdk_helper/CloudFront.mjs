@@ -9,8 +9,8 @@ import { retryCall, validate } from "./util/utils.mjs";
 
 export default class CloudFront {
   constructor(distributionId) {
-    this.cloudFrontClient = new CloudFrontClient();
-    this.distributionId = distributionId;
+    this._cloudFrontClient = new CloudFrontClient();
+    this._distributionId = distributionId;
   }
 
   async isCurrentOriginDomainName(dnsName) {
@@ -30,14 +30,14 @@ export default class CloudFront {
   }
 
   async _getDistributionConfig() {
-    return await this.cloudFrontClient.send(new GetDistributionConfigCommand({
-      Id: this.distributionId
+    return await this._cloudFrontClient.send(new GetDistributionConfigCommand({
+      Id: this._distributionId
     }));
   }
 
   async _updateOriginDomainName(dnsName) {
-    const distributionId = this.distributionId;
-    const configResponse = await this.cloudFrontClient.send(new GetDistributionConfigCommand({
+    const distributionId = this._distributionId;
+    const configResponse = await this._cloudFrontClient.send(new GetDistributionConfigCommand({
       Id: distributionId
     }));
 
@@ -47,7 +47,7 @@ export default class CloudFront {
     DistributionConfig.Origins.Items[0].DomainName = dnsName;
     DistributionConfig.DefaultCacheBehavior.TargetOriginId = dnsName;
 
-    const response = await this.cloudFrontClient.send(new UpdateDistributionCommand({
+    const response = await this._cloudFrontClient.send(new UpdateDistributionCommand({
       DistributionConfig,
       Id: distributionId,
       IfMatch: ETag
@@ -79,16 +79,16 @@ export default class CloudFront {
   }
 
   async _updateDistributionOriginPath(originPath) {
-    const configResponse = await this.cloudFrontClient.send(new GetDistributionConfigCommand({
-      Id: this.distributionId
+    const configResponse = await this._cloudFrontClient.send(new GetDistributionConfigCommand({
+      Id: this._distributionId
     }));
 
     const { DistributionConfig, ETag } = configResponse;
     DistributionConfig.Origins.Items[0].OriginPath = originPath;
 
-    const response = await this.cloudFrontClient.send(new UpdateDistributionCommand({
+    const response = await this._cloudFrontClient.send(new UpdateDistributionCommand({
       DistributionConfig,
-      Id: this.distributionId,
+      Id: this._distributionId,
       IfMatch: ETag
     }));
 
@@ -108,8 +108,8 @@ export default class CloudFront {
 
   async _sendInvalidationAll() {
     const allPath = "/*";
-    const response = await this.cloudFrontClient.send(new CreateInvalidationCommand({
-      DistributionId: this.distributionId,
+    const response = await this._cloudFrontClient.send(new CreateInvalidationCommand({
+      DistributionId: this._distributionId,
       InvalidationBatch: {
         CallerReference: `${Date.now()}`,
         Paths: {
@@ -138,8 +138,8 @@ export default class CloudFront {
       retryCount: 300,
       delay: 1000,
       func: async () => {
-        const response = await this.cloudFrontClient.send(new GetDistributionCommand({
-          Id: this.distributionId
+        const response = await this._cloudFrontClient.send(new GetDistributionCommand({
+          Id: this._distributionId
         }));
 
         return "Deployed" === response.Distribution.Status;
