@@ -19,11 +19,12 @@ export default class AutoScaling {
   }
 
   async scaleUp() {
+    const scaleUpInstanceSize = Math.min((await this.getEc2InstanceSize()) + 1, AutoScaling.SCALE_UP_EC2_SIZE);
     const response = await this.autoScalingClient.send(new UpdateAutoScalingGroupCommand({
       AutoScalingGroupName: this.autoScalingGroupName,
-      MinSize: AutoScaling.SCALE_UP_EC2_SIZE,
-      MaxSize: AutoScaling.SCALE_UP_EC2_SIZE,
-      DesiredCapacity: AutoScaling.SCALE_UP_EC2_SIZE
+      MinSize: scaleUpInstanceSize,
+      MaxSize: scaleUpInstanceSize,
+      DesiredCapacity: scaleUpInstanceSize
     }));
 
     validate([
@@ -59,19 +60,21 @@ export default class AutoScaling {
     ]);
   }
 
+  async getEc2InstanceSize() {
+    const runningInstances = await this._getRunningInstances();
+
+    return runningInstances.length;
+  }
+
   async getEc2InstanceIds() {
-    const runningInstances = await this._getInServiceInstances();
+    const runningInstances = await this._getRunningInstances();
 
     return runningInstances.map(each => each.InstanceId);
   }
 
 
-  async validateEc2InstanceSize() {
-    const runningInstances = await this._getInServiceInstances();
-
-    if (AutoScaling.SCALE_UP_EC2_SIZE !== runningInstances.length) {
-      throw Error(`인스턴스 개수가 다릅니다. 롤백 가능한 EC2 인스턴스가 없습니다. (runningInstanceCount: ${runningInstances.length}, SCALE_UP_EC2_SIZE: ${AutoScaling.SCALE_UP_EC2_SIZE})`);
-    }
+  async canScaleDown() {
+    return AutoScaling.SCALE_UP_EC2_SIZE === await this.getEc2InstanceSize();
   }
 
   async checkInstanceTerminated() {
@@ -86,7 +89,7 @@ export default class AutoScaling {
     });
   }
 
-  async _getInServiceInstances() {
+  async _getRunningInstances() {
     const response = await this.autoScalingClient.send(new DescribeAutoScalingInstancesCommand());
 
     return response.AutoScalingInstances

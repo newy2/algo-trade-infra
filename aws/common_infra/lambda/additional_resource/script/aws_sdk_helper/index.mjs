@@ -8,7 +8,7 @@ import PrivateEcr from "./PrivateEcr.mjs";
 import Sqs from "./Sqs.mjs";
 import S3 from "./S3.mjs";
 import Slack from "./util/Slack.mjs";
-import { isValidScaleUp, sleep } from "./util/utils.mjs";
+import { sleep } from "./util/utils.mjs";
 
 export {
   AutoScaling,
@@ -21,6 +21,5 @@ export {
   Sqs,
   S3,
   Slack,
-  sleep,
-  isValidScaleUp
+  sleep
 };

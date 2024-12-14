@@ -20,9 +20,9 @@ export default class AutoScalingInfo extends BaseAwsInfo {
     const name = this.getBackendServerAutoScalingGroupName();
     return new aws.autoscaling.Group(name, {
       name,
-      desiredCapacity: 1,
-      maxSize: 1,
-      minSize: 1,
+      desiredCapacity: 0,
+      maxSize: 0,
+      minSize: 0,
       vpcZoneIdentifiers: [
         commonInfra.vpcInfo.subnetInfo.getFirstPublicSubnetId(),
       ],
