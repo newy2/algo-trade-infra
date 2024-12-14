@@ -1,6 +1,6 @@
 import LayerInfo from "./additional_resource/LayerInfo";
 
-export default class CommonLambdaInfo {
+export default class LambdaInfo {
   readonly layerInfo: LayerInfo;
 
   constructor() {
