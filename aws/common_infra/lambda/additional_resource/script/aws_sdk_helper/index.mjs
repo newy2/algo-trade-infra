@@ -4,6 +4,7 @@ import Ec2 from "./Ec2.mjs";
 import Ec2List from "./Ec2List.mjs";
 import Lambda from "./Lambda.mjs";
 import ParameterStore from "./ParameterStore.mjs";
+import PrivateEcr from "./PrivateEcr.mjs";
 import Sqs from "./Sqs.mjs";
 import S3 from "./S3.mjs";
 import Slack from "./util/Slack.mjs";
@@ -16,6 +17,7 @@ export {
   Ec2List,
   Lambda,
   ParameterStore,
+  PrivateEcr,
   Sqs,
   S3,
   Slack,

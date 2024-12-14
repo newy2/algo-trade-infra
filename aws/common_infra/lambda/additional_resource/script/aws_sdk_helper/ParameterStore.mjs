@@ -16,6 +16,7 @@ export default class ParameterStore {
 
   static _BACKEND_DISTRIBUTION_ID_KEY = "/code/delivery/{appEnv}/backend/cloudfront/distribution/id";
   static _BACKEND_EC2_HTTP_PORT_KEY = "/code/delivery/{appEnv}/backend/ec2/http/port";
+  static _BACKEND_ECR_REPOSITORY_NAME_KEY = "/code/delivery/{appEnv}/backend/ecr/repository/name";
   static _FRONTEND_DISTRIBUTION_ID_KEY = "/code/delivery/{appEnv}/frontend/cloudfront/distribution/id";
   static _FRONTEND_BUCKET_NAME_KEY = "/code/delivery/{appEnv}/frontend/s3/bucket/name";
 
@@ -39,6 +40,10 @@ export default class ParameterStore {
 
   async getBackendEc2HttpPort() {
     return await this._getParameter(ParameterStore._BACKEND_EC2_HTTP_PORT_KEY);
+  }
+
+  async getBackendEcrRepositoryName() {
+    return await this._getParameter(ParameterStore._BACKEND_ECR_REPOSITORY_NAME_KEY);
   }
 
   async getBackendRequestScaleDownSqsArn() {

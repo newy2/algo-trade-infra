@@ -7,6 +7,8 @@ import { genName } from "../../../../util/utils";
 export default class ParameterStoreInfo {
   public static readonly CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY =
     "/code/delivery/{appEnv}/backend/ecr/repository/url";
+  public static readonly CODE_DELIVERY_BACKEND_ECR_REPOSITORY_NAME_KEY =
+    "/code/delivery/{appEnv}/backend/ecr/repository/name";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_ID_KEY =
     "/code/delivery/{appEnv}/backend/cloudfront/distribution/id";
   public static readonly CODE_DELIVERY_BACKEND_DISTRIBUTION_URL_KEY =
@@ -26,6 +28,13 @@ export default class ParameterStoreInfo {
   public static getCodeDeliveryBackendEcrRepositoryUrl(appEnv: AppEnv) {
     return this.getReplaceKey(
       this.CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY,
+      appEnv,
+    );
+  }
+
+  public static getCodeDeliveryBackendEcrRepositoryName(appEnv: AppEnv) {
+    return this.getReplaceKey(
+      this.CODE_DELIVERY_BACKEND_ECR_REPOSITORY_NAME_KEY,
       appEnv,
     );
   }
@@ -68,6 +77,13 @@ export default class ParameterStoreInfo {
       description: `[${appEnv}] Backend ECR repository URL`,
       type: aws.ssm.ParameterType.String,
       value: ecrInfo.privateRepositoryInfo.getPrivateRepositoryUrl(),
+    });
+
+    new aws.ssm.Parameter(genName(prefix, "ecr-repository-name"), {
+      name: ParameterStoreInfo.getCodeDeliveryBackendEcrRepositoryName(appEnv),
+      description: `[${appEnv}] Backend ECR repository name`,
+      type: aws.ssm.ParameterType.String,
+      value: ecrInfo.privateRepositoryInfo.getPrivateRepositoryName(),
     });
 
     new aws.ssm.Parameter(genName(prefix, "cloudfront-distribution-id"), {

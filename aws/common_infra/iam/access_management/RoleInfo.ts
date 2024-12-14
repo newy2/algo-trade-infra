@@ -198,6 +198,11 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
           policyInfo.backendCodeDeliveryPolicyInfo.getAutoScalingGroupReadPolicyArn(),
       },
       {
+        key: "EcrImageReadPolicy",
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getEcrImageReadPolicyArn(),
+      },
+      {
         key: "CloudFrontUpdatePolicy",
         value: policyInfo.getCloudFrontUpdatePolicyArn(),
       },

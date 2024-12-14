@@ -3,6 +3,7 @@ import {
   Ec2,
   isValidScaleUp,
   ParameterStore,
+  PrivateEcr,
   Slack,
   sleep,
   Sqs
@@ -18,20 +19,26 @@ export const handler = async (event) => {
   console.timeEnd("Init ParameterStore");
 
   try {
-    await isValidScaleUp(event, parameterStore);
-
     await slack.sendMessage("ASG 인스턴스 Scale Up 완료 이벤트 수신");
-    await sleep(60 * 1000);
-
+    await isValidScaleUp(event, parameterStore);
     const appEnvList = process.env.APP_ENV_LIST.split(",");
     if (appEnvList.length === 0) {
       throw new Error(`APP_ENV_LIST 가 비었습니다.`);
     }
 
-    const updateFailReason = await Promise.allSettled(appEnvList.map(async (eachEnv) => {
-      await slack.sendMessage(`[${eachEnv}] health check 시작`);
+    const sleepSeconds = 60;
+    await slack.sendMessage(`health check 대기 (${sleepSeconds} 초)`);
+    await sleep(sleepSeconds * 1000);
 
+    const updateFailReason = await Promise.allSettled(appEnvList.map(async (eachEnv) => {
       const eachEnvParameterStore = new ParameterStore(eachEnv);
+      const repositoryName = await eachEnvParameterStore.getBackendEcrRepositoryName();
+      if (await (new PrivateEcr()).getImageCount(repositoryName) === 0) {
+        await slack.sendMessage(`[${eachEnv}] ECR 이미지가 없습니다`);
+        return;
+      }
+
+      await slack.sendMessage(`[${eachEnv}] health check 시작`);
       const eachEc2 = new Ec2(newestEc2InstanceId);
       const eachEc2HttpPort = await eachEnvParameterStore.getBackendEc2HttpPort();
       await slack.sendMessage(`[${eachEnv}] ${await eachEc2.getHealthCheckUrl(eachEc2HttpPort)}`);

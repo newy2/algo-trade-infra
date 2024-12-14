@@ -69,6 +69,7 @@ class BackendCodeDeliveryPolicyInfo extends BaseAwsInfo {
   private readonly autoScalingGroupReadPolicy: Policy;
   private readonly autoScalingGroupUpdatePolicy: Policy;
   private readonly parameterStoreUpdatePolicy: Policy;
+  private readonly ecrImageReadPolicy: Policy;
   private readonly lambdaEventSourceMappingUpdatePolicy: Policy;
 
   constructor() {
@@ -82,6 +83,7 @@ class BackendCodeDeliveryPolicyInfo extends BaseAwsInfo {
     this.autoScalingGroupUpdatePolicy =
       this.createAutoScalingGroupUpdatePolicy();
     this.parameterStoreUpdatePolicy = this.createParameterStoreUpdatePolicy();
+    this.ecrImageReadPolicy = this.createEcrImageReadPolicy();
     this.lambdaEventSourceMappingUpdatePolicy =
       this.createLambdaEventSourceMappingUpdatePolicy();
   }
@@ -104,6 +106,10 @@ class BackendCodeDeliveryPolicyInfo extends BaseAwsInfo {
 
   public getParameterStoreUpdatePolicyArn() {
     return this.parameterStoreUpdatePolicy.arn;
+  }
+
+  public getEcrImageReadPolicyArn() {
+    return this.ecrImageReadPolicy.arn;
   }
 
   public getChangeLambdaEventSourceMappingPolicyArn() {
@@ -188,6 +194,21 @@ class BackendCodeDeliveryPolicyInfo extends BaseAwsInfo {
             Effect: "Allow",
             Action: ["ssm:PutParameter", "ssm:DeleteParameter"],
             Resource: pulumi.interpolate`arn:aws:ssm:${this.getCurrentRegion()}:${this.getAccountId()}:parameter${ParameterStoreInfo.CODE_DELIVERY_BACKEND_SCALE_DOWN_LAMBDA_EVENT_SOURCE_UUID_NAME_KEY}`,
+          },
+        ],
+      },
+    });
+  }
+
+  private createEcrImageReadPolicy() {
+    return new aws.iam.Policy("code-delivery-ecr-image-read-policy", {
+      policy: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: "ecr:DescribeImages",
+            Resource: "*",
           },
         ],
       },
