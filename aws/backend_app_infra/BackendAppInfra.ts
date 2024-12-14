@@ -18,12 +18,12 @@ export default class BackendAppInfra {
   public readonly ec2Info: Ec2Info;
   public readonly vpcInfo: VpcInfo;
 
-  constructor(param: BackendAppInfraParam) {
-    this.appEnv = param.appEnv;
-    this.ecrInfo = new EcrInfo(param.appEnv);
-    this.ec2Info = new Ec2Info(param.appEnv);
-    this.vpcInfo = new VpcInfo(param.appEnv, param.httpPort, param.commonInfra);
-    const cloudFrontInfo = new CloudFrontInfo(param.appEnv, param.httpPort);
-    new SsmInfo(param.appEnv, param.httpPort, this.ecrInfo, cloudFrontInfo);
+  constructor({ appEnv, httpPort, commonInfra }: BackendAppInfraParam) {
+    this.appEnv = appEnv;
+    this.ecrInfo = new EcrInfo(appEnv);
+    this.ec2Info = new Ec2Info(appEnv);
+    this.vpcInfo = new VpcInfo(appEnv, httpPort, commonInfra);
+    const cloudFrontInfo = new CloudFrontInfo(appEnv, httpPort);
+    new SsmInfo(appEnv, httpPort, this.ecrInfo, cloudFrontInfo);
   }
 }

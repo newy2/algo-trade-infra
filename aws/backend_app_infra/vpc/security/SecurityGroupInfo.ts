@@ -1,7 +1,6 @@
 import { ProtocolType } from "@pulumi/aws/types/enums/ec2";
 import { SecurityGroup } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
-import { ID, Output } from "@pulumi/pulumi";
 import { ALLOW_ALL_ACCESS } from "../../../../util/consts";
 import { AppEnv } from "../../../../util/enums";
 import { genName } from "../../../../util/utils";
@@ -15,11 +14,7 @@ export default class SecurityGroupInfo {
   private readonly http: SecurityGroup;
 
   constructor(appEnv: AppEnv, httpPort: number, commonInfra: CommonInfra) {
-    this.http = this.createHttpSecurityGroup(
-      appEnv,
-      httpPort,
-      commonInfra.vpcInfo.defaultVpc.id,
-    );
+    this.http = this.createHttpSecurityGroup(appEnv, httpPort, commonInfra);
   }
 
   public getHttpSecurityGroupId() {
@@ -29,7 +24,7 @@ export default class SecurityGroupInfo {
   private createHttpSecurityGroup(
     appEnv: AppEnv,
     httpPort: number,
-    defaultVpcId: Output<ID>,
+    commonInfra: CommonInfra,
   ) {
     const cidrBlockMap: SecurityGroupCidrBlockMap = {
       cidrBlocks: ["0.0.0.0/0"],
@@ -37,7 +32,7 @@ export default class SecurityGroupInfo {
 
     const port = httpPort;
     return new aws.ec2.SecurityGroup(genName(appEnv, "http-security-group"), {
-      vpcId: defaultVpcId,
+      vpcId: commonInfra.vpcInfo.defaultVpc.id,
       ingress: [
         {
           protocol: ProtocolType.TCP,
