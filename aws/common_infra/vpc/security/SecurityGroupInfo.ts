@@ -4,6 +4,7 @@ import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
 import { ALLOW_ALL_ACCESS } from "../../../../util/consts";
+import { createNameTag } from "../../../../util/utils";
 
 export default class SecurityGroupInfo extends BaseAwsInfo {
   private readonly defaultVpcId: pulumi.Output<string>;
@@ -98,7 +99,7 @@ export default class SecurityGroupInfo extends BaseAwsInfo {
   }
 
   private changeDefaultSecurityGroupName(defaultVpc: DefaultVpc) {
-    this.createNameTag("default-security-group-name", {
+    createNameTag("default-security-group-name", {
       resourceId: defaultVpc.defaultSecurityGroupId,
       value: "NOT USED",
     });

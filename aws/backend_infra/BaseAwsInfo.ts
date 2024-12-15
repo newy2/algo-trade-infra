@@ -35,17 +35,6 @@ export default class BaseAwsInfo {
     return "algo-trade-frontend-bucket";
   }
 
-  protected createNameTag(
-    name: string,
-    args: { resourceId: pulumi.Input<string>; value: string },
-  ) {
-    return new aws.ec2.Tag(name, {
-      resourceId: args.resourceId,
-      key: "Name",
-      value: args.value,
-    });
-  }
-
   protected isFastCleanupEcrImage() {
     return true;
   }

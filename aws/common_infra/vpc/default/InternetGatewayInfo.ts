@@ -2,6 +2,7 @@ import { Output } from "@pulumi/pulumi";
 import { DefaultVpc, GetInternetGatewayResult } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
 import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import { createNameTag } from "../../../../util/utils";
 
 export default class InternetGatewayInfo extends BaseAwsInfo {
   private readonly internetGateway: Output<GetInternetGatewayResult>;
@@ -28,7 +29,7 @@ export default class InternetGatewayInfo extends BaseAwsInfo {
       });
 
     const changeResourceName = (resource: GetInternetGatewayResult) => {
-      this.createNameTag("default-internet-gateway-name", {
+      createNameTag("default-internet-gateway-name", {
         resourceId: resource.id,
         value: "Default Internet Gateway",
       });
