@@ -2,11 +2,11 @@ import { ProtocolType } from "@pulumi/aws/types/enums/ec2";
 import { DefaultVpc, SecurityGroup } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import { ALLOW_ALL_ACCESS } from "../../../../util/consts";
 import { createNameTag } from "../../../../util/utils";
 
-export default class SecurityGroupInfo extends BaseAwsInfo {
+export default class SecurityGroupInfo extends AwsConfig {
   private readonly defaultVpcId: pulumi.Output<string>;
   private readonly ssh: SecurityGroup;
   private readonly rdsClient: SecurityGroup;

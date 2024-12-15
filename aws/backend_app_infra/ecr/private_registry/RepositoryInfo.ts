@@ -1,10 +1,10 @@
 import * as aws from "@pulumi/aws";
 import { Repository } from "@pulumi/aws/ecr";
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import { AppEnv } from "../../../../util/enums";
 import { genName } from "../../../../util/utils";
 
-export default class RepositoryInfo extends BaseAwsInfo {
+export default class RepositoryInfo extends AwsConfig {
   private readonly appEnv: AppEnv;
   private readonly privateRepository: Repository;
 

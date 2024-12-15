@@ -1,6 +1,6 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
-import BaseAwsInfo from "../aws/backend_infra/BaseAwsInfo";
+import AwsConfig from "./AwsConfig";
 
 type ManagedPolicyArn = string;
 type CustomPolicyArn = {
@@ -9,7 +9,7 @@ type CustomPolicyArn = {
 };
 type PolicyArn = ManagedPolicyArn | CustomPolicyArn;
 
-export default class BaseRoleInfo extends BaseAwsInfo {
+export default class BaseRoleInfo extends AwsConfig {
   protected static AssumeRoleKey = {
     EC2: "ec2.amazonaws.com",
     LAMBDA: "lambda.amazonaws.com",

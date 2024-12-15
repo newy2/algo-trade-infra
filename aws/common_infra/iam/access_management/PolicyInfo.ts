@@ -1,10 +1,10 @@
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
 import { Policy } from "@pulumi/aws/iam";
 import ParameterStoreInfo from "../../../backend_infra/ssm/application_management/ParameterStoreInfo";
 
-export default class PolicyInfo extends BaseAwsInfo {
+export default class PolicyInfo extends AwsConfig {
   private readonly cloudFrontUpdatePolicy: Policy;
   private readonly codeDeliveryParameterStoreReadPolicy: Policy;
   public readonly backendCodeDeliveryPolicyInfo: BackendCodeDeliveryPolicyInfo;
@@ -63,7 +63,7 @@ export default class PolicyInfo extends BaseAwsInfo {
   }
 }
 
-class BackendCodeDeliveryPolicyInfo extends BaseAwsInfo {
+class BackendCodeDeliveryPolicyInfo extends AwsConfig {
   private readonly requestScaleDownQueueSendMessagePolicy: Policy;
   private readonly requestScaleDownQueuePurgeQueuePolicy: Policy;
   private readonly autoScalingGroupReadPolicy: Policy;

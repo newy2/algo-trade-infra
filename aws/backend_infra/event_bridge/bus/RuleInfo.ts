@@ -1,11 +1,11 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import { EventRule } from "@pulumi/aws/cloudwatch";
 import LambdaInfo from "../../lambda/LambdaInfo";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 
-export default class RuleInfo extends BaseAwsInfo {
+export default class RuleInfo extends AwsConfig {
   constructor(backendAppInfraList: BackendAppInfra[], lambdaInfo: LambdaInfo) {
     super();
 

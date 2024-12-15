@@ -2,9 +2,9 @@ import FrontendInfraParameterStoreInfo from "../../../frontend_infra/ssm/applica
 import { AppEnv } from "../../../../util/enums";
 import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreInfo";
 import BackendInfraParameterStore from "../../../backend_infra/ssm/application_management/ParameterStoreInfo";
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 
-export default class UserData extends BaseAwsInfo {
+export default class UserData extends AwsConfig {
   private readonly appEnv: AppEnv;
 
   constructor(appEnv: AppEnv) {

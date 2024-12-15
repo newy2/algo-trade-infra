@@ -1,9 +1,9 @@
 import * as aws from "@pulumi/aws";
 import { RdsInfo } from "../../rds/RdsInfo";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import SqsInfo from "../../sqs/SqsInfo";
 
-export default class ParameterStoreInfo extends BaseAwsInfo {
+export default class ParameterStoreInfo extends AwsConfig {
   public static readonly RDS_ENDPOINT_KEY = "/rds/endpoint";
   public static readonly RDS_ADDRESS_KEY = "/rds/address";
   public static readonly RDS_USERNAME_KEY = "/rds/username";

@@ -6,7 +6,7 @@ import * as pulumi from "@pulumi/pulumi";
 import { Config } from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 
-export default class BaseAwsInfo {
+export default class AwsConfig {
   private readonly config: Config;
   private readonly availabilityZones: Promise<GetAvailabilityZonesResult>;
 

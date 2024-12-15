@@ -1,4 +1,4 @@
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import { DefaultSubnet, DefaultVpc, Subnet } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
@@ -13,7 +13,7 @@ type SubnetCidrBlockMap = {
   cidrBlock: string;
 };
 
-export default class SubnetInfo extends BaseAwsInfo {
+export default class SubnetInfo extends AwsConfig {
   private static readonly IPV4_CIDR_MASK = 20;
 
   private readonly privateSubnets: Promise<DefaultSubnet[]>;

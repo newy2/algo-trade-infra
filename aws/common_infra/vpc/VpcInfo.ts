@@ -1,4 +1,4 @@
-import BaseAwsInfo from "../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../util/AwsConfig";
 import * as aws from "@pulumi/aws";
 import SubnetInfo from "./default/SubnetInfo";
 import RouteTableInfo from "./default/RouteTableInfo";
@@ -8,7 +8,7 @@ import NetworkAclInfo from "./security/NetworkAclInfo";
 import EndpointInfo from "./default/EndpointInfo";
 import { DefaultVpc } from "@pulumi/aws/ec2";
 
-export default class VpcInfo extends BaseAwsInfo {
+export default class VpcInfo extends AwsConfig {
   public readonly defaultVpc: DefaultVpc;
   public readonly securityGroupInfo: SecurityGroupInfo;
   public readonly subnetInfo: SubnetInfo;

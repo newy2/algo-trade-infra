@@ -1,13 +1,13 @@
 import * as aws from "@pulumi/aws";
 import { BucketV2 } from "@pulumi/aws/s3";
 import * as pulumi from "@pulumi/pulumi";
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import LambdaInfo from "../../lambda/LambdaInfo";
 import { AppEnv } from "../../../../util/enums";
 import { genName } from "../../../../util/utils";
 
-export default class BucketInfo extends BaseAwsInfo {
+export default class BucketInfo extends AwsConfig {
   private readonly appEnv: AppEnv;
   private readonly frontendBucket: BucketV2;
 

@@ -1,9 +1,9 @@
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import * as aws from "@pulumi/aws";
 import { AppEnv } from "../../../../util/enums";
 import { genName } from "../../../../util/utils";
 
-export default class TopicInfo extends BaseAwsInfo {
+export default class TopicInfo extends AwsConfig {
   private readonly appEnv: AppEnv;
   private readonly frontendRollbackTopic: aws.sns.Topic;
 

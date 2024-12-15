@@ -1,12 +1,12 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import * as path from "path";
 import { AppEnv } from "../../../../util/enums";
 import { genName } from "../../../../util/utils";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
-export default class FunctionInfo extends BaseAwsInfo {
+export default class FunctionInfo extends AwsConfig {
   private readonly appEnv: AppEnv;
   private readonly frontendDeliveryFunction: aws.lambda.Function;
 

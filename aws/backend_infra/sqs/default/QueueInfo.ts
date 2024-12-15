@@ -1,8 +1,8 @@
 import * as aws from "@pulumi/aws";
 import { Queue } from "@pulumi/aws/sqs";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 
-export default class QueueInfo extends BaseAwsInfo {
+export default class QueueInfo extends AwsConfig {
   private readonly backendDeliveryRequestScaleDownQueue: Queue;
 
   constructor() {

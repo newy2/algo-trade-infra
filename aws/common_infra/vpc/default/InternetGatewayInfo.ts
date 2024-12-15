@@ -1,10 +1,10 @@
 import { Output } from "@pulumi/pulumi";
 import { DefaultVpc, GetInternetGatewayResult } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import { createNameTag } from "../../../../util/utils";
 
-export default class InternetGatewayInfo extends BaseAwsInfo {
+export default class InternetGatewayInfo extends AwsConfig {
   private readonly internetGateway: Output<GetInternetGatewayResult>;
 
   constructor(defaultVpc: DefaultVpc) {

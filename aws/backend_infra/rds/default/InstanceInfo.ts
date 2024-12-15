@@ -1,10 +1,10 @@
 import * as aws from "@pulumi/aws";
 import { Instance } from "@pulumi/aws/rds";
 import SubnetGroupInfo from "./SubnetGroupInfo";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
-export default class InstanceInfo extends BaseAwsInfo {
+export default class InstanceInfo extends AwsConfig {
   private static FREE_TIER_OPTION = {
     instanceClass: aws.rds.InstanceType.T4G_Micro,
     storageType: aws.rds.StorageType.GP2,

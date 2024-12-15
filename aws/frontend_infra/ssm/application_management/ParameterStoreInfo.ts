@@ -1,10 +1,10 @@
 import * as aws from "@pulumi/aws";
-import BaseAwsInfo from "../../../backend_infra/BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
 import { AppEnv } from "../../../../util/enums";
 import { genName } from "../../../../util/utils";
 
-export default class ParameterStoreInfo extends BaseAwsInfo {
+export default class ParameterStoreInfo extends AwsConfig {
   private static readonly CODE_DELIVERY_FRONTEND_DISTRIBUTION_ID_KEY =
     "/code/delivery/{appEnv}/frontend/cloudfront/distribution/id";
   private static readonly CODE_DELIVERY_FRONTEND_DISTRIBUTION_URL_KEY =

@@ -1,11 +1,11 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import * as path from "path";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
-export default class FunctionInfo extends BaseAwsInfo {
+export default class FunctionInfo extends AwsConfig {
   private readonly cleanupEcrImageFunction?: aws.lambda.Function;
   public readonly backendDelivery: BackendDeliveryFunctionInfo;
 
@@ -47,7 +47,7 @@ export default class FunctionInfo extends BaseAwsInfo {
   }
 }
 
-class BackendDeliveryFunctionInfo extends BaseAwsInfo {
+class BackendDeliveryFunctionInfo extends AwsConfig {
   private readonly requestScaleDownQueueMappingFunction: aws.lambda.Function;
 
   private readonly scaleUpFunction: aws.lambda.Function;

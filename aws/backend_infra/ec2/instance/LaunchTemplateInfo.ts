@@ -1,11 +1,11 @@
 import * as aws from "@pulumi/aws";
 import { LaunchTemplate } from "@pulumi/aws/ec2";
-import BaseAwsInfo from "../../BaseAwsInfo";
+import AwsConfig from "../../../../util/AwsConfig";
 import UserData from "./UserData";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
-export default class LaunchTemplateInfo extends BaseAwsInfo {
+export default class LaunchTemplateInfo extends AwsConfig {
   private static FREE_TIER_OPTION = {
     creditSpecification: {
       cpuCredits: "standard",
