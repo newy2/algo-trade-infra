@@ -1,7 +1,9 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 
-export const genName = (...strings: string[]) => strings.join("-");
+export function genName(...strings: string[]) {
+  return strings.join("-");
+}
 
 export function createNameTag(
   name: string,
