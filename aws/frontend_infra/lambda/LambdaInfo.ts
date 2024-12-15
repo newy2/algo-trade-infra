@@ -1,6 +1,6 @@
 import S3Info from "../s3/S3Info";
 import FunctionInfo from "./default/FunctionInfo";
-import { AppEnv } from "../../../util/enums";
+import { AppEnv } from "../../util/enums";
 import CommonInfra from "../../common_infra/CommonInfra";
 
 export default class LambdaInfo {

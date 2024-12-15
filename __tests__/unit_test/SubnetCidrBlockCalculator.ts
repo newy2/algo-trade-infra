@@ -1,5 +1,5 @@
 import { assertEquals, assertThrows } from "../helper/Assertions";
-import SubnetCidrBlockCalculator from "../../util/SubnetCidrBlockCalculator";
+import SubnetCidrBlockCalculator from "../../aws/util/SubnetCidrBlockCalculator";
 
 describe("SubnetCidrBlockCalculator", () => {
   it("IPv4 서브넷 CIDR 계산하기", () => {

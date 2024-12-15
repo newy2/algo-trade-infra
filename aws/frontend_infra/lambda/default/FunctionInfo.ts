@@ -1,9 +1,9 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import * as path from "path";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
 export default class FunctionInfo extends AwsConfig {

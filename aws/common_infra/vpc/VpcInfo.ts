@@ -1,4 +1,4 @@
-import AwsConfig from "../../../util/AwsConfig";
+import AwsConfig from "../../util/AwsConfig";
 import * as aws from "@pulumi/aws";
 import SubnetInfo from "./default/SubnetInfo";
 import RouteTableInfo from "./default/RouteTableInfo";

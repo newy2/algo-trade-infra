@@ -1,8 +1,8 @@
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import { DefaultSubnet, DefaultVpc, Subnet } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import SubnetCidrBlockCalculator from "../../../../util/SubnetCidrBlockCalculator";
+import SubnetCidrBlockCalculator from "../../../util/SubnetCidrBlockCalculator";
 
 type SubnetGetCidrBlockParams = {
   ipv4CidrBlock: string;

@@ -2,8 +2,8 @@ import * as aws from "@pulumi/aws";
 import { TopicSubscription } from "@pulumi/aws/sns";
 import TopicInfo from "./TopicInfo";
 import LambdaInfo from "../../lambda/LambdaInfo";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 
 export default class SubscriptionInfo {
   private readonly appEnv: AppEnv;

@@ -1,7 +1,7 @@
 import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import VpcInfo from "../../vpc/VpcInfo";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 
 export default class ParameterStoreInfo extends AwsConfig {
   public static readonly RDS_EICE_RDS_CONNECT_ID_KEY =

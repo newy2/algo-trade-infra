@@ -4,7 +4,7 @@ import LambdaInfo from "./lambda/LambdaInfo";
 import SnsInfo from "./sns/SnsInfo";
 import SsmInfo from "./ssm/SsmInfo";
 import CommonInfra from "../common_infra/CommonInfra";
-import { AppEnv } from "../../util/enums";
+import { AppEnv } from "../util/enums";
 
 export default class FrontendInfra {
   constructor(appEnv: AppEnv, commonInfra: CommonInfra) {

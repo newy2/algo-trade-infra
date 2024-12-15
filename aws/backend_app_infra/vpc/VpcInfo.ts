@@ -1,5 +1,5 @@
 import SecurityGroupInfo from "./security/SecurityGroupInfo";
-import { AppEnv } from "../../../util/enums";
+import { AppEnv } from "../../util/enums";
 import CommonInfra from "../../common_infra/CommonInfra";
 
 export default class VpcInfo {

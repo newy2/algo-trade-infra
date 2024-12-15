@@ -1,8 +1,8 @@
 import * as aws from "@pulumi/aws";
 import { Distribution } from "@pulumi/aws/cloudfront";
 import * as pulumi from "@pulumi/pulumi";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 
 export default class DistributionInfo {
   private readonly backendDistribution: Distribution;

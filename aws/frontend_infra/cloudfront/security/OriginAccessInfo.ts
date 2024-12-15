@@ -1,8 +1,8 @@
 import S3Info from "../../s3/S3Info";
 import * as aws from "@pulumi/aws";
 import { OriginAccessControl } from "@pulumi/aws/cloudfront";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 
 export default class OriginAccessInfo {
   private readonly appEnv: AppEnv;

@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { LaunchTemplate } from "@pulumi/aws/ec2";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import UserData from "./UserData";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 import CommonInfra from "../../../common_infra/CommonInfra";

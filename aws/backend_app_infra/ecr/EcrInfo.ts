@@ -1,5 +1,5 @@
 import RepositoryInfo from "./private_registry/RepositoryInfo";
-import { AppEnv } from "../../../util/enums";
+import { AppEnv } from "../../util/enums";
 
 export default class EcrInfo {
   public readonly privateRepositoryInfo: RepositoryInfo;

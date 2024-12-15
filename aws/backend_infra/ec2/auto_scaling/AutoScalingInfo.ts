@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import LaunchTemplateInfo from "../instance/LaunchTemplateInfo";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
 export default class AutoScalingInfo extends AwsConfig {

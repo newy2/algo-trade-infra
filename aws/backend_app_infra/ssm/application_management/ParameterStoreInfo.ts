@@ -1,8 +1,8 @@
 import * as aws from "@pulumi/aws";
 import EcrInfo from "../../../backend_app_infra/ecr/EcrInfo";
 import CloudFrontInfo from "../../../backend_app_infra/cloudfront/CloudFrontInfo";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 
 export default class ParameterStoreInfo {
   public static readonly CODE_DELIVERY_BACKEND_ECR_REPOSITORY_URL_KEY =

@@ -1,6 +1,6 @@
 import { InstanceProfile, Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
-import RolePolicyAttachmentGenerator from "../../../../util/RolePolicyAttachmentGenerator";
+import RolePolicyAttachmentGenerator from "../../../util/RolePolicyAttachmentGenerator";
 import PolicyInfo from "./PolicyInfo";
 
 export default class RoleInfo extends RolePolicyAttachmentGenerator {

@@ -1,9 +1,9 @@
 import { ProtocolType } from "@pulumi/aws/types/enums/ec2";
 import { SecurityGroup } from "@pulumi/aws/ec2";
 import * as aws from "@pulumi/aws";
-import { ALLOW_ALL_ACCESS } from "../../../../util/consts";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { ALLOW_ALL_ACCESS } from "../../../util/consts";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
 type SecurityGroupCidrBlockMap = {

@@ -4,8 +4,8 @@ import S3Info from "../../s3/S3Info";
 import FunctionInfo from "./FunctionInfo";
 import OriginAccessInfo from "../security/OriginAccessInfo";
 import * as pulumi from "@pulumi/pulumi";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 
 export default class DistributionInfo {
   private static readonly ROOT_OBJECT = "index.html";

@@ -2,7 +2,7 @@ import OriginAccessInfo from "./security/OriginAccessInfo";
 import S3Info from "../s3/S3Info";
 import DistributionInfo from "./default/DistributionInfo";
 import FunctionInfo from "./default/FunctionInfo";
-import { AppEnv } from "../../../util/enums";
+import { AppEnv } from "../../util/enums";
 
 export default class CloudFrontInfo {
   public readonly distributionInfo: DistributionInfo;

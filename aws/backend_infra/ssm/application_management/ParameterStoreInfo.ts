@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import { RdsInfo } from "../../rds/RdsInfo";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import SqsInfo from "../../sqs/SqsInfo";
 
 export default class ParameterStoreInfo extends AwsConfig {

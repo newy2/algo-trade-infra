@@ -1,7 +1,7 @@
 import * as aws from "@pulumi/aws";
 import { Instance } from "@pulumi/aws/rds";
 import SubnetGroupInfo from "./SubnetGroupInfo";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import CommonInfra from "../../../common_infra/CommonInfra";
 
 export default class InstanceInfo extends AwsConfig {

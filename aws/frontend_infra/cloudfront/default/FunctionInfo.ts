@@ -1,8 +1,8 @@
 import * as aws from "@pulumi/aws";
 import * as fs from "fs";
 import * as path from "path";
-import { AppEnv } from "../../../../util/enums";
-import { genName } from "../../../../util/utils";
+import { AppEnv } from "../../../util/enums";
+import { genName } from "../../../util/utils";
 
 export default class FunctionInfo {
   private readonly appEnv: AppEnv;

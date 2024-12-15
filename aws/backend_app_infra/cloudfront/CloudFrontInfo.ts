@@ -1,5 +1,5 @@
 import DistributionInfo from "./default/DistributionInfo";
-import { AppEnv } from "../../../util/enums";
+import { AppEnv } from "../../util/enums";
 
 export default class CloudFrontInfo {
   public readonly distributionInfo: DistributionInfo;

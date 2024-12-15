@@ -1,5 +1,5 @@
 import { DefaultVpc } from "@pulumi/aws/ec2";
-import { createNameTag } from "../../../../util/utils";
+import { createNameTag } from "../../../util/utils";
 
 export default class NetworkAclInfo {
   constructor(defaultVpc: DefaultVpc) {

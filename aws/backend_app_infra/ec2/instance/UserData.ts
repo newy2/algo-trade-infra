@@ -1,8 +1,8 @@
 import FrontendInfraParameterStoreInfo from "../../../frontend_infra/ssm/application_management/ParameterStoreInfo";
-import { AppEnv } from "../../../../util/enums";
+import { AppEnv } from "../../../util/enums";
 import ParameterStoreInfo from "../../ssm/application_management/ParameterStoreInfo";
 import BackendInfraParameterStore from "../../../backend_infra/ssm/application_management/ParameterStoreInfo";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 
 export default class UserData extends AwsConfig {
   private readonly appEnv: AppEnv;

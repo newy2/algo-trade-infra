@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import * as path from "path";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 import CommonInfra from "../../../common_infra/CommonInfra";

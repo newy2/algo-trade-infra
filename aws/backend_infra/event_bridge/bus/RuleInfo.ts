@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
-import AwsConfig from "../../../../util/AwsConfig";
+import AwsConfig from "../../../util/AwsConfig";
 import { EventRule } from "@pulumi/aws/cloudwatch";
 import LambdaInfo from "../../lambda/LambdaInfo";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";

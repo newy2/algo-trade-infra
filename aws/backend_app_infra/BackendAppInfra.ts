@@ -1,4 +1,4 @@
-import { AppEnv } from "../../util/enums";
+import { AppEnv } from "../util/enums";
 import CloudFrontInfo from "./cloudfront/CloudFrontInfo";
 import EcrInfo from "./ecr/EcrInfo";
 import SsmInfo from "./ssm/SsmInfo";
