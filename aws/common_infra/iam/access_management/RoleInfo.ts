@@ -1,9 +1,9 @@
 import { InstanceProfile, Role } from "@pulumi/aws/iam";
 import * as aws from "@pulumi/aws";
-import BaseRoleInfo from "../../../../util/BaseRoleInfo";
+import RolePolicyAttachmentGenerator from "../../../../util/RolePolicyAttachmentGenerator";
 import PolicyInfo from "./PolicyInfo";
 
-export default class RoleInfo extends BaseRoleInfo {
+export default class RoleInfo extends RolePolicyAttachmentGenerator {
   private readonly ec2InstanceProfile: InstanceProfile;
   private readonly ecrCleanupLambdaRole?: Role;
   private readonly frontendDeliveryLambdaRole: Role;
@@ -38,7 +38,7 @@ export default class RoleInfo extends BaseRoleInfo {
     const ec2Role = new aws.iam.Role(roleName, {
       name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: BaseRoleInfo.AssumeRoleKey.EC2,
+        Service: RolePolicyAttachmentGenerator.AssumeRoleKey.EC2,
       }),
     });
 
@@ -65,7 +65,7 @@ export default class RoleInfo extends BaseRoleInfo {
     const result = new aws.iam.Role(roleName, {
       name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: BaseRoleInfo.AssumeRoleKey.LAMBDA,
+        Service: RolePolicyAttachmentGenerator.AssumeRoleKey.LAMBDA,
       }),
     });
 
@@ -86,7 +86,7 @@ export default class RoleInfo extends BaseRoleInfo {
     const result = new aws.iam.Role(roleName, {
       name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: BaseRoleInfo.AssumeRoleKey.LAMBDA,
+        Service: RolePolicyAttachmentGenerator.AssumeRoleKey.LAMBDA,
       }),
     });
 
@@ -109,7 +109,7 @@ export default class RoleInfo extends BaseRoleInfo {
   }
 }
 
-class BackendDeliveryRoleInfo extends BaseRoleInfo {
+class BackendDeliveryRoleInfo extends RolePolicyAttachmentGenerator {
   private readonly scaleUpLambdaRole: Role;
   private readonly verifyInstanceLambdaRole: Role;
   private readonly scaleDownLambdaRole: Role;
@@ -152,7 +152,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     const result = new aws.iam.Role(roleName, {
       name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: BaseRoleInfo.AssumeRoleKey.LAMBDA,
+        Service: RolePolicyAttachmentGenerator.AssumeRoleKey.LAMBDA,
       }),
     });
 
@@ -181,7 +181,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     const result = new aws.iam.Role(roleName, {
       name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: BaseRoleInfo.AssumeRoleKey.LAMBDA,
+        Service: RolePolicyAttachmentGenerator.AssumeRoleKey.LAMBDA,
       }),
     });
 
@@ -224,7 +224,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     const result = new aws.iam.Role(roleName, {
       name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: BaseRoleInfo.AssumeRoleKey.LAMBDA,
+        Service: RolePolicyAttachmentGenerator.AssumeRoleKey.LAMBDA,
       }),
     });
 
@@ -263,7 +263,7 @@ class BackendDeliveryRoleInfo extends BaseRoleInfo {
     const result = new aws.iam.Role(roleName, {
       name: roleName,
       assumeRolePolicy: aws.iam.assumeRolePolicyForPrincipal({
-        Service: BaseRoleInfo.AssumeRoleKey.LAMBDA,
+        Service: RolePolicyAttachmentGenerator.AssumeRoleKey.LAMBDA,
       }),
     });
 

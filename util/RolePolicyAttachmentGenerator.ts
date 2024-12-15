@@ -9,7 +9,7 @@ type CustomPolicyArn = {
 };
 type PolicyArn = ManagedPolicyArn | CustomPolicyArn;
 
-export default class BaseRoleInfo extends AwsConfig {
+export default class RolePolicyAttachmentGenerator extends AwsConfig {
   protected static AssumeRoleKey = {
     EC2: "ec2.amazonaws.com",
     LAMBDA: "lambda.amazonaws.com",
