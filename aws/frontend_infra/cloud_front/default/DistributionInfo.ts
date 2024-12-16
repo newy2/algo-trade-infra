@@ -10,7 +10,6 @@ import { genName } from "../../../util/utils";
 export default class DistributionInfo {
   private static readonly ROOT_OBJECT = "index.html";
 
-  private readonly appEnv: AppEnv;
   private readonly distribution: Distribution;
 
   constructor(
@@ -19,8 +18,8 @@ export default class DistributionInfo {
     functionInfo: FunctionInfo,
     originAccessInfo: OriginAccessInfo,
   ) {
-    this.appEnv = appEnv;
     this.distribution = this.createFrontendDistribution(
+      appEnv,
       s3Info,
       functionInfo,
       originAccessInfo,
@@ -40,14 +39,15 @@ export default class DistributionInfo {
   }
 
   private createFrontendDistribution(
+    appEnv: AppEnv,
     s3Info: S3Info,
     functionInfo: FunctionInfo,
     originAccessInfo: OriginAccessInfo,
   ) {
-    const name = genName(this.appEnv, "frontend-algo-trade-distribution");
+    const name = genName(appEnv, "frontend-algo-trade-distribution");
 
     return new aws.cloudfront.Distribution(name, {
-      comment: `[${this.appEnv}] Static site distribution`,
+      comment: `[${appEnv}] Static site distribution`,
       customErrorResponses: this.getCustomErrorResponses(),
       defaultCacheBehavior: this.getDefaultCacheBehavior(s3Info, functionInfo),
       defaultRootObject: DistributionInfo.ROOT_OBJECT,

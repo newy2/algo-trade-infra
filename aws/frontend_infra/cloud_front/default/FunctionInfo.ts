@@ -5,25 +5,24 @@ import { AppEnv } from "../../../util/enums";
 import { genName } from "../../../util/utils";
 
 export default class FunctionInfo {
-  private readonly appEnv: AppEnv;
   private readonly generateRedirectUrlFunction: aws.cloudfront.Function;
 
   constructor(appEnv: AppEnv) {
-    this.appEnv = appEnv;
-    this.generateRedirectUrlFunction = this.createGenerateRedirectUrlFunction();
+    this.generateRedirectUrlFunction =
+      this.createGenerateRedirectUrlFunction(appEnv);
   }
 
   public getGenerateRedirectUrlFunctionArn() {
     return this.generateRedirectUrlFunction.arn;
   }
 
-  private createGenerateRedirectUrlFunction() {
+  private createGenerateRedirectUrlFunction(appEnv: AppEnv) {
     const functionCode = fs.readFileSync(
       path.join(__dirname, "script", "generateRedirectUrl.mjs"),
       "utf8",
     );
 
-    const name = genName(this.appEnv, "generate-redirect-url");
+    const name = genName(appEnv, "generate-redirect-url");
     return new aws.cloudfront.Function(`${name}-function`, {
       name,
       runtime: "cloudfront-js-2.0",
