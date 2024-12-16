@@ -37,6 +37,7 @@ if docker images | grep "$${ecrUrl}" > /dev/null; then
 -p $${httpPort}:$${httpPort} \
 -e X_PORT=$${httpPort} \
 -e X_DB_URL=$${dbUrl} \
+-e X_DB_SCHEMA=${this.appEnv}_algo_trade \
 -e X_DB_USERNAME=$${dbUsername} \
 -e X_DB_PASSWORD=$${dbPassword} \
 -e X_FRONTEND_URLS=$${frontendUrl}${this.isDevMode() ? `,${this.getLocalFrontendUrl()}` : ""} \
