@@ -1,6 +1,6 @@
 import * as aws from "@pulumi/aws";
 import EcrInfo from "../../../backend_app_infra/ecr/EcrInfo";
-import CloudFrontInfo from "../../../backend_app_infra/cloudfront/CloudFrontInfo";
+import CloudFrontInfo from "../../cloud_front/CloudFrontInfo";
 import { AppEnv } from "../../../util/enums";
 import { genName } from "../../../util/utils";
 

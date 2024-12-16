@@ -1,5 +1,5 @@
 import S3Info from "./s3/S3Info";
-import CloudFrontInfo from "./cloudfront/CloudFrontInfo";
+import CloudFrontInfo from "./cloud_front/CloudFrontInfo";
 import LambdaInfo from "./lambda/LambdaInfo";
 import SnsInfo from "./sns/SnsInfo";
 import SsmInfo from "./ssm/SsmInfo";

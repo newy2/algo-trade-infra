@@ -1,4 +1,4 @@
-import CloudFrontInfo from "../cloudfront/CloudFrontInfo";
+import CloudFrontInfo from "../cloud_front/CloudFrontInfo";
 import ParameterStoreInfo from "./application_management/ParameterStoreInfo";
 import { AppEnv } from "../../util/enums";
 

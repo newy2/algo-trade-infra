@@ -1,6 +1,6 @@
 import ParameterStoreInfo from "./application_management/ParameterStoreInfo";
 import EcrInfo from "../../backend_app_infra/ecr/EcrInfo";
-import CloudFrontInfo from "../../backend_app_infra/cloudfront/CloudFrontInfo";
+import CloudFrontInfo from "../cloud_front/CloudFrontInfo";
 import { AppEnv } from "../../util/enums";
 
 export default class SsmInfo {

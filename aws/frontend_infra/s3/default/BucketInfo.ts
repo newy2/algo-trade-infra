@@ -2,7 +2,7 @@ import * as aws from "@pulumi/aws";
 import { BucketV2 } from "@pulumi/aws/s3";
 import * as pulumi from "@pulumi/pulumi";
 import AwsConfig from "../../../util/AwsConfig";
-import CloudFrontInfo from "../../cloudfront/CloudFrontInfo";
+import CloudFrontInfo from "../../cloud_front/CloudFrontInfo";
 import LambdaInfo from "../../lambda/LambdaInfo";
 import { AppEnv } from "../../../util/enums";
 import { genName } from "../../../util/utils";
