@@ -70,14 +70,14 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 
 <img src="doc/system_configuration_diagram/backend-1-service-structure.drawio.png" width="1000">
 
-- (A) `클라이언트`는 `CloudFront`에게 HTTP API 를 요청하고 응답받는다.
-- (B) `CloudFront`는 `EC2 인스턴스`에게 HTTP API 를 요청하고 응답받는다.
-- (C) `ASG`(Auto Scaling Group)는 `Launch Template`으로 `EC2 인스턴스`를 생성한다.
-- (D) `Launch Template`의 User Data 로 Docker 를 설치하고, `ECR`의 이미지로 백엔드 API 서버를 컨테이너로 실행한다.
-- (E) 컨테이너 실행에 필요한 설정 값은 `Parameter Store`에서 조회한다. (ECR 접속 정보, RDS 접속 정보, 프론트엔드 URL 등)
-- (F) `EC2 인스턴스`의 컨테이너는 `RDS`의 데이터를 조작한다.
-- (G) (필요한 경우) 관리자는 `EC2 Instance Connect Endpoint`로 Private VPC의 `RDS`에 접속한다.
-- (H) (필요한 경우) 관리자는 AWS Console에서 `EC2 Instance Connect`로 Public VPC의 `EC2 인스턴스`에 SSH 접속한다.
+- A. `클라이언트`는 `CloudFront`에게 HTTP API 를 요청하고 응답받는다.
+- B. `CloudFront`는 `EC2 인스턴스`에게 HTTP API 를 요청하고 응답받는다.
+- C. `ASG`(Auto Scaling Group)는 `Launch Template`으로 `EC2 인스턴스`를 생성한다.
+- D. `Launch Template`의 User Data 로 Docker 를 설치하고, `ECR`의 이미지로 백엔드 API 서버를 컨테이너로 실행한다.
+- E. 컨테이너 실행에 필요한 설정 값은 `Parameter Store`에서 조회한다. (ECR 접속 정보, RDS 접속 정보, 프론트엔드 URL 등)
+- F. `EC2 인스턴스`의 컨테이너는 `RDS`의 데이터를 조작한다.
+- G. (필요한 경우) 관리자는 `EC2 Instance Connect Endpoint`로 Private VPC의 `RDS`에 접속한다.
+- H. (필요한 경우) 관리자는 AWS Console에서 `EC2 Instance Connect`로 Public VPC의 `EC2 인스턴스`에 SSH 접속한다.
 
 ### 배포 구성도 (`CloudFront`와 `ASG`를 사용한 블루/그린 배포)
 
