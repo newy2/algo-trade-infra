@@ -119,8 +119,8 @@ AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 
 ### [예외처리] SQS 비용 최적화
 
-아래와 같이 `SQS`의 Lambda 트리거를 동적으로 등록/해제하여 빈 메시지 수신 비용을 절감한다.  
 `SQS` 메시지 수신 요청 단위로 사용 금액을 청구하고, 빈 메시지를 수신해도 비용이 청구된다.  
+아래와 같이 `SQS`의 Lambda 트리거를 동적으로 등록/해제하여 빈 메시지 수신 비용을 절감한다.  
 (
 참고: https://repost.aws/ko/knowledge-center/sqs-high-charges)  
 <img src="doc/system_configuration_diagram/backend-4-sqs-lambda-trigger.drawio.png" width="1000">
