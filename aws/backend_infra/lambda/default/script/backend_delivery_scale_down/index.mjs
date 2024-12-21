@@ -4,6 +4,7 @@ import {
   Ec2,
   Ec2List,
   ParameterStore,
+  PrivateEcr,
   Slack,
   Sqs
 } from "/opt/nodejs/aws_sdk_helper/index.mjs";
@@ -72,9 +73,18 @@ async function getOldestEc2DnsName(autoScaling) {
 
 async function rollbackCloudFront({ appEnv, slack, oldestEc2DnsName }) {
   const parameterStore = new ParameterStore(appEnv);
+
+  const ecr = new PrivateEcr();
+  const repositoryName = await parameterStore.getBackendEcrRepositoryName();
+  if (await ecr.isEmptyRepository(repositoryName)) {
+    await slack.sendMessage(`[${appEnv}] ECR 이미지가 없습니다`);
+    return;
+  }
+
   const distributionId = await parameterStore.getBackendDistributionId();
   const cloudFront = new CloudFront(distributionId);
   if (await cloudFront.isCurrentOriginDomainName(oldestEc2DnsName)) {
+    await slack.sendMessage(`[${appEnv}] CF Origin Domain 을 업데이트 하지 않아도 됩니다.`);
     return;
   }
 

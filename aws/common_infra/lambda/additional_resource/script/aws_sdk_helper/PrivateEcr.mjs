@@ -12,4 +12,8 @@ export default class PrivateEcr {
 
     return response.imageDetails.length;
   }
+
+  async isEmptyRepository(repositoryName) {
+    return (await this.getImageCount(repositoryName)) === 0;
+  }
 }

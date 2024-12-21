@@ -246,6 +246,11 @@ class BackendDeliveryRoleInfo extends RolePolicyAttachmentGenerator {
         value: policyInfo.getCloudFrontUpdatePolicyArn(),
       }, // for rollback
       {
+        key: "EcrImageReadPolicy",
+        value:
+          policyInfo.backendCodeDeliveryPolicyInfo.getEcrImageReadPolicyArn(),
+      }, // for rollback
+      {
         key: "CodeDeliveryParameterStoreReadPolicy",
         value: policyInfo.getCodeDeliveryParameterStoreReadPolicyArn(),
       },

@@ -70,7 +70,7 @@ async function isEmptyEcrRepository(parameterStore) {
   const repositoryName = await parameterStore.getBackendEcrRepositoryName();
   const privateEcr = new PrivateEcr();
 
-  return (await privateEcr.getImageCount(repositoryName)) === 0;
+  return await privateEcr.isEmptyRepository(repositoryName);
 }
 
 async function healthCheckEc2({ appEnv, httpPort, ec2, slack }) {

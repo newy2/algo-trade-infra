@@ -110,7 +110,7 @@ class BackendDeliveryFunctionInfo extends AwsConfig {
 
     return new aws.lambda.Function(name, {
       name,
-      description: "CloudFront 의 Origin 변경",
+      description: "EC2 API 헬스체크 및 CloudFront 의 Origin 변경",
       runtime: aws.lambda.Runtime.NodeJS20dX,
       role: commonInfra.iamInfo.roleInfo.backendDeliveryRoleInfo.getVerifyInstanceLambdaRoleArn(),
       handler: "index.handler",
