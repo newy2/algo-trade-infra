@@ -386,13 +386,13 @@ aws ec2-instance-connect open-tunnel \
 
 #### 참조 링크:
 
-- [(LV.200)Amazon RDS 인증과 접속 (feat.Bastion 없이 Private RDS 접속 방법)](https://www.youtube.com/watch?v=Ft-rW0hJVqU&t=0s)
 - [EC2 Instance Connect Endpoint를 이용해 Amazon EC2및 Amazon RDS 인스턴스에 안전하게 접속하기
   ](https://aws.amazon.com/ko/blogs/tech/ec2-instance-connect-endpoint-bastion/)
+- [(LV.200)Amazon RDS 인증과 접속 (feat.Bastion 없이 Private RDS 접속 방법)](https://www.youtube.com/watch?v=Ft-rW0hJVqU&t=0s)
 
 ---
 
-# Pulumi 주의사항
+# Pulumi 주의 사항
 
 ## AWS CloudFront Distribution 생성 시, retainOnDelete 옵션을 true 로 설정하면 연관된 resource 가 제대로 삭제되지 않는다
 
