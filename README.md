@@ -354,22 +354,6 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
 
 # AWS 주의 사항
 
-## CloudFront와 S3를 사용한 정적 웹사이트(React 앱) 배포 시, CloudFront Function으로 리다이렉션 로직을 추가해야 한다
-
-CloudFront 와 S3를 사용한 정적 웹사이트에 사용자가 URL을 직접 입력해서 방문하는 경우 403 에러가 발생한다.  
-(오류 페이지를 적용하면 403 에러 발생 시, 홈화면으로 리다이렉션 할 수 있지만 사용자가 원하는 페이지로 리다이렉션할 수 없다)
-
-CloudFront 의 Function 을 사용해서 아래와 같은 로직을 적용하면, 사용자가 입력한 URL 로 페이지를 리다이렉션할 수 있다.
-
-1. `static 폴더의 하위 파일(/static/*)`과 `루트 폴더의 파일(/*.*)`은 bypass 로 리턴한다.
-2. 그 외의 URL은 CloudFront 의 Function 으로 리다이렉트 URL 을 생성하고 302 상태 값을 리턴한다.
-    1. 리다이렉트 URL 형식: 루트 경로에 쿼리스트링(redirect_path)을 붙여서 생성한다.
-    2. 리다이렉트 URL 예시:
-        1. 첫 진입 URL: `https://xxx.cloudfront.net/product/1234?name=john&group_ids=1&group_ids=2`
-        2. 리다이렉트
-           URL: `https://xxx.cloudfront.net/?redirect_path={Base64 인코딩("/product/1234?name=john&group_ids=1&group_ids=2")}`
-3. 프론트엔드 코드에서 `redirect_path` 쿼리스트링이 있는 경우 페이지를 라우팅 처리를 한다.
-
 ## ECR 과거 이미지 자동으로 삭제하기
 
 ECR 의 Lifecycle Policy를 사용하면 최대 이미지 개수를 기준으로 과거 이미지를 자동으로 제거할 수 있지만, 이미지 PUSH 이벤트에 실시간으로 실행되지 않고, 최대 24시간 이내에 실행된다.
