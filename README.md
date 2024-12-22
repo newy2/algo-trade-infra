@@ -363,12 +363,13 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
 
 ## ECR 과거 이미지 자동으로 삭제하기
 
-ECR 의 Lifecycle Policy를 사용하면 최대 이미지 개수를 기준으로 과거 이미지를 자동으로 제거할 수 있지만, 이미지 PUSH 이벤트에 실시간으로 실행되지 않고, 최대 24시간 이내에 실행된다.
+ECR 의 Lifecycle Policy를 사용하면 최대 이미지 개수를 기준으로 과거 이미지를 자동으로 제거할 수 있지만,  
+`이미지 PUSH 이벤트` 발생 시 과거 ECR 이미지를 실시간으로 삭제하지 않는다. (Lifecycle Policy는 최대 24시간 이내에 실행된다)
 
-차선책으로 Amazon EventBridge와 Lambda를 사용해서 ECR 과거 이미지를 자동으로 삭제하는 로직으로 사용한다.
+이 프로젝트에서는 `EventBridge`와 `Lambda`를 사용해서, `이미지 PUSH 이벤트` 발생 시 과거 ECR 이미지를 실시간으로 삭제하도록 구성한다.
 
 [AwsConfig#isFastCleanupEcrImage](https://github.com/newy2/algo-trade-infra/blob/8f071789762312bd0f0af6bbe42d8d3f9ac7174e/aws/util/AwsConfig.ts#L38-L40)
-플래그로 ECR 과거 이미지 자동으로 삭제하는 전략을 선택할 수 있다.
+기능 플래그로 과거 ECR 이미지 삭제 전략을 선택할 수 있다.
 
 #### 참조 링크:
 
@@ -395,15 +396,3 @@ aws ec2-instance-connect open-tunnel \
 - [EC2 Instance Connect Endpoint를 이용해 Amazon EC2및 Amazon RDS 인스턴스에 안전하게 접속하기
   ](https://aws.amazon.com/ko/blogs/tech/ec2-instance-connect-endpoint-bastion/)
 - [(LV.200)Amazon RDS 인증과 접속 (feat.Bastion 없이 Private RDS 접속 방법)](https://www.youtube.com/watch?v=Ft-rW0hJVqU&t=0s)
-
----
-
-# Pulumi 주의 사항
-
-## AWS CloudFront Distribution 생성 시, retainOnDelete 옵션을 true 로 설정하면 연관된 resource 가 제대로 삭제되지 않는다
-
-Distribution은 삭제까지 시간이 오래 걸린다. retainOnDelete 옵션값을 true 로 설정하면 Distribution이 삭제 완료될 때까지 기다리지 않을 수 있다.
-
-하지만 위 옵션 적용 시, Distribution과 연관된 리소스(예: OriginAccessControl)가 제대로 삭제되지 않는 현상이 발생한다.
-
-해당 프로젝트에서는 retainOnDelete 옵션을 적용하지 않는다.
