@@ -252,7 +252,8 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
       ```typescript
       export default class SubscriptionInfo {
         constructor(appEnv: AppEnv, topicInfo: TopicInfo, lambdaInfo: LambdaInfo) {
-          this.createFrontendRollbackTopicSubscription(appEnv, topicInfo, lambdaInfo); // 외부 참조를 제공하지 않기 때문에 AWS 리소스만 생성하고, 필드에 저장하지 않는다.
+          // 외부 참조를 제공이 필요하지 않기 때문에 AWS 리소스를 생성하고 필드에 저장하지 않는다.
+          this.createFrontendRollbackTopicSubscription(appEnv, topicInfo, lambdaInfo);
         }
   
         private createFrontendRollbackTopicSubscription(
@@ -264,8 +265,10 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
               statementId: "AllowExecutionFromSNS",
               action: "lambda:InvokeFunction",
               principal: "sns.amazonaws.com",
+              // 헬퍼 메서드 사용
               sourceArn: topicInfo.getCodeDeliveryStateTopicArn(),
-              function: lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(), // 헬퍼 메서드 사용
+              // 헬퍼 메서드 사용
+              function: lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(),
             });
             ...
           }
@@ -309,14 +312,16 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
     - 사용자 코드 (파일 경로: `index.ts`)
       ```typescript
       const commonInfra = new CommonInfra();
-      new FrontendInfra("test", commonInfra); // commonInfra 전달 시작
+      // commonInfra 전달 시작
+      new FrontendInfra("test", commonInfra);
       ...
       ```
     - 루트 노드 (파일 경로: `aws/frontend_infra/FrontendInfra.ts`)
       ```typescript
       export default class FrontendInfra {
         constructor(appEnv: AppEnv, commonInfra: CommonInfra) {
-          const lambdaInfo = new LambdaInfo(appEnv, commonInfra, s3Info); // commonInfra 전달
+          // commonInfra 전달
+          const lambdaInfo = new LambdaInfo(appEnv, commonInfra, s3Info);
           ...
         }
       }
@@ -325,7 +330,8 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
       ```typescript
       export default class LambdaInfo {
         constructor(appEnv: AppEnv, commonInfra: CommonInfra, s3Info: S3Info) {
-          this.functionInfo = new FunctionInfo(appEnv, commonInfra); // commonInfra 전달
+          // commonInfra 전달
+          this.functionInfo = new FunctionInfo(appEnv, commonInfra);
           ...
         }
       }
@@ -342,8 +348,10 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
           return new aws.lambda.Function(genName(name, "lambda"), {
             name,
             runtime: aws.lambda.Runtime.NodeJS20dX,
-            role: commonInfra.iamInfo.roleInfo.getFrontendDeliveryLambdaRole(), // commonInfra 사용
-            layers: [commonInfra.lambdaInfo.layerInfo.getAwsSdkHelperLayerArn()], // commonInfra 사용
+            // commonInfra 사용
+            role: commonInfra.iamInfo.roleInfo.getFrontendDeliveryLambdaRole(),
+            // commonInfra 사용
+            layers: [commonInfra.lambdaInfo.layerInfo.getAwsSdkHelperLayerArn()],
             ...
           });
         }
