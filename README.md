@@ -1,13 +1,13 @@
 # 프로젝트 목표
 
-AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구성하는 것을 목표로 한다.  
+AWS 프리티어 계정으로 무과금으로 웹 서비스 제공 환경을 구성하는 것을 목표로 한다.  
 이 프로젝트에서는 React를 사용한 SPA(Single Page App)와 Spring Boot을 사용한 백엔드 API 서버를 사용한다고 가정한다.
 
 # AWS 시스템 구성도
 
 ## 프론트엔드 구성도
 
-### 정적 웹사이트 구성도
+### 정적 웹사이트 호스팅 구성도 (정적 파일 경로 GET 요청)
 
 `클라이언트`가 정적 파일 경로(`/`, `/*.*`, `/static/*`)로 GET 요청을 한 경우, 아래와 같은 순서로 정적 파일을 제공한다.
 
@@ -19,9 +19,9 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 2. (조건부 실행) `CloudFront`는 캐시 스토리지에 `index.html` 파일이 없으면, `S3 Bucket`에게 `index.html` 파일을 요청하고 응답받는다.
 3. `CloudFront`는 `클라이언트`에게 `index.html` 파일을 응답한다.
 
-### [예외 처리] 정적 웹사이트 구성도
+### [예외 처리] 정적 웹사이트 호스팅 구성도 (비정적 파일 경로 GET 요청)
 
-`클라이언트`가 정적 파일이 아닌 경로로 GET 요청을 한 경우, 아래와 같은 순서로 정적 파일을 제공한다.
+`클라이언트`가 비정적 파일 경로로 GET 요청을 한 경우, 아래와 같은 순서로 정적 파일을 제공한다.
 
 <img src="doc/system_configuration_diagram/frontend-2-request-not-static-file.drawio.png" width="800">
 
@@ -43,8 +43,8 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 
 1. `S3 Bucket`으로 폴더명이 `2024-12-03_00-00-00`인 프론트엔드 빌드 파일을 업로드 한다.
 2. `S3 Bucket`의 이벤트 알림이 `index.html` 객체 생성 이벤트를 감지하고, 프론트엔드 배포 `Lambda` 함수를 호출한다.
-3. `Lambda` 함수는 `CloudFront`의 Origin path를 `2024-12-03_00-00-00`(신버전)으로 업데이트 요청을 한다.
-4. `CloudFront` 의 Origin path 가 `2024-12-02_00-00-00`(구버전)에서 `2024-12-03_00-00-00`(신버전)으로 업데이트된다.
+3. `Lambda` 함수는 `CloudFront`의 Origin path 변경을 요청한다.
+4. `CloudFront` 의 Origin path 가 `2024-12-02_00-00-00`(구버전)에서 `2024-12-03_00-00-00`(신버전)으로 변경된다.
 5. `Lambda` 함수는 `CloudFront`의 캐시 무효화를 전체 경로(`/*`)로 요청한다.
 6. (조건부 실행) 프론트엔드 빌드 최대 보관 개수가 초과한 경우, `Lambda` 함수는 `S3 Bucket` 의 `2024-12-01_00-00-00`(가장 구버전)를 삭제한다.
 
@@ -56,8 +56,8 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 
 1. `관리자`는 `SNS`(Simple Notification Service)로 프론트엔드 롤백 메시지를 전송한다.
 2. `SNS` 토픽은 프론트엔드 롤백 `Lambda` 함수를 호출한다.
-3. `Lambda` 함수는 `CloudFront`의 Origin path를 `2024-12-01_00-00-00`(구버전)으로 업데이트 요청을 한다.
-4. `CloudFront` 의 Origin path 가 `2024-12-02_00-00-00`(신버전)에서 `2024-12-01_00-00-00`(구버전)으로 업데이트된다.
+3. `Lambda` 함수는 `CloudFront`의 Origin path 변경을 요청한다.
+4. `CloudFront` 의 Origin path 가 `2024-12-02_00-00-00`(신버전)에서 `2024-12-01_00-00-00`(구버전)으로 변경된다.
 5. `Lambda` 함수는 `CloudFront`의 캐시 무효화를 전체 경로(`/*`)로 요청한다.
 6. `Lambda` 함수는 `S3 Bucket`의 `2024-12-02_00-00-00`(신버전)를 삭제한다.
 
@@ -95,8 +95,8 @@ AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 7. `B EventBridge`는 `ASG`의 `EC2 인스턴스` 실행 성공 이벤트를 감지한다.
 8. `B EventBridge`는 `B Lambda` 함수를 호출한다.
 9. `B Lambda` 함수는 `신규 EC2 인스턴스`의 HTTP API 헬스 체크를 한다.
-10. `B Lambda` 함수는 `CloudFront`에게 Origin domain 업데이트를 요청한다.
-11. `CloudFront`는 Origin domain을 `과거 EC2 인스턴스`에서 `신규 EC2 인스턴스`로 업데이트한다.
+10. `B Lambda` 함수는 `CloudFront`에게 Origin domain 변경을 요청한다.
+11. `CloudFront`는 Origin domain이 `과거 EC2 인스턴스`에서 `신규 EC2 인스턴스`로 변경된다.
 12. `B Lambda` 함수는 `SQS`로 5분 후에 사용할 수 있는 '배포완료요청' 예약 메시지를 전송한다.
 13. (5분 후) `SQS`는 `Queue`에 '배포완료요청' 메시지를 전송한다.
 14. `C Lambda` 함수는 `SQS Queue` 에서 '배포완료요청' 메시지를 수신한다.
@@ -111,12 +111,12 @@ AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 2. `SQS`는 `Queue`로 '롤백요청' 메시지를 전송한다.
 3. `C Lambda` 함수는 `SQS Queue` 에서 '롤백요청' 메시지를 수신한다.
 4. `C Lambda` 함수는 `SQS Queue` 에게 예약 메시지('배포완료요청' 메시지) 삭제 요청을 한다.
-5. `C Lambda` 함수는 `CloudFront` 에게 Origin domain 업데이트를 요청한다.
-6. `CloudFront` 는 Origin domain을 `신규 EC2 인스턴스`에서 `과거 EC2 인스턴스`로 업데이트한다.
+5. `C Lambda` 함수는 `CloudFront` 에게 Origin domain 변경을 요청한다.
+6. `CloudFront` 는 Origin domain이 `신규 EC2 인스턴스`에서 `과거 EC2 인스턴스`로 변경된다.
 7. `C Lambda` 함수는 `ASG`의 `EC2 인스턴스` 사이즈를 2에서 1로 변경한다.
 8. `ASG`는 'Newest EC2 제거 정책'으로 `신규 EC2 인스턴스`를 종료하고 제거한다.
 
-### [예외처리] SQS 비용 최적화
+### [예외 처리] 배포/롤백 SQS 비용 최적화
 
 `SQS`는 메시지 수신 요청 단위로 사용 금액을 청구하고, 빈 메시지를 수신해도 비용이 청구된다.  
 아래와 같이 `SQS`의 Lambda 트리거를 동적으로 등록/해제하여, 필요한 경우에만 `SQS` 메시지를 수신하도록 구성한다.  
