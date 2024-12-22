@@ -80,9 +80,9 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 
 ### 배포 구성도 (`CloudFront`와 `ASG`를 사용한 블루/그린 배포)
 
-AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.  
-(AWS CodeDeploy 의 EC2 블루/그린 배포는 LoadBalancer 를 필수로 요구한다)  
-(IPv4 LoadBalancer 가 무료가 아니기 때문에 AWS CodeDeploy 를 사용하지 않았다)
+AWS CodeDeploy의 EC2 블루/그린 배포 방식을 참고해서 구성한다.  
+(AWS CodeDeploy의 EC2 블루/그린 배포는 LoadBalancer를 필수로 요구한다)  
+(Public IPv4 LoadBalancer는 무료가 아니기 때문에 AWS CodeDeploy 를 사용하지 않았다)
 
 <img src="doc/system_configuration_diagram/backend-2-deploy.drawio.png" width="1000">
 
