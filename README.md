@@ -43,8 +43,8 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 
 1. `S3 Bucket`으로 폴더명이 `2024-12-03_00-00-00`인 프론트엔드 빌드 파일을 업로드 한다.
 2. `S3 Bucket`의 이벤트 알림이 `index.html` 객체 생성 이벤트를 감지하고, 프론트엔드 배포 `Lambda` 함수를 호출한다.
-3. `Lambda` 함수는 `CloudFront`의 Origin path 변경을 요청한다.
-4. `CloudFront` 의 Origin path 가 `2024-12-02_00-00-00`(구버전)에서 `2024-12-03_00-00-00`(신버전)으로 변경된다.
+3. `Lambda` 함수는 `CloudFront`에게 Origin path 변경을 요청한다.
+4. `CloudFront`는 Origin path를 `2024-12-02_00-00-00`(구버전)에서 `2024-12-03_00-00-00`(신버전)으로 변경한다.
 5. `Lambda` 함수는 `CloudFront`의 캐시 무효화를 전체 경로(`/*`)로 요청한다.
 6. (조건부 실행) 프론트엔드 빌드 최대 보관 개수가 초과한 경우, `Lambda` 함수는 `S3 Bucket` 의 `2024-12-01_00-00-00`(가장 구버전)를 삭제한다.
 
@@ -56,8 +56,8 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 
 1. `관리자`는 `SNS`(Simple Notification Service)로 프론트엔드 롤백 메시지를 전송한다.
 2. `SNS` 토픽은 프론트엔드 롤백 `Lambda` 함수를 호출한다.
-3. `Lambda` 함수는 `CloudFront`의 Origin path 변경을 요청한다.
-4. `CloudFront` 의 Origin path 가 `2024-12-02_00-00-00`(신버전)에서 `2024-12-01_00-00-00`(구버전)으로 변경된다.
+3. `Lambda` 함수는 `CloudFront`에게 Origin path 변경을 요청한다.
+4. `CloudFront`는 Origin path를 `2024-12-02_00-00-00`(신버전)에서 `2024-12-01_00-00-00`(구버전)으로 변경한다.
 5. `Lambda` 함수는 `CloudFront`의 캐시 무효화를 전체 경로(`/*`)로 요청한다.
 6. `Lambda` 함수는 `S3 Bucket`의 `2024-12-02_00-00-00`(신버전)를 삭제한다.
 
@@ -96,7 +96,7 @@ AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 8. `B EventBridge`는 `B Lambda` 함수를 호출한다.
 9. `B Lambda` 함수는 `신규 EC2 인스턴스`의 HTTP API 헬스 체크를 한다.
 10. `B Lambda` 함수는 `CloudFront`에게 Origin domain 변경을 요청한다.
-11. `CloudFront`는 Origin domain이 `과거 EC2 인스턴스`에서 `신규 EC2 인스턴스`로 변경된다.
+11. `CloudFront`는 Origin domain을 `과거 EC2 인스턴스`에서 `신규 EC2 인스턴스`로 변경한다.
 12. `B Lambda` 함수는 `SQS`로 5분 후에 사용할 수 있는 '배포완료요청' 예약 메시지를 전송한다.
 13. (5분 후) `SQS`는 `Queue`에 '배포완료요청' 메시지를 전송한다.
 14. `C Lambda` 함수는 `SQS Queue` 에서 '배포완료요청' 메시지를 수신한다.
@@ -109,10 +109,10 @@ AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 
 1. `관리자`는 `SQS`로 '롤백요청' 메시지를 전송한다.
 2. `SQS`는 `Queue`로 '롤백요청' 메시지를 전송한다.
-3. `C Lambda` 함수는 `SQS Queue` 에서 '롤백요청' 메시지를 수신한다.
-4. `C Lambda` 함수는 `SQS Queue` 에게 예약 메시지('배포완료요청' 메시지) 삭제 요청을 한다.
-5. `C Lambda` 함수는 `CloudFront` 에게 Origin domain 변경을 요청한다.
-6. `CloudFront` 는 Origin domain이 `신규 EC2 인스턴스`에서 `과거 EC2 인스턴스`로 변경된다.
+3. `C Lambda` 함수는 `SQS Queue`에서 '롤백요청' 메시지를 수신한다.
+4. `C Lambda` 함수는 `SQS Queue`에게 예약 메시지('배포완료요청' 메시지) 삭제 요청을 한다.
+5. `C Lambda` 함수는 `CloudFront`에게 Origin domain 변경을 요청한다.
+6. `CloudFront`는 Origin domain을 `신규 EC2 인스턴스`에서 `과거 EC2 인스턴스`로 변경한다.
 7. `C Lambda` 함수는 `ASG`의 `EC2 인스턴스` 사이즈를 2에서 1로 변경한다.
 8. `ASG`는 'Newest EC2 제거 정책'으로 `신규 EC2 인스턴스`를 종료하고 제거한다.
 
@@ -123,10 +123,10 @@ AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 (참고: https://repost.aws/ko/knowledge-center/sqs-high-charges)  
 <img src="doc/system_configuration_diagram/backend-4-sqs-lambda-trigger.drawio.png" width="1000">
 
-1. `B EventBridge`는 `ASG` 의 `EC2 인스턴스` 실행 성공 이벤트를 감지하고, `D Lambda` 함수를 호출한다.
-2. `D Lambda` 함수는 `SQS` 의 Lambda 트리거로 `C Lambda` 함수를 등록한다.
-3. `C EventBridge`는 `ASG` 의 `EC2 인스턴스` 종료 성공 이벤트를 감지하고, `D Lambda` 함수를 호출한다.
-4. `D Lambda` 함수는 `SQS` 의 Lambda 트리거를 제거한다.
+1. `B EventBridge`는 `ASG`의 `EC2 인스턴스` 실행 성공 이벤트를 감지하고, `D Lambda` 함수를 호출한다.
+2. `D Lambda` 함수는 `SQS`의 Lambda 트리거로 `C Lambda` 함수를 등록한다.
+3. `C EventBridge`는 `ASG`의 `EC2 인스턴스` 종료 성공 이벤트를 감지하고, `D Lambda` 함수를 호출한다.
+4. `D Lambda` 함수는 `SQS`의 Lambda 트리거를 제거한다.
 
 ---
 
