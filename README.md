@@ -265,7 +265,6 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
               statementId: "AllowExecutionFromSNS",
               action: "lambda:InvokeFunction",
               principal: "sns.amazonaws.com",
-              // 헬퍼 메서드 사용
               sourceArn: topicInfo.getCodeDeliveryStateTopicArn(),
               // 헬퍼 메서드 사용
               function: lambdaInfo.functionInfo.getFrontendDeliveryFunctionArn(),
