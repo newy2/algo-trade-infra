@@ -81,7 +81,8 @@ AWS 프리티어 계정으로 과금 없이 웹 서비스 제공 환경을 구�
 ### 배포 구성도 (`CloudFront`와 `ASG`를 사용한 블루/그린 배포)
 
 AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.  
-(AWS CodeDeploy 의 EC2 블루/그린 배포는 LoadBalancer 를 필수로 요구한다. IPv4 LoadBalancer 가 무료가 아니기 때문에 AWS CodeDeploy 를 사용하지 않았다)
+(AWS CodeDeploy 의 EC2 블루/그린 배포는 LoadBalancer 를 필수로 요구한다)  
+(IPv4 LoadBalancer 가 무료가 아니기 때문에 AWS CodeDeploy 를 사용하지 않았다)
 
 <img src="doc/system_configuration_diagram/backend-2-deploy.drawio.png" width="1000">
 
@@ -104,7 +105,8 @@ AWS CodeDeploy 의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 
 ### 롤백 구성도
 
-배포 중 HTTP API 헬스 체크가 실패하면 자동으로 롤백이 된다. 비즈니스 로직에 버그가 있는 경우 아래와 같은 순서로 수동 롤백을 진행한다.  
+배포 중 HTTP API 헬스 체크가 실패하면 자동으로 롤백이 된다.  
+비즈니스 로직에 버그가 있는 경우 아래와 같은 순서로 수동 롤백을 진행한다.  
 (수동 롤백은 SQS의 예약 메시지('배포완료요청')가 소비되기 전까지 신청할 수 있다)
 
 <img src="doc/system_configuration_diagram/backend-3-rollback.drawio.png" width="1000">
