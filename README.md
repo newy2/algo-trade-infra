@@ -107,7 +107,7 @@ AWS CodeDeploy의 EC2 블루/그린 배포 방식을 참고해서 구성한다.
 
 배포 중 HTTP API 헬스 체크가 실패하면 자동으로 롤백이 된다.  
 비즈니스 로직에 버그가 있는 경우 아래와 같은 순서로 수동 롤백을 진행한다.  
-(수동 롤백은 SQS의 예약 메시지('배포완료요청')가 소비되기 전까지 신청할 수 있다)
+(수동 롤백은 SQS의 예약 메시지('배포완료요청' 메시지)가 소비되기 전까지 신청할 수 있다)
 
 <img src="doc/system_configuration_diagram/backend-3-rollback.drawio.png" width="1000">
 
