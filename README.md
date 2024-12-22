@@ -306,7 +306,7 @@ AWS 리소스 생성에 도움을 주는 클래스(또는 함수)를 선언한�
 - 설명:
     - `common_infra` 폴더와 `다른 infra` 폴더 간에 같은 이름의 클래스가 있을 수 있다.  
       (예: `common_infra/lambda/LambdaInfo.ts`, `frontend_infra/lambda/LambdaInfo.ts`)
-    - 단순한 import 문을 사용하기 위해서 중간 노드는 `CommonInfra` 객체를 그대로 전달하고, 말단 노드에서 `CommonInfra` 객체의 필드와 메서드를 사용한다.
+    - 단순한 import 문을 사용하기 위해서 루트 노드와 중간 노드는 `CommonInfra` 객체를 그대로 전달하고, 말단 노드에서 `CommonInfra` 객체의 필드와 메서드를 사용한다.
 - 예시:
     - 사용자 코드 (파일 경로: `index.ts`)
       ```typescript
