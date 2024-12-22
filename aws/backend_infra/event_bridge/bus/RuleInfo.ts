@@ -5,22 +5,27 @@ import { EventRule } from "@pulumi/aws/cloudwatch";
 import LambdaInfo from "../../lambda/LambdaInfo";
 import BackendAppInfra from "../../../backend_app_infra/BackendAppInfra";
 
-export default class RuleInfo extends AwsConfig {
+export default class RuleInfo {
+  constructor(backendAppInfraList: BackendAppInfra[], lambdaInfo: LambdaInfo) {
+    new EcrPushEventRuleInfo(backendAppInfraList, lambdaInfo);
+    new Ec2ScaleUpEventRuleInfo(lambdaInfo);
+    new Ec2ScaleDownEventRuleInfo(lambdaInfo);
+  }
+}
+
+class EcrPushEventRuleInfo extends AwsConfig {
   constructor(backendAppInfraList: BackendAppInfra[], lambdaInfo: LambdaInfo) {
     super();
 
-    this.createPushEcrRepositoryEventRule(backendAppInfraList, lambdaInfo);
-    this.createEc2InstanceScaleUpEventRule(lambdaInfo);
-    this.createEc2InstanceScaleDownEventRule(lambdaInfo);
+    const eventRule = this.createEventRule(backendAppInfraList);
+    this.createEventTargetFastCleanupEcrImage(eventRule, lambdaInfo);
+    this.createEventTargetRequestBackendDeliveryScaleUp(eventRule, lambdaInfo);
   }
 
-  private createPushEcrRepositoryEventRule(
-    backendAppInfraList: BackendAppInfra[],
-    lambdaInfo: LambdaInfo,
-  ) {
+  private createEventRule(backendAppInfraList: BackendAppInfra[]) {
     const name = "ecr-image-pushed";
 
-    const eventRule = new aws.cloudwatch.EventRule(name, {
+    return new aws.cloudwatch.EventRule(name, {
       name,
       description: "Triggers on new image push to ECR",
       eventPattern: pulumi.jsonStringify({
@@ -35,12 +40,9 @@ export default class RuleInfo extends AwsConfig {
         },
       }),
     });
-
-    this.createFastCleanupEcrImageEventTarget(eventRule, lambdaInfo);
-    this.createBackendDeliveryStartScaleUpEventTarget(eventRule, lambdaInfo);
   }
 
-  private createFastCleanupEcrImageEventTarget(
+  private createEventTargetFastCleanupEcrImage(
     eventRule: EventRule,
     lambdaInfo: LambdaInfo,
   ) {
@@ -48,22 +50,24 @@ export default class RuleInfo extends AwsConfig {
       return;
     }
 
+    const prefix = "ecr-cleanup";
     const functionArn =
       lambdaInfo.functionInfo.getCleanupEcrImageFunctionArn()!;
-    new aws.lambda.Permission("allow-event-bridge-invoke", {
+
+    new aws.lambda.Permission(`${prefix}-lambda-permission`, {
       action: "lambda:InvokeFunction",
       function: functionArn,
       principal: "events.amazonaws.com",
       sourceArn: eventRule.arn,
     });
 
-    new aws.cloudwatch.EventTarget("ecr-event-target", {
+    new aws.cloudwatch.EventTarget(`${prefix}-event-target`, {
       rule: eventRule.name,
       arn: functionArn,
     });
   }
 
-  private createBackendDeliveryStartScaleUpEventTarget(
+  private createEventTargetRequestBackendDeliveryScaleUp(
     eventRule: EventRule,
     lambdaInfo: LambdaInfo,
   ) {
@@ -83,11 +87,48 @@ export default class RuleInfo extends AwsConfig {
       arn: functionArn,
     });
   }
+}
 
-  private createEc2InstanceScaleUpEventRule(lambdaInfo: LambdaInfo) {
+class BaseEc2ScaleEventRuleInfo extends AwsConfig {
+  protected createEventTargetBackendDeliverySqsMapping(
+    prefix: string,
+    eventRule: EventRule,
+    lambdaInfo: LambdaInfo,
+  ) {
+    const functionArn =
+      lambdaInfo.functionInfo.backendDelivery.getRequestScaleDownQueueMappingFunctionArn();
+
+    new aws.lambda.Permission(`${prefix}-lambda-permission`, {
+      action: "lambda:InvokeFunction",
+      principal: "events.amazonaws.com",
+      sourceArn: eventRule.arn,
+      function: functionArn,
+    });
+
+    new aws.cloudwatch.EventTarget(`${prefix}-event-target`, {
+      rule: eventRule.name,
+      arn: functionArn,
+    });
+  }
+}
+
+class Ec2ScaleUpEventRuleInfo extends BaseEc2ScaleEventRuleInfo {
+  constructor(lambdaInfo: LambdaInfo) {
+    super();
+
+    const eventRule = this.createEventRule();
+    this.createEventTargetBackendDeliveryVerifyInstance(eventRule, lambdaInfo);
+    this.createEventTargetBackendDeliverySqsMapping(
+      "create-mapping",
+      eventRule,
+      lambdaInfo,
+    );
+  }
+
+  private createEventRule() {
     const name = "ec2-instance-scale-up-event-rule";
 
-    const eventRule = new aws.cloudwatch.EventRule(name, {
+    return new aws.cloudwatch.EventRule(name, {
       name,
       description: "ASG 새 인스턴스 추가 상태 발생",
       eventPattern: JSON.stringify({
@@ -98,16 +139,9 @@ export default class RuleInfo extends AwsConfig {
         },
       }),
     });
-
-    this.createBackendDeliveryVerifyInstanceEventTarget(eventRule, lambdaInfo);
-    this.createBackendDeliveryRequestScaleDownQueueMappingEventTarget(
-      "create-mapping",
-      eventRule,
-      lambdaInfo,
-    );
   }
 
-  private createBackendDeliveryVerifyInstanceEventTarget(
+  private createEventTargetBackendDeliveryVerifyInstance(
     eventRule: EventRule,
     lambdaInfo: LambdaInfo,
   ) {
@@ -127,11 +161,24 @@ export default class RuleInfo extends AwsConfig {
       arn: functionArn,
     });
   }
+}
 
-  private createEc2InstanceScaleDownEventRule(lambdaInfo: LambdaInfo) {
+class Ec2ScaleDownEventRuleInfo extends BaseEc2ScaleEventRuleInfo {
+  constructor(lambdaInfo: LambdaInfo) {
+    super();
+
+    const eventRule = this.createEventRule();
+    this.createEventTargetBackendDeliverySqsMapping(
+      "delete-mapping",
+      eventRule,
+      lambdaInfo,
+    );
+  }
+
+  private createEventRule() {
     const name = "ec2-instance-scale-down-event-rule";
 
-    const eventRule = new aws.cloudwatch.EventRule(name, {
+    return new aws.cloudwatch.EventRule(name, {
       name,
       description: "ASG 인스턴스 제거 상태 발생",
       eventPattern: JSON.stringify({
@@ -141,33 +188,6 @@ export default class RuleInfo extends AwsConfig {
           AutoScalingGroupName: [this.getBackendServerAutoScalingGroupName()],
         },
       }),
-    });
-
-    this.createBackendDeliveryRequestScaleDownQueueMappingEventTarget(
-      "delete-mapping",
-      eventRule,
-      lambdaInfo,
-    );
-  }
-
-  private createBackendDeliveryRequestScaleDownQueueMappingEventTarget(
-    prefix: string,
-    eventRule: EventRule,
-    lambdaInfo: LambdaInfo,
-  ) {
-    const functionArn =
-      lambdaInfo.functionInfo.backendDelivery.getRequestScaleDownQueueMappingFunctionArn();
-
-    new aws.lambda.Permission(`${prefix}-lambda-permission`, {
-      action: "lambda:InvokeFunction",
-      principal: "events.amazonaws.com",
-      sourceArn: eventRule.arn,
-      function: functionArn,
-    });
-
-    new aws.cloudwatch.EventTarget(`${prefix}-event-target`, {
-      rule: eventRule.name,
-      arn: functionArn,
     });
   }
 }
