@@ -1,5 +1,5 @@
 config:
-  aws:region: ap-northeast-1
+  aws:region: ap-northeast-2
   algo-trade-infra:rds_password:
     secure: AAABAFm5Zbm126tzPev99rkF3XfbLzwtNG1kZVTbJTC/xwOB4FA0jKM=
   algo-trade-infra:rds_username: postgres
