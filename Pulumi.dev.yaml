@@ -1,2 +1,8 @@
 config:
-  aws:region: ap-southeast-2
+  aws:region: ap-northeast-2
+  algo-trade-infra:rds_password:
+    secure: AAABAFm5Zbm126tzPev99rkF3XfbLzwtNG1kZVTbJTC/xwOB4FA0jKM=
+  algo-trade-infra:rds_username: postgres
+  algo-trade-infra:slack_url:
+    secure: AAABAKQynq3fFT9c7hc91j3gmHM1Qey0Y82nDvOBDkFgTORWva44Q6q7vQ70PlPJJhSEnox0Yk/cnft+b80xB3VedeXtqywYVz8PVPrb4rqAb8/88kdjDwhACJ8INebDrBnrV3AAZuXKYvkjETkm2dU=
+  algo-trade-infra:local_frontend_url: http://localhost:3000

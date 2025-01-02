@@ -1,9 +1,23 @@
-import * as pulumi from "@pulumi/pulumi";
-import * as aws from "@pulumi/aws";
-import * as awsx from "@pulumi/awsx";
+import BackendInfra from "./aws/backend_infra/BackendInfra";
+import BackendAppInfra from "./aws/backend_app_infra/BackendAppInfra";
+import CommonInfra from "./aws/common_infra/CommonInfra";
+import FrontendInfra from "./aws/frontend_infra/FrontendInfra";
 
-// Create an AWS resource (S3 Bucket)
-const bucket = new aws.s3.BucketV2("my-bucket");
-
-// Export the name of the bucket
-export const bucketName = bucket.id;
+const commonInfra = new CommonInfra();
+new BackendInfra(
+  [
+    new BackendAppInfra({
+      commonInfra,
+      appEnv: "test",
+      httpPort: 9090,
+    }),
+    new BackendAppInfra({
+      commonInfra,
+      appEnv: "prod",
+      httpPort: 8181,
+    }),
+  ],
+  commonInfra,
+);
+new FrontendInfra("test", commonInfra);
+new FrontendInfra("prod", commonInfra);
