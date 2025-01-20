@@ -10,7 +10,7 @@ export default class InstanceInfo extends AwsConfig {
     storageType: aws.rds.StorageType.GP2,
     storageEncrypted: true,
     allocatedStorage: 20,
-    backupRetentionPeriod: 7,
+    backupRetentionPeriod: 0,
     skipFinalSnapshot: true,
     performanceInsightsEnabled: true,
     performanceInsightsRetentionPeriod: 7,
