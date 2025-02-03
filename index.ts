@@ -8,16 +8,16 @@ new BackendInfra(
   [
     new BackendAppInfra({
       commonInfra,
-      appEnv: "test",
+      appEnv: "dev",
       httpPort: 9090,
     }),
     new BackendAppInfra({
       commonInfra,
-      appEnv: "prod",
+      appEnv: "prd",
       httpPort: 8181,
     }),
   ],
   commonInfra,
 );
-new FrontendInfra("test", commonInfra);
-new FrontendInfra("prod", commonInfra);
+new FrontendInfra("dev", commonInfra);
+new FrontendInfra("prd", commonInfra);

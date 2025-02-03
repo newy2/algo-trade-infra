@@ -1,2 +1,2 @@
-export const AppEnvs = ["test", "prod"] as const;
+export const AppEnvs = ["dev", "prd"] as const;
 export type AppEnv = (typeof AppEnvs)[number];

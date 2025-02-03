@@ -41,6 +41,7 @@ if docker images | grep "$${ecrUrl}" > /dev/null; then
 -e X_DB_USERNAME=$${dbUsername} \
 -e X_DB_PASSWORD=$${dbPassword} \
 -e X_FRONTEND_URLS=$${frontendUrl}${this.isDevMode() ? `,${this.getLocalFrontendUrl()}` : ""} \
+-e spring_profiles_active=${this.appEnv} \
 "$${ecrUrl}";
 else
   echo "[${this.appEnv}] Image not found. Container not started.";
